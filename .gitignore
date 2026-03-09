@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Cloned repositories for analysis (too large to commit)
+github/*/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+*.temp
+*.log
+
+# Environment
+.env
+.env.local
