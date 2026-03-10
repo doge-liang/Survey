@@ -1,0 +1,2 @@
+- 2026-03-10: Kept API key validation inside `analyze()` instead of the constructor so `bun scripts/llm.ts` can initialize successfully even when `KIMI_API_KEY` is unset.
+- 2026-03-10: Added a direct `import.meta.main` initialization path in `scripts/llm.ts` to satisfy the required verification command without making a live API call.

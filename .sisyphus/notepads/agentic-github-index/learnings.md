@@ -1,0 +1,3 @@
+- 2026-03-10: `scripts/llm.ts` uses native `fetch` against Kimi's OpenAI-compatible `/chat/completions` endpoint and accepts `LLMConfig` from `scripts/types.ts`.
+- 2026-03-10: Lightweight rate limiting is implemented by tracking `lastCallTime` and waiting up to a 1 second minimum interval before each `analyze()` request.
+- 2026-03-10: Retry behavior uses 3 attempts with exponential backoff of 1s/2s/4s for timeout, network, 408, 429, and 5xx failures.

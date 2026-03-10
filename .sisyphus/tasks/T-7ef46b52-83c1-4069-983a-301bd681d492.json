@@ -1,0 +1,10 @@
+{
+  "id": "T-7ef46b52-83c1-4069-983a-301bd681d492",
+  "subject": "Inspect broken analyzer tail",
+  "description": "Read the current tail of scripts/analyzer.ts and confirm the truncation/root cause before editing.",
+  "status": "completed",
+  "activeForm": "Inspecting the broken analyzer tail",
+  "blocks": [],
+  "blockedBy": [],
+  "threadID": "ses_32a146f4bffeQVuthig7aEOILB"
+}

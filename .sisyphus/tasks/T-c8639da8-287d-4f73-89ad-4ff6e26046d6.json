@@ -1,0 +1,12 @@
+{
+  "id": "T-c8639da8-287d-4f73-89ad-4ff6e26046d6",
+  "subject": "Implement scripts/analyzer.ts",
+  "description": "Create ProjectAnalyzer with project info collection, LLM prompt/response handling, cache support, and CLI flags.",
+  "status": "completed",
+  "activeForm": "Implementing scripts/analyzer.ts",
+  "blocks": [],
+  "blockedBy": [
+    "T-44b0371d-1608-4d98-b9f3-f0b19667abb9"
+  ],
+  "threadID": "ses_32a146f4bffeQVuthig7aEOILB"
+}

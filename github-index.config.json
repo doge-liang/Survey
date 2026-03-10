@@ -1,0 +1,11 @@
+{
+  "llm": {
+    "provider": "openai",
+    "baseURL": "https://api.moonshot.cn/v1",
+    "model": "moonshot-v1-8k",
+    "maxTokens": 2000,
+    "temperature": 0.3
+  },
+  "githubDir": "./github",
+  "outputFile": "./github/metadata.json"
+}

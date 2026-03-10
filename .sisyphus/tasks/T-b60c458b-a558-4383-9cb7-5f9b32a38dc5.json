@@ -1,0 +1,11 @@
+{
+  "id": "T-b60c458b-a558-4383-9cb7-5f9b32a38dc5",
+  "subject": "Verify llm client file and record learnings",
+  "description": "Run diagnostics and bun verification for scripts/llm.ts, then append findings to notepad files.",
+  "status": "completed",
+  "activeForm": "Verifying llm client file and recording learnings",
+  "blocks": [],
+  "blockedBy": [],
+  "repoURL": "D:/Workspace/Survey",
+  "threadID": "ses_32a1da957ffe022vOvD90Zckwu"
+}

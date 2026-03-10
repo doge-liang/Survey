@@ -1,0 +1,10 @@
+{
+  "id": "T-44b0371d-1608-4d98-b9f3-f0b19667abb9",
+  "subject": "Inspect analyzer dependencies and target project inputs",
+  "description": "Read existing TypeScript support files and sample project files needed to implement scripts/analyzer.ts.",
+  "status": "completed",
+  "activeForm": "Inspecting analyzer dependencies and target project inputs",
+  "blocks": [],
+  "blockedBy": [],
+  "threadID": "ses_32a146f4bffeQVuthig7aEOILB"
+}

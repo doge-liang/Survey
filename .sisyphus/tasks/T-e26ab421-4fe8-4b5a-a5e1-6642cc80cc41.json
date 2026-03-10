@@ -1,0 +1,11 @@
+{
+  "id": "T-e26ab421-4fe8-4b5a-a5e1-6642cc80cc41",
+  "subject": "Inspect existing LLM-related script types/config for integration",
+  "description": "Read scripts/types.ts and scripts/config.ts plus verify scripts directory exists before creating scripts/llm.ts.",
+  "status": "completed",
+  "activeForm": "Inspecting existing LLM-related script types/config for integration",
+  "blocks": [],
+  "blockedBy": [],
+  "repoURL": "D:/Workspace/Survey",
+  "threadID": "ses_32a1da957ffe022vOvD90Zckwu"
+}

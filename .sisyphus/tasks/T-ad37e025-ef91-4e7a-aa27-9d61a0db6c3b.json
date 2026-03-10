@@ -1,0 +1,11 @@
+{
+  "id": "T-ad37e025-ef91-4e7a-aa27-9d61a0db6c3b",
+  "subject": "Implement Kimi-backed LLMClient in scripts/llm.ts",
+  "description": "Create scripts/llm.ts with LLMClient, analyze(), rate limiting, timeout, retries, request handling, and a runnable initialization check.",
+  "status": "completed",
+  "activeForm": "Implementing Kimi-backed LLMClient in scripts/llm.ts",
+  "blocks": [],
+  "blockedBy": [],
+  "repoURL": "D:/Workspace/Survey",
+  "threadID": "ses_32a1da957ffe022vOvD90Zckwu"
+}

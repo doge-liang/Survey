@@ -1,0 +1,12 @@
+{
+  "id": "T-65ef7e7f-a578-42ca-b3a9-1081571cdf35",
+  "subject": "Verify analyzer CLI and diagnostics",
+  "description": "Run diagnostics on scripts/analyzer.ts and verify bun scripts/analyzer.ts --help behavior.",
+  "status": "completed",
+  "activeForm": "Verifying analyzer CLI and diagnostics",
+  "blocks": [],
+  "blockedBy": [
+    "T-19983731-4416-42e3-96eb-869271f5a173"
+  ],
+  "threadID": "ses_32a146f4bffeQVuthig7aEOILB"
+}

@@ -1,0 +1,1 @@
+- 2026-03-10: `.sisyphus/notepads/agentic-github-index/` did not exist yet; created the directory before recording task notes.
