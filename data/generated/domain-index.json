@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-03-11T14:32:58.890Z",
+  "domains": {
+    "leetcode": {
+      "id": "leetcode",
+      "title": "LeetCode 学习路径",
+      "file": "domains\\LeetCode\\learning-path.md",
+      "level": "beginner",
+      "parents": [],
+      "prerequisites": [],
+      "related": [],
+      "tags": []
+    },
+    "llm": {
+      "id": "llm",
+      "title": "大语言模型 (LLM)",
+      "file": "domains\\LLM\\index.md",
+      "level": "intermediate",
+      "parents": [],
+      "prerequisites": [],
+      "related": [],
+      "tags": [
+        "ai",
+        "llm",
+        "transformer",
+        "gpt",
+        "llama"
+      ]
+    }
+  },
+  "aliases": {
+    "LeetCode 学习路径": "leetcode",
+    "大语言模型 (LLM)": "llm"
+  },
+  "stats": {
+    "total_domains": 2,
+    "by_level": {
+      "beginner": 1,
+      "intermediate": 1,
+      "advanced": 0
+    }
+  }
+}
