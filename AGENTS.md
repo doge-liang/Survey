@@ -1,268 +1,229 @@
-# AGENTS.md - Survey 项目管理指南
+# AGENTS.md - Survey 项目指南
 
-## 项目描述
+## 项目概述
 
-本项目用于管理 Survey 相关的材料、文档和工作流程。主要内容包括：
-- 调研需求文档
-- 调研数据收集与整理
-- 分析报告与结果导出
-- 参考资料归档
-- GitHub 开源项目分析
-- 学术论文管理
+Survey 是一个调研材料管理项目，支持 GitHub 开源项目分析和学术论文管理。使用 TypeScript + Bun 构建。
+
+包含 4 个 OpenCode Skills 用于自动化调研工作流。
 
 ---
 
-## 文件组织结构
+## Build/Lint 命令
+
+### 运行脚本
+
+```bash
+# 更新 GitHub 项目索引
+bun scripts/update-github-index.ts
+
+# 分析单个项目
+bun scripts/analyzer.ts --project github/<project-name>
+
+# 分析单个项目（仅打印信息，不调用 LLM）
+bun scripts/analyzer.ts --project github/<project-name> --dry-run
+
+# 强制重新分析（忽略缓存）
+bun scripts/analyzer.ts --project github/<project-name> --force
+
+# 查看配置
+bun scripts/config.ts
+```
+
+### 类型检查
+
+```bash
+bun build --no-build scripts/update-github-index.ts
+```
+
+---
+
+## Survey Skills
+
+### Skills 概述
+
+| Skill | 用途 | 触发词示例 |
+|-------|------|-----------|
+| `github-researcher` | GitHub 项目调研 | "项目调研", "research this project" |
+| `paper-reader` | 论文阅读分析 | "论文阅读", "read this paper" |
+| `survey-synthesizer` | 调研合成对比 | "对比分析", "compare these" |
+| `domain-explorer` | 领域探索学习 | "领域探索", "explore domain" |
+
+### 使用方式
+
+在 OpenCode 对话中直接使用触发词：
+
+```
+研究一下 vercel/next.js
+阅读论文 https://arxiv.org/abs/2301.07041
+对比分析 React 和 Vue
+探索 RAG 领域
+```
+
+### 输出目录
+
+| Skill | 输出目录 |
+|-------|----------|
+| `github-researcher` | `github/{owner}-{repo}/README.md` |
+| `paper-reader` | `essay/{paper-id}/notes.md` |
+| `survey-synthesizer` | `survey/{topic}/comparison.md` |
+| `domain-explorer` | `domains/{domain}/learning-path.md` |
+
+---
+
+## 环境配置
+
+### 必需
+
+- Bun >= 1.0.0
+- Git
+
+### 环境变量
+
+```bash
+# LLM 分析（必需）
+KIMI_API_KEY=your-api-key
+
+# GitHub API（可选，提升限额 60 → 5000 req/hr）
+GITHUB_TOKEN=ghp_your_token
+
+# Semantic Scholar API（可选，提升限额 100 → 5000 req/5min）
+SEMANTIC_SCHOLAR_API_KEY=your_key
+```
+
+---
+
+## 代码风格指南
+
+### Imports 组织顺序
+
+1. Node.js 内置模块
+2. 第三方库（如有）
+3. 本地模块导入
+4. 类型导入（使用 `import type`）
+
+### 命名约定
+
+| 类型 | 风格 | 示例 |
+|------|------|------|
+| 类 | PascalCase | `ProjectAnalyzer` |
+| 函数/变量 | camelCase | `getProjectInfo` |
+| 常量 | SCREAMING_SNAKE_CASE | `SKIP_DIRS` |
+| 文件 | kebab-case | `update-github-index.ts` |
+
+### 类型定义
+
+- 使用 `interface` + JSDoc 定义对象类型
+- 使用 `type` 定义联合类型
+
+### 错误处理
+
+```typescript
+// 推荐：明确错误消息
+try {
+  const result = await riskyOperation();
+} catch (error) {
+  throw new Error(`Operation failed: ${error}`);
+}
+
+// 可接受：静默忽略需注释说明
+try {
+  return await readOptionalFile();
+} catch {
+  return undefined; // 文件不存在时返回 undefined
+}
+```
+
+### 代码格式
+
+- 缩进：2 空格
+- 字符串：双引号或模板字符串
+- 中英文混排：中英文之间加空格
+
+---
+
+## 目录结构
 
 ```
 .
-├── README.md              # 项目总览
-├── AGENTS.md             # 本文件 - Agent 工作指南
-├── github/               # GitHub 开源项目分析
-│   └── {project-name}/   # 按项目名组织
-├── essay/                # 学术论文
-│   └── {topic}/          # 按主题组织
-├── docs/                 # 文档资料
-│   ├── requirements/     # 需求文档
-│   ├── designs/          # 设计文档
-│   └── references/       # 参考资料
-├── data/                 # 数据文件
-│   ├── raw/              # 原始数据
-│   ├── processed/        # 处理后的数据
-│   └── exports/          # 导出结果
-├── scripts/              # 脚本工具
-├── templates/            # 文档模板
-└── archive/              # 归档文件
-```
-
----
-
-## 命名规范
-
-### 文件命名
-
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 文档 | 小写 + 连字符 | `survey-plan-2024.md` |
-| 日期 | `YYYYMMDD` 或 `YYYY-MM-DD` | `2024-03-15-report.md` |
-| 版本 | `v{n}` 后缀 | `requirements-v2.md` |
-| 论文 | `{作者}-{年份}-{关键词}` | `smith-2024-llm-survey.pdf` |
-
-### 目录命名
-
-- **全部小写**
-- **单数形式**: `doc/` 而非 `docs/`
-- **描述性名称**: `raw-data/` 而非 `temp/`
-- **GitHub 项目**: 使用 `owner/repo-name` 格式作为子目录名
-
----
-
-## Markdown 编写规范
-
-### 标题层级
-
-```markdown
-# 一级标题 - 文档标题（每文档仅一个）
-## 二级标题 - 主要章节
-### 三级标题 - 子章节
-#### 四级标题 - 细节说明
-```
-
-### 列表格式
-
-```markdown
-- 无序列表项
-  - 嵌套项（2空格缩进）
-  - 另一个嵌套项
-
-1. 有序列表
-2. 第二项
-```
-
-### 代码块
-
-```markdown
-行内代码使用 \`反引号\`
-
-代码块指定语言：
-\`\`\`typescript
-const example = "hello";
-\`\`\`
-```
-
-### 链接与引用
-
-```markdown
-[链接文本](URL)
-![图片描述](图片路径)
-
-> 引用内容
-> 多行引用
-```
-
-### 表格
-
-```markdown
-| 列1 | 列2 | 列3 |
-|-----|-----|-----|
-| 内容 | 内容 | 内容 |
+├── .opencode/skills/          # OpenCode Skills
+│   ├── github-researcher/     # GitHub 项目调研
+│   ├── paper-reader/          # 论文阅读
+│   ├── survey-synthesizer/    # 调研合成
+│   ├── domain-explorer/       # 领域探索
+│   └── README.md              # Skills 详细文档
+├── scripts/                   # TypeScript 脚本
+│   ├── update-github-index.ts
+│   ├── analyzer.ts
+│   ├── llm.ts
+│   ├── config.ts
+│   └── types.ts
+├── github/                    # GitHub 项目分析输出
+├── essay/                     # 论文笔记输出
+├── survey/                    # 调研合成输出
+├── domains/                   # 领域探索输出
+├── docs/                      # 文档资料
+├── data/                      # 数据文件
+└── archive/                   # 归档文件
 ```
 
 ---
 
 ## Git 提交规范
 
-### 提交信息格式
+### 格式
 
 ```
 type(scope): subject
-
-[可选 body]
-
-[可选 footer]
 ```
 
-### Type（必填）
+### Type
 
-| Type | 用途 | 示例 |
-|------|------|------|
-| `feat` | 新功能/新文档 | `feat(survey): 添加用户调研问卷` |
-| `fix` | 修复错误 | `fix(docs): 修正数据统计错误` |
-| `docs` | 文档更新（仅内容）| `docs(requirement): 更新调研目标` |
-| `refactor` | 代码/结构重构 | `refactor(data): 重组数据目录结构` |
-| `chore` | 杂项（配置、依赖等）| `chore: 更新项目配置` |
-
-### Scope（可选）
-
-| Scope | 描述 |
-|-------|------|
-| `survey` | 调研相关 |
-| `data` | 数据处理 |
-| `docs` | 文档相关 |
-| `scripts` | 脚本工具 |
-| `github` | GitHub 项目分析 |
-| `essay` | 论文相关 |
-
-### 示例
-
-```
-docs(survey): 添加 Q2 用户调研计划
-
-- 包含调研目标
-- 样本量计算
-- 时间安排
-```
-
-```
-feat(github): 添加 react-hook-form 项目分析
-
-分析内容：
-- 核心架构
-- API 设计模式
-- 性能优化策略
-```
-
-### 分支策略
-
-| 分支 | 用途 |
+| Type | 用途 |
 |------|------|
-| `main` | 主分支，稳定版本 |
-| `feature/*` | 功能分支 |
-| `draft/*` | 草稿分支 |
+| `feat` | 新功能/新文档 |
+| `fix` | 修复错误 |
+| `docs` | 文档更新 |
+| `refactor` | 重构 |
+| `chore` | 杂项 |
+
+### Scope
+
+`scripts` | `github` | `survey` | `essay` | `skills` | `data`
 
 ---
 
 ## Agent 工作准则
 
-### 1. 自动提交
+### 文档操作
 
-每次完成请求后，检查文件变化并提交：
+- 新建：小写+连字符命名
+- 编辑：保持原有风格
+- 删除：确认无引用
 
-```bash
-# 检查变更
-git status
-git diff
+### 脚本开发
 
-# 生成符合规范的 commit message
-# 格式: type(scope): subject
+- 遵循代码风格
+- 添加 JSDoc 注释
+- 完善错误处理
+- 避免 `any`
 
-# 提交并推送
-git add .
-git commit -m "type(scope): subject"
-git push
-```
+### 数据处理
 
-### 2. 文档操作
+- 原始 → `data/raw/`
+- 处理 → `data/processed/`
+- **禁止修改原始数据**
 
-- **新建文档**: 从 `templates/` 复制模板（如有）
-- **编辑文档**: 保持原有格式风格
-- **删除文档**: 确认无引用后再删除
-
-### 3. 数据处理
-
-- 原始数据放入 `data/raw/`
-- 处理后数据放入 `data/processed/`
-- 导出结果放入 `data/exports/`
-- **禁止修改原始数据文件**
-
-### 4. GitHub 项目分析
-
-分析 GitHub 项目时，在 `github/{owner}-{repo}/` 下创建：
-- `README.md` - 项目概述
-- `analysis.md` - 详细分析
-- `notes.md` - 个人笔记
-
-### 5. 论文管理
-
-管理论文时，在 `essay/{topic}/` 下创建：
-- `{paper-name}.pdf` - 原始论文
-- `{paper-name}-notes.md` - 阅读笔记
-- `summary.md` - 主题总结
-
----
-
-## 工具与命令
-
-### 常用命令
+### 自动提交
 
 ```bash
-# 查看项目结构
-ls -la
-
-# 搜索文件内容
-grep -r "关键词" docs/
-
-# 创建新目录
-mkdir -p path/to/directory
-
-# 文件操作
-cp source dest    # 复制
-mv source dest    # 移动/重命名
-rm file           # 删除
-```
-
-### Git 常用命令
-
-```bash
-# 状态查看
-git status
-git log --oneline -10
-
-# 分支操作
-git branch feature/new-survey
-git checkout feature/new-survey
-
-# 提交操作
-git add .
-git commit -m "type(scope): subject"
-git push origin HEAD
+git add . && git commit -m "type(scope): subject" && git push
 ```
 
 ---
 
 ## 注意事项
 
-1. **不要提交敏感信息**: 密码、API Key、个人信息等
-2. **保持目录整洁**: 及时归档过期内容到 `archive/`
-3. **文档即代码**: 遵循版本控制最佳实践
-4. **中英文混排**: 中英文之间加空格，如 "使用 React 框架"
+1. 不提交敏感信息（API Key、密码等）
+2. 及时归档过期内容到 `archive/`
+3. 中英文之间加空格
+4. `github/*/` 已加入 `.gitignore`
