@@ -81,6 +81,51 @@ GITHUB_TOKEN=ghp_your_token
 # Semantic Scholar API（可选，提升限额 100 → 5000 req/5min）
 SEMANTIC_SCHOLAR_API_KEY=your_key
 ```
+---
+
+## 同步机制
+
+### 项目注册表
+
+所有已调研的项目记录在 `data/repos.json`，包含：
+- 项目 URL 和元数据
+- 克隆时间和最后 commit
+- Tags 和难度级别
+
+### 同步命令
+
+```bash
+# 同步所有项目（clone 或 pull）
+bun scripts/sync-repos.ts
+
+# 检查哪些项目有更新
+bun scripts/sync-repos.ts --check
+
+# 只克隆缺失的项目
+bun scripts/sync-repos.ts --clone
+
+# 只拉取已有项目
+bun scripts/sync-repos.ts --pull
+
+# 同步单个项目
+bun scripts/sync-repos.ts vercel/next.js
+```
+
+### 自然语言触发
+
+在 OpenCode 对话中可以直接说：
+- "同步所有项目" - 调用同步脚本
+- "检查更新" - 检查版本变化
+- "更新 next.js 分析" - 拉取并重新分析
+
+### 新机器初始化
+
+```bash
+# 1. 克隆 Survey 仓库
+git clone <repo-url>
+
+# 2. 同步所有 GitHub 项目
+```
 
 ---
 

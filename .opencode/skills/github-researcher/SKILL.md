@@ -1,8 +1,7 @@
 ---
 name: github-researcher
 description: |
-  Deep research and analysis of GitHub projects. Use when the user asks to research, analyze, or understand GitHub repositories. Triggers: "research this project", "analyze repo", "项目调研", "GitHub 分析", "deep dive into", "understand this codebase", "技术栈分析", "架构分析". Can analyze by URL, project name, or topic search. Outputs structured reports to github/{owner}-{repo}/README.md.
----
+  Deep research and analysis of GitHub projects. Use when the user asks to research, analyze, or understand GitHub repositories. Triggers: "research this project", "analyze repo", "项目调研", "GitHub 分析", "deep dive into", "understand this codebase", "技术栈分析", "架构分析", "研究", "更新项目", "同步所有项目", "检查更新". Can analyze by URL, project name, or topic search. Outputs structured reports to github/{owner}-{repo}/README.md. Supports project registry sync via data/repos.json.
 
 # GitHub Researcher
 
@@ -21,6 +20,10 @@ Analyze the user's request to determine the research mode:
 | Topic keywords (`vector database`, `LLM inference`) | `TOPIC_SEARCH` | Search GitHub, list relevant repos |
 | "similar to X" or "alternatives to X" | `DISCOVERY` | Find related projects |
 | "compare X and Y" | `COMPARISON` | Analyze multiple repos in parallel |
+| "研究 xxx" / "research xxx" | `NEW` | Clone + analyze new project |
+| "更新 xxx" / "update xxx" | `UPDATE` | Pull latest + re-analyze |
+| "同步所有项目" / "sync all repos" | `SYNC_ALL` | Execute sync script |
+| "检查更新" / "check updates" | `CHECK_UPDATES` | Check version changes |
 
 **CRITICAL**: Detect the mode FIRST before any data fetching.
 
@@ -32,7 +35,24 @@ Analyze the user's request to determine the research mode:
 ### 0.1 Parse Input
 
 ```
-IF input contains "github.com/":
+IF input contains "同步所有项目" or "sync all repos":
+  -> MODE = SYNC_ALL
+  -> Execute: bun scripts/sync-repos.ts
+
+ELSE IF input contains "检查更新" or "check updates":
+  -> MODE = CHECK_UPDATES
+  -> Execute: bun scripts/sync-repos.ts --check
+
+ELSE IF input contains "更新" or "update":
+  -> MODE = UPDATE
+  -> Extract project name
+  -> Pull latest + re-analyze
+
+ELSE IF input contains "研究" or "research" or "分析":
+  -> MODE = NEW
+  -> Continue to standard flow
+
+ELSE IF input contains "github.com/":
   -> Extract: owner, repo
   -> Validate: both non-empty
   -> MODE = SINGLE_REPO
@@ -378,12 +398,75 @@ Before finalizing, verify:
 
 ---
 
-## PHASE 4: Extended Discovery (Optional)
+## PHASE 4: Registry Update
+
+<registry>
+**After generating README.md, update the project registry:**
+
+### 4.1 Update data/repos.json
+
+```
+Add or update entry in data/repos.json:
+
+{
+  "id": "{owner}-{repo}",
+  "url": "https://github.com/{owner}/{repo}",
+  "owner": "{owner}",
+  "repo": "{repo}",
+  "description": "[Brief description]",
+  "stars": [N],
+  "tags": ["tag1", "tag2"],
+  "level": "beginner|intermediate|advanced",
+  "cloned_at": "[ISO date]",
+  "last_commit": "[commit sha]"
+}
+```
+
+### 4.2 Sync Operations
+
+**Sync all projects:**
+```bash
+# User says "同步所有项目"
+bun scripts/sync-repos.ts
+```
+
+**Check for updates:**
+```bash
+# User says "检查哪些项目有更新"
+bun scripts/sync-repos.ts --check
+```
+
+**Update single project:**
+```bash
+# User says "更新 next.js 的分析"
+cd github/vercel-nextjs && git pull --rebase
+# Then re-analyze and regenerate README.md
+```
+
+### 4.3 Registry Entry Fields
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique identifier: `{owner}-{repo}` |
+| `url` | GitHub repository URL |
+| `owner` | Repository owner |
+| `repo` | Repository name |
+| `description` | Brief project description |
+| `stars` | Star count at analysis time |
+| `tags` | Category tags |
+| `level` | Complexity: beginner, intermediate, advanced |
+| `cloned_at` | ISO timestamp when cloned |
+| `last_commit` | Latest commit SHA analyzed |
+</registry>
+
+---
+
+## PHASE 5: Extended Discovery (Optional)
 
 <discovery>
 **Only execute if user requests or time permits:**
 
-### 4.1 Related Projects Research
+### 5.1 Related Projects Research
 
 ```
 Use websearch_web_search_exa:
@@ -395,7 +478,7 @@ Find:
   - Recommendation based on use case
 ```
 
-### 4.2 Deep Code Dive
+### 5.2 Deep Code Dive
 
 ```
 Use grep_app_searchGitHub to find:
@@ -406,7 +489,7 @@ Use grep_app_searchGitHub to find:
 Document findings in analysis.md
 ```
 
-### 4.3 Community Analysis
+### 5.3 Community Analysis
 
 ```
 Check:
