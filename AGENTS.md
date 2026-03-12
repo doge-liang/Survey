@@ -127,6 +127,37 @@ git clone <repo-url>
 # 2. 同步所有 GitHub 项目
 ```
 
+### 检查仓库重命名
+
+GitHub 仓库可能被重命名（如 `oh-my-opencode` → `oh-my-openagent`）。使用以下命令检测和更新：
+
+```bash
+# 检查所有仓库的重命名状态
+bun scripts/sync-repos.ts --update-registry
+
+# 检查重命名并同时更新本地目录名
+bun scripts/sync-repos.ts --update-registry --rename-dirs
+```
+
+#### 自然语言触发
+
+在 OpenCode 对话中可以直接说：
+- "检查哪些仓库被重命名了"
+- "更新项目注册表"
+- "项目改名了"
+
+#### 输出示例
+
+```
+检查仓库重命名...
+
+✓ vercel/next.js - 无变化
+⚠ oh-my-opencode → oh-my-openagent (已更新)
+✓ langchain-ai/langchain - 无变化
+
+统计：1 个仓库已重命名，已更新 repos.json
+```
+
 ---
 
 ## 代码风格指南

@@ -9,6 +9,8 @@
  *   bun scripts/sync-repos.ts --clone      # only clone missing repos
  *   bun scripts/sync-repos.ts --pull       # only pull existing repos
  *   bun scripts/sync-repos.ts <owner/repo> # sync a single repo
+ *   bun scripts/sync-repos.ts --update-registry  # check for repo renames
+ *   bun scripts/sync-repos.ts --update-registry --rename-dirs  # also rename local dirs
  *   bun scripts/sync-repos.ts --help       # show this help
  */
 
@@ -26,6 +28,7 @@ interface Repo {
   tags?: string[];
   cloned_at?: string;
   last_commit?: string;
+  renamed_at?: string;
 }
 
 interface RepoRegistry {
@@ -48,6 +51,8 @@ const isCheck = args.includes("--check");
 const isClone = args.includes("--clone");
 const isPull = args.includes("--pull");
 const isHelp = args.includes("--help") || args.includes("-h");
+const isUpdateRegistry = args.includes("--update-registry");
+const isRenameDirs = args.includes("--rename-dirs");
 
 // Find single repo (format: owner/repo)
 const singleRepo = args.find(a => a.includes("/") && !a.startsWith("-")) || null;
@@ -65,6 +70,8 @@ Usage:
   bun scripts/sync-repos.ts --clone      # only clone missing repos
   bun scripts/sync-repos.ts --pull       # only pull existing repos
   bun scripts/sync-repos.ts <owner/repo> # sync a single repo
+  bun scripts/sync-repos.ts --update-registry  # check for repo renames
+  bun scripts/sync-repos.ts --update-registry --rename-dirs  # also rename local dirs
   bun scripts/sync-repos.ts --help       # show this help
 
 Output:
@@ -359,6 +366,165 @@ async function checkRepoUpdates(
 }
 
 /**
+ * Check if a repo has been renamed/moved
+ */
+async function checkRepoRedirect(
+  owner: string,
+  repo: string
+): Promise<{ renamed: boolean; newOwner?: string; newRepo?: string }> {
+  const url = `https://github.com/${owner}/${repo}`;
+  
+  try {
+    const response = await fetch(url, {
+      redirect: "manual",
+      headers: { "User-Agent": "Survey-Sync" },
+    });
+    
+    if (response.status === 301 || response.status === 302) {
+      const location = response.headers.get("location");
+      if (location) {
+        const match = location.match(/github\.com\/([^\/]+)\//);
+        const newOwner = match?.[1];
+        
+        let newRepo = "";
+        if (location.includes("?")) {
+          const repoMatch = location.match(/github\.com\/[^\/]+\/([^?]+)/);
+          newRepo = repoMatch?.[1] || "";
+        } else {
+          const parts = location.replace("https://github.com/", "").split("/");
+          newRepo = parts.slice(1).join("/");
+        }
+        
+        newRepo = newRepo.replace(/\.git$/, "");
+        
+        if (newOwner && newRepo && (newOwner !== owner || newRepo !== repo)) {
+          return { renamed: true, newOwner, newRepo };
+        }
+      }
+    }
+    
+    return { renamed: false };
+  } catch {
+    return { renamed: false };
+  }
+}
+
+/**
+ * Rename a local directory
+ */
+async function renameLocalDir(
+  oldOwner: string,
+  oldRepo: string,
+  newOwner: string,
+  newRepo: string
+): Promise<boolean> {
+  const oldDir = getRepoDir(oldOwner, oldRepo);
+  const newDir = getRepoDir(newOwner, newRepo);
+  
+  if (!fs.existsSync(oldDir)) {
+    console.log(`   ⚠️  Source directory not found: ${oldDir}`);
+    return false;
+  }
+  
+  if (fs.existsSync(newDir)) {
+    console.log(`   ⚠️  Target directory already exists: ${newDir}`);
+    return false;
+  }
+  
+  try {
+    fs.renameSync(oldDir, newDir);
+    console.log(`   ✓ Renamed: ${oldDir} → ${newDir}`);
+    return true;
+  } catch (error) {
+    console.log(`   ✗ Failed to rename: ${error}`);
+    return false;
+  }
+}
+
+/**
+ * Update repo entry in registry after rename
+ */
+function updateRepoEntryAfterRename(
+  registry: RepoRegistry,
+  oldOwner: string,
+  oldRepo: string,
+  newOwner: string,
+  newRepo: string
+): void {
+  const oldId = `${oldOwner}-${oldRepo}`.replace(/\//g, "-");
+  const newId = `${newOwner}-${newRepo}`.replace(/\//g, "-");
+  
+  const entry = registry.repos.find(r => r.id === oldId);
+  
+  if (entry) {
+    entry.owner = newOwner;
+    entry.repo = newRepo;
+    entry.url = `https://github.com/${newOwner}/${newRepo}`;
+    entry.id = newId;
+    entry.renamed_at = new Date().toISOString();
+    
+    console.log(`   ✓ Updated: ${oldOwner}/${oldRepo} → ${newOwner}/${newRepo}`);
+  }
+}
+
+/**
+ * Check all repos for renames
+ */
+async function checkAllRepoRenames(
+  registry: RepoRegistry
+): Promise<Array<{
+  oldOwner: string;
+  oldRepo: string;
+  newOwner: string;
+  newRepo: string;
+  dirRenamed: boolean;
+}>> {
+  const results: Array<{
+    oldOwner: string;
+    oldRepo: string;
+    newOwner: string;
+    newRepo: string;
+    dirRenamed: boolean;
+  }> = [];
+  
+  console.log("🔍 检查仓库重命名...\n");
+  
+  for (const repo of registry.repos) {
+    const fullName = `${repo.owner}/${repo.repo}`;
+    const result = await checkRepoRedirect(repo.owner, repo.repo);
+    
+    if (result.renamed && result.newOwner && result.newRepo) {
+      console.log(`⚠️  ${fullName} → ${result.newOwner}/${result.newRepo}`);
+      
+      // Save old owner/repo before updating registry
+      const oldOwner = repo.owner;
+      const oldRepo = repo.repo;
+      
+      // Update registry
+      updateRepoEntryAfterRename(registry, oldOwner, oldRepo, result.newOwner, result.newRepo);
+      
+      // Optionally rename local dir
+      let dirRenamed = false;
+      if (isRenameDirs) {
+        dirRenamed = await renameLocalDir(oldOwner, oldRepo, result.newOwner, result.newRepo);
+      }
+      
+      results.push({
+        oldOwner,
+        oldRepo,
+        newOwner: result.newOwner,
+        newRepo: result.newRepo,
+        dirRenamed,
+      });
+    } else {
+      console.log(`✓ ${fullName} - 无变化`);
+    }
+  }
+  
+  return results;
+}
+
+/**
  * Main function
  */
 async function main(): Promise<void> {
@@ -433,6 +599,27 @@ async function main(): Promise<void> {
       
       results.push({ owner: repo.owner, repo: repo.repo, status, message });
     }
+  } else if (isUpdateRegistry) {
+    // Update registry mode - check for repo renames
+    const renameResults = await checkAllRepoRenames(registry);
+    
+    // Save registry
+    saveRepos(registry);
+    console.log(`\n✅ Registry updated: ${REPOS_FILE}`);
+    
+    // Summary
+    const renamedCount = renameResults.length;
+    const dirRenamedCount = renameResults.filter(r => r.dirRenamed).length;
+    
+    if (isRenameDirs) {
+      console.log(`\n统计：${renamedCount} 个仓库已重命名，${dirRenamedCount} 个本地目录已重命名`);
+    } else {
+      console.log(`\n统计：${renamedCount} 个仓库已重命名，已更新 repos.json`);
+      console.log(`\n提示：使用 --rename-dirs 同时重命名本地目录`);
+    }
+    
+    console.log("");
+    return;
   } else {
     // Sync mode
     for (const repo of reposToProcess) {
