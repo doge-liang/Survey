@@ -180,20 +180,24 @@ try {
 
 ## 目录结构
 
-```
-.
 ├── .opencode/skills/          # OpenCode Skills
 │   ├── github-researcher/     # GitHub 项目调研
 │   ├── paper-reader/          # 论文阅读
 │   ├── survey-synthesizer/    # 调研合成
 │   ├── domain-explorer/       # 领域探索
 │   └── README.md              # Skills 详细文档
-├── github/                    # GitHub 项目分析输出
+├── scripts/                   # TypeScript 脚本
+│   ├── sync-repos.ts          # 项目同步
+│   └── generate-domain-index.ts # 领域索引生成
+├── data/                      # 数据文件
+│   ├── repos.json             # 项目注册表
+│   └── generated/             # 自动生成的索引
+├── domains/                   # 领域探索输出
+│   └── LLM/                   # LLM 学习路径
+├── github/                    # GitHub 项目分析输出（gitignore）
 ├── essay/                     # 论文笔记输出
 ├── survey/                    # 调研合成输出
-├── domains/                   # 领域探索输出
 ├── docs/                      # 文档资料
-├── data/                      # 数据文件
 └── archive/                   # 归档文件
 ```
 

@@ -183,6 +183,13 @@ Survey/
 │       └── learning-path.md   # 学习路径
 │
 ├── scripts/                   # TypeScript 脚本
+│   ├── sync-repos.ts          # 项目同步脚本
+│   └── generate-domain-index.ts # 领域索引生成
+│
+├── data/                      # 数据文件
+│   ├── repos.json             # 项目注册表
+│   └── generated/             # 自动生成的索引
+
 │   ├── update-github-index.ts # 更新 GitHub 索引
 │   ├── analyzer.ts            # 项目分析器
 │   └── llm.ts                 # LLM 客户端
@@ -223,7 +230,103 @@ Survey/
 
 ---
 
-## 开发
+## 多端同步
+
+本项目支持通过 Git 实现多端数据同步。
+
+### 项目注册表
+
+所有已调研的项目记录在 `data/repos.json`，包含：
+- 项目 URL 和元数据
+- 克隆时间和最后 commit
+- Tags 和难度级别
+
+### 同步命令
+
+```bash
+# 同步所有项目（clone 或 pull）
+bun scripts/sync-repos.ts
+
+# 检查哪些项目有更新
+bun scripts/sync-repos.ts --check
+
+# 只克隆缺失的项目
+bun scripts/sync-repos.ts --clone
+
+# 只拉取已有项目
+bun scripts/sync-repos.ts --pull
+
+# 同步单个项目
+bun scripts/sync-repos.ts vercel/next.js
+```
+
+### 新机器初始化
+
+```bash
+# 1. 克隆 Survey 仓库
+git clone <repo-url>
+
+# 2. 同步所有 GitHub 项目
+bun scripts/sync-repos.ts
+```
+
+---
+
+## 许可证
+
+MIT
+
+
+## 多端同步
+
+本项目支持通过 Git 实现多端数据同步。
+
+
+
+本项目支持通过 Git 实现多端数据同步。
+
+### 项目注册表
+
+所有已调研的项目记录在 `data/repos.json`，包含：
+- 项目 URL 和元数据
+- 克隆时间和最后 commit
+- Tags 和难度级别
+
+### 同步命令
+
+```bash
+# 同步所有项目（clone 或 pull）
+bun scripts/sync-repos.ts
+
+# 检查哪些项目有更新
+bun scripts/sync-repos.ts --check
+
+# 只克隆缺失的项目
+bun scripts/sync-repos.ts --clone
+
+# 只拉取已有项目
+bun scripts/sync-repos.ts --pull
+
+# 同步单个项目
+bun scripts/sync-repos.ts vercel/next.js
+```
+
+### 新机器初始化
+
+```bash
+# 1. 克隆 Survey 仓库
+git clone <repo-url>
+
+# 2. 同步所有 GitHub 项目
+bun scripts/sync-repos.ts
+```
+
+---
+
+## 许可证
+
+MIT
+
 
 ### 运行脚本
 
