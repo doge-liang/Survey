@@ -77,6 +77,10 @@ bugs~3                                                    # Fuzzy match (edit di
 "blue lake" ~3                                            # Proximity search
 ```
 
+**Search Result Ranking:** Results are ranked by Semantic Scholar's custom-trained relevance algorithm, combining text similarity, citation count, and paper importance. To find most-cited papers, sort results client-side by `citationCount`.
+
+```
+
 ### 2. Get Paper Details
 
 **Endpoint:** `GET /paper/{paper_id}`
@@ -126,6 +130,9 @@ curl "https://api.semanticscholar.org/graph/v1/paper/{paper_id}/citations?fields
 
 # Get references
 curl "https://api.semanticscholar.org/graph/v1/paper/{paper_id}/references?fields=title,authors,year&limit=100"
+```
+
+**⚠️ Important:** Citations and references endpoints return results sorted by **relevance**, not by citation count or year. To get "most cited" papers, fetch all results and sort client-side by `citationCount`.
 ```
 
 ### 4. Get Paper Recommendations
