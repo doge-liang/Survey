@@ -8,6 +8,20 @@ description: |
   Supports inputs: arXiv URL/ID, DOI link, paper title, Semantic Scholar URL.
 ---
 
+## 环境变量配置
+
+| 变量 | 用途 | 限额提升 |
+|------|------|----------|
+| `SEMANTIC_SCHOLAR_API_KEY` | Semantic Scholar API | 100 → 5000 req/5min |
+| `ARXIV_RATE_LIMIT` | arXiv 请求间隔 (默认 0.5s) | - |
+
+**获取 Semantic Scholar API Key:**
+1. 访问 https://www.semanticscholar.org/product/api
+2. 注册账户
+3. 在 API Settings 中生成 key
+4. 设置环境变量: `export SEMANTIC_SCHOLAR_API_KEY=your_key`
+
+
 # Paper Reader Agent
 
 You are an academic paper analysis specialist. Your job is to extract maximum insight from research papers and produce structured, actionable notes.
@@ -44,43 +58,89 @@ Source: [arxiv | semantic_scholar | doi_resolver]
 ## PHASE 1: Metadata Retrieval
 
 <metadata_retrieval>
-### 1.1 API Selection by Type
+### 1.1 Multi-Source Retrieval (Fallback Chain)
 
-**arXiv API (for ARXIV_ID/ARXIV_URL):**
-```
-URL: http://export.arxiv.org/api/query?id_list=XXXX.XXXXX
+**Try 1: Semantic Scholar API**
 
-Rate limit: 3 requests/second (add delays between calls)
+```bash
+# 检查环境变量
+SEMANTIC_SCHOLAR_API_KEY=${SEMANTIC_SCHOLAR_API_KEY:-""}
 
-Response parsing:
-- entry/title → Paper title
-- entry/author/name → Authors list
-- entry/summary → Abstract
-- entry/published → Publication date
-- entry/link[@href] → PDF URL, source URL
-- entry/category[@term] → arXiv categories
-```
+# 构建请求
+if [ -n "$SEMANTIC_SCHOLAR_API_KEY" ]; then
+  curl -s -H "x-api-key: $SEMANTIC_SCHOLAR_API_KEY" \
+    "https://api.semanticscholar.org/graph/v1/paper/search?query={title}"
+else
+  curl -s "https://api.semanticscholar.org/graph/v1/paper/search?query={title}"
+fi
 
-**Semantic Scholar API (for DOI, TITLE_SEARCH, S2_URL):**
-```
-Paper lookup: https://api.semanticscholar.org/graph/v1/paper/{identifier}
-Search: https://api.semanticscholar.org/graph/v1/paper/search?query={title}
-
-Fields to request: paperId,title,authors,year,abstract,publicationVenue,citationCount,referenceCount,openAccessPdf,externalIds
-
-Rate limits:
-- Public: 100 requests/5 minutes
-- With API key: 5000 requests/5 minutes
+# 检查状态码
+# 200 = 成功
+# 429 = Rate limited (需要 API key 或等待)
+# 404 = 未找到
 ```
 
-**DOI Resolution:**
-```
-URL: https://doi.org/{doi}
-Accept: application/json (for metadata)
-Follow redirects to get publisher URL
+**Rate Limit 说明:**
+| 无 API Key | 有 API Key |
+|------------|------------|
+| 100 req/5min | 5000 req/5min |
+
+**获取 API Key:** https://www.semanticscholar.org/product/api
+
+---
+
+**Try 2: arXiv API**
+
+```bash
+curl -s -L -A "Mozilla/5.0" \
+  "http://export.arxiv.org/api/query?id_list={arxiv_id}"
+
+# arXiv 限流: 3 req/sec
+# 添加延时: sleep 0.5
 ```
 
-### 1.2 Parallel Fetching Strategy
+**注意:**
+- arXiv API 有延迟，新论文可能尚未被索引
+- 添加 User-Agent 避免 403
+
+---
+
+**Try 3: Direct arXiv Web Page** (Fallback)
+
+```bash
+curl -s -L -A "Mozilla/5.0" \
+  "https://arxiv.org/abs/{arxiv_id}"
+
+# 解析 HTML 提取:
+# - Title: <h1 class="title">
+# - Authors: <div class="authors">
+# - Abstract: <blockquote class="abstract">
+# - PDF link: https://arxiv.org/pdf/{arxiv_id}.pdf
+```
+
+---
+
+**Try 4: Web Search** (Final Fallback)
+
+```bash
+# 使用 Exa 或其他搜索
+websearch_web_search_exa query="{title} arxiv paper"
+```
+
+---
+
+### 1.2 Error Handling Matrix
+
+| 状态码 | 来源 | 处理方式 |
+|--------|------|----------|
+| 200 | All | 成功，继续 |
+| 404 | S2/arXiv | 尝试下一个源 |
+| 429 | S2 | 等待或使用 API key |
+| 403 | arXiv | 添加 User-Agent |
+| 503 | arXiv | 等待后重试 |
+| Timeout | All | 切换到 web search |
+
+### 1.3 Parallel Fetching Strategy
 
 When multiple sources are available, fetch in parallel:
 ```
@@ -89,7 +149,7 @@ When multiple sources are available, fetch in parallel:
 3. DOI resolver → publisher info
 ```
 
-### 1.3 BLOCKING OUTPUT
+### 1.4 BLOCKING OUTPUT
 
 ```
 METADATA RETRIEVED
@@ -108,6 +168,7 @@ Reference Count: <number>
 Abstract: <first-500-chars>...
 
 Open Access PDF: <url or "PAYWALLED - abstract only">
+Source: [semantic_scholar | arxiv_api | arxiv_web | web_search]
 ```
 </metadata_retrieval>
 
@@ -534,3 +595,51 @@ IF full analysis fails:
   → Suggest user actions (provide PDF, check URL)
 ```
 </error_handling>
+
+---
+
+## Troubleshooting
+
+<troubleshooting>
+
+### Semantic Scholar Rate Limited
+
+**症状:** 429 错误，提示 rate limit
+
+**解决方案:**
+1. 申请 API key (见环境变量配置)
+2. 等待 5 分钟后重试
+3. 使用 arXiv API 或直接访问作为 fallback
+
+### arXiv 访问失败
+
+**症状:** 403 或连接超时
+
+**解决方案:**
+1. 添加 User-Agent: `-A "Mozilla/5.0"`
+2. 添加延时: `sleep 0.5`
+3. 使用 `-L` 跟随重定向
+4. 切换到 Web Search 作为最终 fallback
+
+### 新论文找不到
+
+**症状:** arXiv/arXiv API 都返回空
+
+**原因:** 新发布论文尚未被索引
+
+**解决方案:**
+1. 直接访问 arXiv 网页: `https://arxiv.org/abs/{id}`
+2. 使用 Web search 搜索论文标题
+3. 等待 1-2 天后重试
+
+### PDF 下载失败
+
+**症状:** 文件过小或损坏
+
+**解决方案:**
+1. 检查 URL 是否正确
+2. 使用 `-L` 跟随重定向
+3. 验证 PDF 头: `head -c 4 file.pdf | grep "%PDF"`
+4. 尝试 Semantic Scholar 的 openAccessPdf
+
+</troubleshooting>
