@@ -111,6 +111,63 @@ Open Access PDF: <url or "PAYWALLED - abstract only">
 ```
 </metadata_retrieval>
 
+## PHASE 1.5: PDF Download
+
+<pdf_download>
+**Mandatory: Download PDF to local directory**
+
+### 1.5.1 Determine PDF Source
+
+| Source | PDF URL Pattern |
+|--------|-----------------|
+| arXiv | `https://arxiv.org/pdf/{arxiv_id}.pdf` |
+| Semantic Scholar | Use `openAccessPdf` field |
+| DOI | Resolve to publisher, check for open access |
+
+### 1.5.2 Download Command
+
+```bash
+# Create directory
+mkdir -p essay/{paper-id}/
+
+# Download PDF
+curl -L -o essay/{paper-id}/paper.pdf "{pdf_url}"
+
+# Example for arXiv
+curl -L -o essay/1706.03762/paper.pdf "https://arxiv.org/pdf/1706.03762.pdf"
+```
+
+### 1.5.3 Handle Paywalled Papers
+
+IF no open access PDF available:
+1. Note in metadata.json: `"pdf_available": false`
+2. Proceed with abstract-only analysis
+3. Suggest alternative sources:
+   - Author website
+   - ResearchGate
+   - Sci-Hub (with legal disclaimer)
+
+### 1.5.4 Verify Download
+
+```bash
+# Check file size (should be > 100KB for real PDF)
+ls -la essay/{paper-id}/paper.pdf
+
+# Verify PDF header
+head -c 4 essay/{paper-id}/paper.pdf | grep "%PDF"
+```
+
+**OUTPUT (BLOCKING):**
+```
+PDF DOWNLOAD
+============
+Status: [SUCCESS | PAYWALLED | FAILED]
+File: essay/{paper-id}/paper.pdf
+Size: XXX KB
+```
+</pdf_download>
+
+---
 ---
 
 ## PHASE 2: Paper Analysis
@@ -123,6 +180,9 @@ IF openAccessPdf exists OR arXiv PDF available:
   → FULL_TEXT analysis possible
 ELSE:
   → ABSTRACT_ONLY analysis (acknowledge limitation)
+
+**Prerequisite**: PDF must be downloaded in Phase 1.5
+IF PDF unavailable: Use abstract + web search for paper summaries
 ```
 
 ### 2.2 Analysis Depth by Access
@@ -288,12 +348,11 @@ MEDIUM PRIORITY:
 <notes_generation>
 ### 5.1 Output Directory
 
-```
 essay/{paper-id}/
+├── paper.pdf     # PDF 文件
 ├── notes.md      # Main reading notes
 ├── metadata.json # Structured metadata
 └── citations.md  # Citation analysis
-```
 
 ### 5.2 Paper ID Normalization
 
@@ -361,8 +420,9 @@ Semantic Scholar: s2-{paperId}
   "citation_count": "number",
   "reference_count": "number",
   "open_access": "boolean",
+  "pdf_available": "boolean",
+  "pdf_path": "string | null",
   "pdf_url": "string | null",
-  "publication_venue": "string | null",
   "abstract": "string",
   "categories": ["string"],
   "fetched_at": "ISO-date"
