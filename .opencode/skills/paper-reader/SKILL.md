@@ -574,6 +574,8 @@ Enables: Higher rate limits, batch endpoints
 | Recommendations | `GET https://api.semanticscholar.org/recommendations/v1/papers/forpaper/{id}` |
 | DOI resolve | `GET https://doi.org/{doi}` (Accept: application/json) |
 
+**REQUIRED:** For detailed Semantic Scholar API usage including batch endpoints, pagination, and error handling, see `semantic-scholar-api` skill.
+
 ---
 
 ## Error Handling
