@@ -228,7 +228,110 @@ Size: XXX KB
 ```
 </pdf_download>
 
----
+## PHASE 1.6: PDF Text Extraction
+
+<pdf_extraction>
+**Extract text from downloaded PDF for analysis.**
+
+### 1.6.1 Library Selection (Priority Order)
+
+| PDF Type | Library | Rationale | Command |
+|----------|---------|-----------|----------|
+| Standard text PDF | **PyMuPDF (fitz)** | Fast, accurate, minimal deps | `pip install pymupdf` |
+| Scanned document | PyMuPDF + OCR | Built-in Tesseract | `fitz.open().get_textpage_ocr()` |
+| Complex layout | marker-pdf | Multi-column, figures | `pip install marker-pdf` |
+| Tables-heavy | pdfplumber | Superior table extraction | `pip install pdfplumber` |
+
+**推荐使用 PyMuPDF (fitz)**：学术论文提取的最佳选择，速度和准确率最优。
+
+### 1.6.2 Extraction Commands
+
+**Standard (PyMuPDF) - 推荐首选：**
+```python
+import fitz  # PyMuPDF
+
+def extract_text(pdf_path: str) -> str:
+    doc = fitz.open(pdf_path)
+    text = "\n".join(page.get_text() for page in doc)
+    doc.close()
+    return text
+
+# Usage
+text = extract_text("essay/2312.00752/paper.pdf")
+```
+
+**With OCR (for scanned papers)：**
+```python
+def extract_with_ocr(pdf_path: str, dpi: int = 300) -> str:
+    doc = fitz.open(pdf_path)
+    text = ""
+    for page in doc:
+        tp = page.get_textpage_ocr(dpi=dpi, full=True)
+        text += page.get_text(textpage=tp)
+    doc.close()
+    return text
+```
+
+**Complex Layout (marker-pdf)：**
+```bash
+# CLI usage (requires ~5GB disk for models)
+marker_single paper.pdf output/ --output_format markdown
+```
+
+### 1.6.3 Save Extracted Text
+
+```bash
+# Create extract file
+python -c "
+import fitz
+doc = fitz.open('essay/{paper-id}/paper.pdf')
+text = '\n'.join(page.get_text() for page in doc)
+open('essay/{paper-id}/extract.txt', 'w').write(text)
+"
+
+# Verify extraction
+wc -l essay/{paper-id}/extract.txt
+```
+
+### 1.6.4 Section Detection Pattern
+
+提取后识别论文章节：
+```python
+SECTION_HEADERS = [
+    'Abstract', 'Introduction', 'Related Work',
+    'Methodology', 'Methods', 'Experiments',
+    'Results', 'Discussion', 'Conclusion',
+    'References', 'Appendix'
+]
+
+def split_sections(text: str) -> dict:
+    sections = {}
+    current = 'preamble'
+    content = []
+    for line in text.split('\n'):
+        for header in SECTION_HEADERS:
+            if header.lower() in line.lower() and len(line.strip()) < 50:
+                if content:
+                    sections[current] = '\n'.join(content)
+                current = header.lower()
+                content = []
+                break
+        else:
+            content.append(line)
+    return sections
+```
+
+**OUTPUT (BLOCKING)：**
+```
+PDF EXTRACTION
+===============
+Method: [pymupdf | pymupdf-ocr | marker | pdfplumber]
+File: essay/{paper-id}/extract.txt
+Lines: XXX
+Sections detected: [abstract, introduction, methods, results, conclusion]
+```
+</pdf_extraction>
+
 ---
 
 ## PHASE 2: Paper Analysis
@@ -580,7 +683,6 @@ Enables: Higher rate limits, batch endpoints
 
 ## Error Handling
 
-<error_handling>
 | Error | Action |
 |-------|--------|
 | arXiv ID not found | Try Semantic Scholar search by title |
@@ -588,6 +690,7 @@ Enables: Higher rate limits, batch endpoints
 | S2 rate limited | Wait, retry, use cached data |
 | PDF fetch failed | Proceed with abstract-only analysis |
 | Paper not found | Ask user to verify input, suggest search |
+| **All sources failed** | **END conversation, return full test results** |
 
 **Graceful degradation:**
 ```
@@ -596,6 +699,46 @@ IF full analysis fails:
   → Explain what's missing
   → Suggest user actions (provide PDF, check URL)
 ```
+
+### Fallback Chain Failure Protocol
+
+**When all metadata sources fail (Semantic Scholar → arXiv API → arXiv Web → Web Search)：**
+
+1. **END the conversation immediately** - Do not continue to analysis phases
+2. **Return complete fallback test results** to user:
+   ```
+   FALLBACK CHAIN TEST RESULTS
+   ============================
+   Paper: {input}
+
+   Source 1: Semantic Scholar API
+   Status: FAILED
+   Error: HTTP 429 (rate limited) / HTTP 404 (not found) / Timeout
+   Response time: XXXms
+
+   Source 2: arXiv API
+   Status: FAILED
+   Error: No results / Connection refused
+   Response time: XXXms
+
+   Source 3: arXiv Web Page
+   Status: FAILED
+   Error: SSL certificate error / 403 Forbidden
+   Response time: XXXms
+
+   Source 4: Web Search
+   Status: FAILED
+   Error: No results found
+   Response time: XXXms
+
+   RECOMMENDATION: Check your network connection or try again later.
+   Possible causes:
+   - Rate limiting (wait 5 minutes)
+   - Firewall blocking requests
+   - Paper not yet indexed
+   ```
+
+3. **Let user diagnose** network issues from the test results
 </error_handling>
 
 ---
