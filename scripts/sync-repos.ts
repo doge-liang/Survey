@@ -286,7 +286,7 @@ function getOrCreateRepoEntry(registry: RepoRegistry, owner: string, repo: strin
 /**
  * Update repo entry after sync
  */
-function updateRepoEntry(registry: RepoRegistry, owner: string, repo: string, success: boolean): void {
+async function updateRepoEntry(registry: RepoRegistry, owner: string, repo: string, success: boolean): Promise<void> {
   const entry = getOrCreateRepoEntry(registry, owner, repo);
   
   if (success) {
@@ -298,12 +298,6 @@ function updateRepoEntry(registry: RepoRegistry, owner: string, repo: string, su
     if (!entry.cloned_at) {
       entry.cloned_at = new Date().toISOString();
     }
-  }
-    const dir = getRepoDir(owner, repo);
-    const commit = getCurrentCommit(dir);
-    
-    entry.last_commit = commit as string;
-    entry.cloned_at = new Date().toISOString();
   }
 }
 
@@ -323,12 +317,12 @@ async function syncRepo(
     if (!exists || forceClone) {
       // Clone
       await cloneRepo(owner, repo);
-      updateRepoEntry(registry, owner, repo, true);
+      await updateRepoEntry(registry, owner, repo, true);
       return { status: "cloned", message: "(new)" };
     } else {
       // Pull
       const commitsBehind = await pullRepo(owner, repo);
-      updateRepoEntry(registry, owner, repo, true);
+      await updateRepoEntry(registry, owner, repo, true);
       
       if (commitsBehind > 0) {
         return { status: "updated", message: `(${commitsBehind} commits behind)` };
@@ -338,7 +332,7 @@ async function syncRepo(
     }
   } catch (error) {
     const errorMsg = String(error);
-    updateRepoEntry(registry, owner, repo, false);
+    await updateRepoEntry(registry, owner, repo, false);
     
     if (errorMsg.includes("not found")) {
       return { status: "failed", message: "(not found)" };
