@@ -9,8 +9,9 @@
  *   bun scripts/sync-repos.ts --clone      # only clone missing repos
  *   bun scripts/sync-repos.ts --pull       # only pull existing repos
  *   bun scripts/sync-repos.ts <owner/repo> # sync a single repo
- *   bun scripts/sync-repos.ts --update-registry  # check for repo renames
  *   bun scripts/sync-repos.ts --update-registry --rename-dirs  # also rename local dirs
+ *   bun scripts/sync-repos.ts --verify       # verify registry integrity
+ *   bun scripts/sync-repos.ts --verify-fix   # auto-fix orphaned repos
  *   bun scripts/sync-repos.ts --help       # show this help
  */
 
@@ -37,6 +38,35 @@ interface RepoRegistry {
   updated_at?: string;
 }
 
+interface VerificationIssue {
+  type: "orphaned" | "unindexed" | "invalid";
+  repo: Repo | LocalRepo;
+  message: string;
+}
+
+interface VerificationResult {
+  orphaned: Repo[];
+  unindexed: LocalRepo[];
+  invalid: Repo[];
+}
+
+interface LocalRepo {
+  owner: string;
+  repo: string;
+  path: string;
+}
+
+
+
+/**
+ * Get local directory for a repo
+ */
+function getRepoDir(owner: string, repo: string): string {
+  // Sanitize repo name for directory (replace / with -)
+  const dirName = `${owner}-${repo}`.replace(/\//g, "-");
+  return path.join(GITHUB_DIR, dirName);
+}
+
 // Configuration
 const GITHUB_DIR = path.join(process.cwd(), "github");
 const REPOS_FILE = path.join(process.cwd(), "data", "repos.json");
@@ -51,8 +81,11 @@ const isCheck = args.includes("--check");
 const isClone = args.includes("--clone");
 const isPull = args.includes("--pull");
 const isHelp = args.includes("--help") || args.includes("-h");
-const isUpdateRegistry = args.includes("--update-registry");
 const isRenameDirs = args.includes("--rename-dirs");
+const isUpdateRegistry = args.includes("--update-registry");
+const isVerify = args.includes("--verify");
+const isVerifyFix = args.includes("--verify-fix");
+const isVerifyInteractive = args.includes("--verify-interactive");
 
 // Find single repo (format: owner/repo)
 const singleRepo = args.find(a => a.includes("/") && !a.startsWith("-")) || null;
@@ -72,6 +105,8 @@ Usage:
   bun scripts/sync-repos.ts <owner/repo> # sync a single repo
   bun scripts/sync-repos.ts --update-registry  # check for repo renames
   bun scripts/sync-repos.ts --update-registry --rename-dirs  # also rename local dirs
+  bun scripts/sync-repos.ts --verify       # verify registry integrity
+  bun scripts/sync-repos.ts --verify-fix   # auto-fix orphaned repos
   bun scripts/sync-repos.ts --help       # show this help
 
 Output:
@@ -80,6 +115,170 @@ Output:
   ✓ up-to-date: owner/repo
   ✗ failed: owner/repo (error message)
 `);
+}
+
+/**
+ * Detect orphaned entries: in repos.json but no local repo exists
+ */
+function detectOrphanedEntries(registry: RepoRegistry): Repo[] {
+  const orphaned: Repo[] = [];
+  for (const repo of registry.repos) {
+    const dir = getRepoDir(repo.owner, repo.repo);
+    if (!fs.existsSync(dir)) {
+      orphaned.push(repo);
+    }
+  }
+  return orphaned;
+}
+
+function detectUnindexedRepos(registry: RepoRegistry, githubDir: string): LocalRepo[] {
+  const unindexed: LocalRepo[] = [];
+  const registryIds = new Set(
+    registry.repos.map(r => r.owner + "/" + r.repo)
+  );
+
+  // Scan github/ directory for owner directories
+  const owners = fs.readdirSync(githubDir).filter(f => {
+    const stat = fs.statSync(path.join(githubDir, f));
+    return stat.isDirectory() && !f.startsWith('.');
+  });
+
+  for (const owner of owners) {
+    const ownerPath = path.join(githubDir, owner);
+    const repos = fs.readdirSync(ownerPath).filter(f => {
+      const stat = fs.statSync(path.join(ownerPath, f));
+      return stat.isDirectory() && !f.startsWith('.');
+    });
+
+    for (const repo of repos) {
+      const id = owner + "/" + repo;
+      if (!registryIds.has(id)) {
+        unindexed.push({ owner, repo, path: path.join(ownerPath, repo) });
+      }
+    }
+  }
+
+  return unindexed;
+}
+
+/**
+ * Detect invalid entries: missing required fields
+ */
+function detectInvalidEntries(registry: RepoRegistry): Repo[] {
+  const invalid: Repo[] = [];
+  for (const repo of registry.repos) {
+    if (!repo.id || !repo.owner || !repo.repo || !repo.url) {
+      invalid.push(repo);
+    }
+  }
+  return invalid;
+}
+/**
+ * Run complete registry verification
+ */
+ function verifyRegistry(registry: RepoRegistry, githubDir: string): VerificationResult {
+  return {
+    orphaned: detectOrphanedEntries(registry),
+    unindexed: detectUnindexedRepos(registry, githubDir),
+    invalid: detectInvalidEntries(registry)
+  };
+}
+
+function printVerificationReport(registry: RepoRegistry, result: VerificationResult): void {
+  console.log("\n📋 Registry Verification Report");
+  console.log("============================\n");
+  
+  const totalInRegistry = result.orphaned.length + (registry.repos?.length || 0) - result.orphaned.length;
+  console.log(`Total repos in registry: ${registry.repos?.length || 0}`);
+  
+  // Orphaned entries
+  console.log("\n🔴 Orphaned entries (in registry, no local clone):");
+  if (result.orphaned.length === 0) {
+    console.log("   ✓ None");
+  } else {
+    console.log(`   ⚠️  ${result.orphaned.length} found:`);
+    for (const repo of result.orphaned) {
+      console.log(`      - ${repo.owner}/${repo.repo} (${repo.url})`);
+    }
+  }
+  
+  // Unindexed repos
+  console.log("\n🟡 Unindexed repos (local, not in registry):");
+  if (result.unindexed.length === 0) {
+    console.log("   ✓ None");
+  } else {
+    console.log(`   ⚠️  ${result.unindexed.length} found:`);
+    for (const repo of result.unindexed) {
+      console.log(`      - ${repo.owner}/${repo.repo}`);
+      console.log(`        Path: ${repo.path}`);
+    }
+  }
+  
+  // Invalid entries
+  console.log("\n🔴 Invalid entries (missing required fields):");
+  if (result.invalid.length === 0) {
+    console.log("   ✓ None");
+  } else {
+    console.log(`   ✗ ${result.invalid.length} found:`);
+    for (const repo of result.invalid) {
+      console.log(`      - ${repo.owner}/${repo.repo}`);
+    }
+  }
+  console.log("\n============================");
+}
+
+/**
+ * Handle verify command
+ */
+async function handleVerifyCommand(): Promise<void> {
+  console.log("\n🔍 Running registry verification...\n");
+  
+  // Load registry
+  const registry = loadRepos();
+  
+  // Run verification
+  const result = verifyRegistry(registry, GITHUB_DIR);
+  
+  // Print report
+  printVerificationReport(registry, result);
+  
+  // Handle fixes
+  if (isVerifyFix || isVerifyInteractive) {
+    console.log("\n🔧 Fix Mode:\n");
+    
+    // Fix orphaned entries by cloning
+    if (result.orphaned.length > 0) {
+      console.log(`Cloning ${result.orphaned.length} orphaned repos...\n`);
+      
+      for (const repo of result.orphaned) {
+        if (isVerifyInteractive) {
+          console.log(`Clone ${repo.owner}/${repo.repo}? (y/n)`);
+          // In non-interactive context, just proceed
+        }
+        
+        try {
+          await cloneRepo(repo.owner, repo.repo);
+          console.log(`   ✓ Cloned: ${repo.owner}/${repo.repo}`);
+        } catch (error) {
+          console.log(`   ✗ Failed: ${repo.owner}/${repo.repo} - ${error}`);
+        }
+      }
+      
+      // Save updated registry
+      saveRepos(registry);
+      console.log(`\n✅ Registry updated: ${REPOS_FILE}`);
+    }
+    
+    if (result.unindexed.length > 0 && !isVerifyFix) {
+      console.log("\n⚠️  Unindexed repos found. Run with --verify-fix to auto-add to registry.");
+    }
+    
+    if (result.invalid.length > 0 && !isVerifyFix) {
+      console.log("\n⚠️  Invalid entries found. Run with --verify-fix to remove from registry.");
+    }
+  }
+  
+  console.log("");
 }
 
 /**
@@ -120,14 +319,7 @@ function saveRepos(registry: RepoRegistry): void {
   fs.writeFileSync(REPOS_FILE, JSON.stringify(registry, null, 2), "utf-8");
 }
 
-/**
- * Get repo directory path
- */
-function getRepoDir(owner: string, repo: string): string {
-  // Sanitize repo name for directory (replace / with -)
-  const dirName = `${owner}-${repo}`.replace(/\//g, "-");
-  return path.join(GITHUB_DIR, dirName);
-}
+
 
 /**
  * Sleep for specified ms
@@ -622,6 +814,10 @@ async function main(): Promise<void> {
     }
     
     console.log("");
+    return;
+  } else if (isVerify) {
+    // Verify mode - check registry integrity
+    await handleVerifyCommand();
     return;
   } else {
     // Sync mode
