@@ -1,7 +1,8 @@
 ---
 name: github-researcher
 description: |
-  Deep research and analysis of GitHub projects. Use when the user asks to research, analyze, or understand GitHub repositories. Triggers: "research this project", "analyze repo", "项目调研", "GitHub 分析", "deep dive into", "understand this codebase", "技术栈分析", "架构分析", "研究", "更新项目", "同步所有项目", "检查更新". Can analyze by URL, project name, or topic search. Outputs structured reports to github/{owner}-{repo}/README.md. Supports project registry sync via data/repos.json.
+  Deep research and analysis of GitHub projects. Use when the user asks to research, analyze, or understand GitHub repositories. Triggers: "research this project", "analyze repo", "项目调研", "GitHub 分析", "deep dive into", "understand this codebase", "技术栈分析", "架构分析", "研究", "similar to", "compare X and Y". Can analyze by URL, project name, or topic search. Outputs structured reports to github/{owner}/{repo}/README.md.
+---
 
 # GitHub Researcher
 
@@ -20,10 +21,7 @@ Analyze the user's request to determine the research mode:
 | Topic keywords (`vector database`, `LLM inference`) | `TOPIC_SEARCH` | Search GitHub, list relevant repos |
 | "similar to X" or "alternatives to X" | `DISCOVERY` | Find related projects |
 | "compare X and Y" | `COMPARISON` | Analyze multiple repos in parallel |
-| "研究 xxx" / "research xxx" | `NEW` | Clone + analyze new project |
-| "更新 xxx" / "update xxx" | `UPDATE` | Pull latest + re-analyze |
-| "同步所有项目" / "sync all repos" | `SYNC_ALL` | Execute sync script |
-| "检查更新" / "check updates" | `CHECK_UPDATES` | Check version changes |
+| "研究 xxx" / "research xxx" | `NEW` | Analyze project comprehensively |
 
 **CRITICAL**: Detect the mode FIRST before any data fetching.
 
@@ -35,20 +33,7 @@ Analyze the user's request to determine the research mode:
 ### 0.1 Parse Input
 
 ```
-IF input contains "同步所有项目" or "sync all repos":
-  -> MODE = SYNC_ALL
-  -> Execute: bun scripts/sync-repos.ts
-
-ELSE IF input contains "检查更新" or "check updates":
-  -> MODE = CHECK_UPDATES
-  -> Execute: bun scripts/sync-repos.ts --check
-
-ELSE IF input contains "更新" or "update":
-  -> MODE = UPDATE
-  -> Extract project name
-  -> Pull latest + re-analyze
-
-ELSE IF input contains "研究" or "research" or "分析":
+IF input contains "研究" or "research" or "分析":
   -> MODE = NEW
   -> Continue to standard flow
 
@@ -60,6 +45,14 @@ ELSE IF input contains "github.com/":
 ELSE IF input matches "owner/repo" pattern:
   -> Extract: owner, repo
   -> MODE = SINGLE_REPO
+
+ELSE IF input contains "similar to" or "alternatives to":
+  -> MODE = DISCOVERY
+  -> Extract reference project
+
+ELSE IF input contains "compare":
+  -> MODE = COMPARISON
+  -> Extract projects to compare
 
 ELSE IF input is topic/keywords:
   -> MODE = TOPIC_SEARCH
@@ -86,7 +79,7 @@ IF rate limit approaching (< 10 remaining):
 
 ```
 All research outputs go to:
-  github/{owner}-{repo}/
+  github/{owner}/{repo}/
 
 Files:
   - README.md (main research report)
@@ -126,9 +119,14 @@ Use web-reader_webReader to fetch:
 ### 1.3 Repository Structure
 
 ```
-Use zread_get_repo_structure to get directory tree
-  repo_name: "{owner}/{repo}"
-  dir_path: "/"
+Use bash with find/ls for directory structure:
+  - List root directory: ls -la github/{owner}/{repo}/
+  - Find key files: find . -name "*.json" -o -name "*.toml" -o -name "*.yaml"
+  - Tree view (if available): tree -L 2 -d
+
+For repos not cloned locally, use web-reader_webReader on:
+  - https://github.com/{owner}/{repo}
+  Parse visible directory structure from page content
 ```
 
 ### 1.4 Code Examples (grep_app_searchGitHub)
@@ -154,7 +152,7 @@ Query: "{topic} GitHub alternatives similar projects"
 INFORMATION GATHERED
 ====================
 Repository: {owner}/{repo}
-Mode: [SINGLE_REPO | TOPIC_SEARCH | DISCOVERY | COMPARISON]
+Mode: [SINGLE_REPO | TOPIC_SEARCH | DISCOVERY | COMPARISON | NEW]
 
 METADATA:
   - Stars: N
@@ -300,7 +298,7 @@ SAMPLING STRATEGY:
 <generation>
 ### 3.1 Report Structure
 
-Generate a comprehensive README.md in `github/{owner}-{repo}/`:
+Generate a comprehensive README.md in `github/{owner}/{repo}/`:
 
 ```markdown
 # {Project Name}
@@ -326,7 +324,7 @@ Generate a comprehensive README.md in `github/{owner}-{repo}/`:
 ## 项目结构
 
 ```
-{owner}-{repo}/
+{owner}/{repo}/
 ├── [key directory]/     # [purpose]
 ├── [key directory]/     # [purpose]
 └── [config files]       # [purpose]
@@ -398,112 +396,6 @@ Before finalizing, verify:
 
 ---
 
-## PHASE 4: Registry Update
-
-<registry>
-**After generating README.md, update the project registry:**
-
-### 4.1 Update data/repos.json
-
-```
-Add or update entry in data/repos.json:
-
-{
-  "id": "{owner}-{repo}",
-  "url": "https://github.com/{owner}/{repo}",
-  "owner": "{owner}",
-  "repo": "{repo}",
-  "description": "[Brief description]",
-  "stars": [N],
-  "tags": ["tag1", "tag2"],
-  "level": "beginner|intermediate|advanced",
-  "cloned_at": "[ISO date]",
-  "last_commit": "[commit sha]"
-}
-```
-
-### 4.2 Sync Operations
-
-**Sync all projects:**
-```bash
-# User says "同步所有项目"
-bun scripts/sync-repos.ts
-```
-
-**Check for updates:**
-```bash
-# User says "检查哪些项目有更新"
-bun scripts/sync-repos.ts --check
-```
-
-**Update single project:**
-```bash
-# User says "更新 next.js 的分析"
-cd github/vercel-nextjs && git pull --rebase
-# Then re-analyze and regenerate README.md
-```
-
-### 4.3 Registry Entry Fields
-
-| Field | Description |
-|-------|-------------|
-| `id` | Unique identifier: `{owner}-{repo}` |
-| `url` | GitHub repository URL |
-| `owner` | Repository owner |
-| `repo` | Repository name |
-| `description` | Brief project description |
-| `stars` | Star count at analysis time |
-| `tags` | Category tags |
-| `level` | Complexity: beginner, intermediate, advanced |
-| `cloned_at` | ISO timestamp when cloned |
-| `last_commit` | Latest commit SHA analyzed |
-</registry>
-
----
-
-## PHASE 5: Extended Discovery (Optional)
-
-<discovery>
-**Only execute if user requests or time permits:**
-
-### 5.1 Related Projects Research
-
-```
-Use websearch_web_search_exa:
-  Query: "{project topic} GitHub alternatives similar"
-
-Find:
-  - 3-5 similar projects
-  - Brief comparison (stars, activity, focus)
-  - Recommendation based on use case
-```
-
-### 5.2 Deep Code Dive
-
-```
-Use grep_app_searchGitHub to find:
-  - Key algorithms: specific function names
-  - Design patterns: "factory", "singleton", "observer"
-  - Best practices: error handling, testing patterns
-
-Document findings in analysis.md
-```
-
-### 5.3 Community Analysis
-
-```
-Check:
-  - Issue activity (open/closed ratio)
-  - PR activity
-  - Contributor count
-  - Release frequency
-
-Assess: Is this project actively maintained?
-```
-</discovery>
-
----
-
 ## Error Handling
 
 <errors>
@@ -566,7 +458,7 @@ IF repository has < 5 files:
 3. **NEVER read all files in large repos** - Use sampling strategy for > 500 files
 4. **NEVER guess technology** - Detect from actual code patterns and dependencies
 5. **NEVER output incomplete reports** - All sections must be filled
-6. **NEVER use wrong output directory** - Always use `github/{owner}-{repo}/`
+6. **NEVER use wrong output directory** - Always use `github/{owner}/{repo}/`
 7. **NEVER mix languages** - Match output language to user's request
 8. **NEVER skip blocking outputs** - Phase 1 and Phase 2 outputs are MANDATORY
 
@@ -580,10 +472,9 @@ IF repository has < 5 files:
 |------|------|
 | Repo metadata | `websearch_web_search_exa` |
 | README content | `web-reader_webReader` |
-| Directory structure | `zread_get_repo_structure` |
+| Directory structure | `bash` with `find`/`ls` or `web-reader_webReader` |
 | Code patterns | `grep_app_searchGitHub` |
 | Related projects | `websearch_web_search_exa` |
-| Doc search | `zread_search_doc` |
 
 ### Complexity Estimation Cheat Sheet
 
@@ -599,7 +490,7 @@ IF repository has < 5 files:
 
 ```
 Before completing research:
-[ ] Correct output directory: github/{owner}-{repo}/
+[ ] Correct output directory: github/{owner}/{repo}/
 [ ] README.md generated with all sections
 [ ] Technology stack documented
 [ ] Architecture explained
@@ -615,7 +506,7 @@ Before completing research:
 
 **Agent Response:**
 ```
-MODE: SINGLE_REPO
+MODE: NEW
 Repository: karpathy/nanoGPT
 
 [Phase 0: Parse input ✓]
@@ -627,8 +518,8 @@ Repository: karpathy/nanoGPT
 
 [Output Phase 2 analysis]
 
-[Phase 3: Generating report to github/karpathy-nanogpt/README.md]
+[Phase 3: Generating report to github/karpathy/nanoGPT/README.md]
 
 ✓ Research complete. Report saved to:
-  github/karpathy-nanogpt/README.md
+  github/karpathy/nanoGPT/README.md
 ```

@@ -291,6 +291,15 @@ function updateRepoEntry(registry: RepoRegistry, owner: string, repo: string, su
   
   if (success) {
     const dir = getRepoDir(owner, repo);
+    const commit = await getCurrentCommit(dir);
+    
+    entry.last_commit = commit ?? undefined;
+    // Only set cloned_at on first clone, not on pull
+    if (!entry.cloned_at) {
+      entry.cloned_at = new Date().toISOString();
+    }
+  }
+    const dir = getRepoDir(owner, repo);
     const commit = getCurrentCommit(dir);
     
     entry.last_commit = commit as string;
