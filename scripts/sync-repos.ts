@@ -12,6 +12,7 @@
  *   bun scripts/sync-repos.ts --update-registry --rename-dirs  # also rename local dirs
  *   bun scripts/sync-repos.ts --verify       # verify registry integrity
  *   bun scripts/sync-repos.ts --verify-fix   # auto-fix orphaned repos
+ *   bun scripts/sync-repos.ts --verify-fix --concurrent 3   # limit orphan clone concurrency
  *   bun scripts/sync-repos.ts --help       # show this help
  */
 
@@ -50,6 +51,33 @@ interface VerificationResult {
   invalid: Repo[];
 }
 
+interface OrphanFixResult {
+  owner: string;
+  repo: string;
+  status: "cloned" | "failed";
+  message: string;
+}
+
+interface OrphanFixSummary {
+  succeeded: number;
+  failed: number;
+  results: OrphanFixResult[];
+}
+
+interface OrphanFixProgress {
+  current: number;
+  total: number;
+  owner: string;
+  repo: string;
+}
+
+interface OrphanFixOptions {
+  concurrency?: number;
+  delayMs?: number;
+  onProgress?: (progress: OrphanFixProgress) => void;
+  sleepFn?: (ms: number) => Promise<void>;
+}
+
 interface LocalRepo {
   owner: string;
   repo: string;
@@ -62,9 +90,8 @@ interface LocalRepo {
  * Get local directory for a repo
  */
 function getRepoDir(owner: string, repo: string): string {
-  // Sanitize repo name for directory (replace / with -)
-  const dirName = `${owner}-${repo}`.replace(/\//g, "-");
-  return path.join(GITHUB_DIR, dirName);
+  // Nested format: owner/repo
+  return path.join(GITHUB_DIR, owner, repo);
 }
 
 // Configuration
@@ -72,6 +99,8 @@ const GITHUB_DIR = path.join(process.cwd(), "github");
 const REPOS_FILE = path.join(process.cwd(), "data", "repos.json");
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // ms
+const DEFAULT_VERIFY_FIX_CONCURRENCY = 1;
+const VERIFY_FIX_CLONE_DELAY = 500; // ms
 
 // Parse CLI arguments
 const args = process.argv.slice(2);
@@ -86,6 +115,8 @@ const isUpdateRegistry = args.includes("--update-registry");
 const isVerify = args.includes("--verify");
 const isVerifyFix = args.includes("--verify-fix");
 const isVerifyInteractive = args.includes("--verify-interactive");
+const isVerifyMode = isVerifyCommand(args);
+const verifyFixConcurrency = getVerifyFixConcurrency(args);
 
 // Find single repo (format: owner/repo)
 const singleRepo = args.find(a => a.includes("/") && !a.startsWith("-")) || null;
@@ -107,6 +138,7 @@ Usage:
   bun scripts/sync-repos.ts --update-registry --rename-dirs  # also rename local dirs
   bun scripts/sync-repos.ts --verify       # verify registry integrity
   bun scripts/sync-repos.ts --verify-fix   # auto-fix orphaned repos
+  bun scripts/sync-repos.ts --verify-fix --concurrent 3   # limit orphan clone concurrency
   bun scripts/sync-repos.ts --help       # show this help
 
 Output:
@@ -115,6 +147,52 @@ Output:
   ✓ up-to-date: owner/repo
   ✗ failed: owner/repo (error message)
 `);
+}
+
+export function isVerifyCommand(cliArgs: string[]): boolean {
+  return cliArgs.includes("--verify")
+    || cliArgs.includes("--verify-fix")
+    || cliArgs.includes("--verify-interactive");
+}
+
+function parsePositiveIntegerFlag(cliArgs: string[], flag: string): number | null {
+  const index = cliArgs.indexOf(flag);
+  if (index === -1 || index === cliArgs.length - 1) {
+    return null;
+  }
+
+  const value = Number.parseInt(cliArgs[index + 1] || "", 10);
+  if (!Number.isFinite(value) || value < 1) {
+    return null;
+  }
+
+  return value;
+}
+
+function getVerifyFixConcurrency(cliArgs: string[]): number {
+  return parsePositiveIntegerFlag(cliArgs, "--concurrent") ?? DEFAULT_VERIFY_FIX_CONCURRENCY;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+}
+
+function isRetryableCloneError(error: unknown): boolean {
+  const errorMsg = getErrorMessage(error).toLowerCase();
+
+  return !(
+    errorMsg.includes("not found")
+    || errorMsg.includes("404")
+    || errorMsg.includes("repository not found")
+    || errorMsg.includes("authentication failed")
+    || errorMsg.includes("could not read username")
+    || errorMsg.includes("destination path")
+    || errorMsg.includes("already exists")
+  );
 }
 
 /**
@@ -228,56 +306,56 @@ function printVerificationReport(registry: RepoRegistry, result: VerificationRes
 }
 
 /**
- * Handle verify command
+ * Handle verify commands
  */
 async function handleVerifyCommand(): Promise<void> {
   console.log("\n🔍 Running registry verification...\n");
-  
-  // Load registry
+
   const registry = loadRepos();
-  
-  // Run verification
   const result = verifyRegistry(registry, GITHUB_DIR);
-  
-  // Print report
+
   printVerificationReport(registry, result);
-  
-  // Handle fixes
+
   if (isVerifyFix || isVerifyInteractive) {
     console.log("\n🔧 Fix Mode:\n");
-    
-    // Fix orphaned entries by cloning
+
     if (result.orphaned.length > 0) {
-      console.log(`Cloning ${result.orphaned.length} orphaned repos...\n`);
-      
-      for (const repo of result.orphaned) {
-        if (isVerifyInteractive) {
-          console.log(`Clone ${repo.owner}/${repo.repo}? (y/n)`);
-          // In non-interactive context, just proceed
-        }
-        
-        try {
-          await cloneRepo(repo.owner, repo.repo);
-          console.log(`   ✓ Cloned: ${repo.owner}/${repo.repo}`);
-        } catch (error) {
-          console.log(`   ✗ Failed: ${repo.owner}/${repo.repo} - ${error}`);
+      console.log(`Cloning ${result.orphaned.length} orphaned repos with concurrency ${verifyFixConcurrency}...\n`);
+
+      const summary = await fixOrphanedRepos(registry, result.orphaned, cloneRepo, {
+        concurrency: verifyFixConcurrency,
+        delayMs: VERIFY_FIX_CLONE_DELAY,
+        onProgress: ({ current, total, owner, repo }) => {
+          console.log(`   Cloning ${current}/${total}: ${owner}/${repo}...`);
+        },
+      });
+
+      for (const item of summary.results) {
+        const fullName = `${item.owner}/${item.repo}`;
+        if (item.status === "cloned") {
+          console.log(`   ✓ Cloned: ${fullName}`);
+        } else {
+          console.log(`   ✗ Failed: ${fullName} - ${item.message}`);
         }
       }
-      
-      // Save updated registry
-      saveRepos(registry);
-      console.log(`\n✅ Registry updated: ${REPOS_FILE}`);
+
+      console.log(`\nOrphan clone summary: ${summary.succeeded} succeeded, ${summary.failed} failed`);
+
+      if (summary.succeeded > 0) {
+        saveRepos(registry);
+        console.log(`\n✅ Registry updated: ${REPOS_FILE}`);
+      }
     }
-    
+
     if (result.unindexed.length > 0 && !isVerifyFix) {
       console.log("\n⚠️  Unindexed repos found. Run with --verify-fix to auto-add to registry.");
     }
-    
+
     if (result.invalid.length > 0 && !isVerifyFix) {
       console.log("\n⚠️  Invalid entries found. Run with --verify-fix to remove from registry.");
     }
   }
-  
+
   console.log("");
 }
 
@@ -331,14 +409,23 @@ function sleep(ms: number): Promise<void> {
 /**
  * Retry helper with exponential backoff
  */
-async function withRetry<T>(fn: () => Promise<T>, retries = MAX_RETRIES): Promise<T> {
-  let lastError: Error | undefined;
-  
+export async function withRetry<T>(
+  fn: () => Promise<T>,
+  retries = MAX_RETRIES,
+  shouldRetry: (error: unknown) => boolean = () => true
+): Promise<T> {
+  let lastError: unknown;
+
   for (let i = 0; i < retries; i++) {
     try {
       return await fn();
     } catch (error) {
-      lastError = error as Error;
+      lastError = error;
+
+      if (!shouldRetry(error)) {
+        break;
+      }
+
       if (i < retries - 1) {
         const delay = RETRY_DELAY * Math.pow(2, i);
         console.log(`   Retry ${i + 1}/${retries} after ${delay}ms...`);
@@ -346,8 +433,8 @@ async function withRetry<T>(fn: () => Promise<T>, retries = MAX_RETRIES): Promis
       }
     }
   }
-  
-  throw lastError;
+
+  throw new Error(`Failed after ${retries} attempt(s): ${getErrorMessage(lastError)}`);
 }
 
 /**
@@ -401,21 +488,99 @@ async function checkForUpdates(owner: string, repo: string): Promise<{ hasUpdate
 async function cloneRepo(owner: string, repo: string): Promise<void> {
   const dir = getRepoDir(owner, repo);
   const url = `https://github.com/${owner}/${repo}.git`;
-  
+
   console.log(`   Cloning ${url}...`);
-  
+
+  if (fs.existsSync(dir) && !isGitRepo(dir)) {
+    throw new Error(`destination already exists and is not a git repo: ${dir}`);
+  }
+
   try {
     await withRetry(async () => {
       await $`git clone --depth 1 ${url} ${dir}`.quiet();
-    });
+    }, MAX_RETRIES, isRetryableCloneError);
   } catch (error) {
-    // Check if it's a "repo not found" error
-    const errorMsg = String(error);
+    const errorMsg = getErrorMessage(error);
     if (errorMsg.includes("not found") || errorMsg.includes("404")) {
       throw new Error("not found");
     }
     throw error;
   }
+}
+export async function fixOrphanedRepos(
+  registry: RepoRegistry,
+  orphanedRepos: Repo[],
+  clone: (owner: string, repo: string) => Promise<void> = cloneRepo,
+  options: OrphanFixOptions = {}
+): Promise<OrphanFixSummary> {
+  const concurrency = Math.max(1, Math.floor(options.concurrency ?? 1));
+  const delayMs = Math.max(0, options.delayMs ?? 0);
+  const sleepFn = options.sleepFn ?? sleep;
+  const results: OrphanFixResult[] = new Array(orphanedRepos.length);
+
+  const cloneSingleRepo = async (repo: Repo, index: number): Promise<void> => {
+    if (isVerifyInteractive) {
+      console.log(`Clone ${repo.owner}/${repo.repo}? (y/n)`);
+      // In non-interactive context, just proceed
+    }
+
+    options.onProgress?.({
+      current: index + 1,
+      total: orphanedRepos.length,
+      owner: repo.owner,
+      repo: repo.repo,
+    });
+
+    try {
+      await clone(repo.owner, repo.repo);
+      await updateRepoEntry(registry, repo.owner, repo.repo, true);
+      results[index] = {
+        owner: repo.owner,
+        repo: repo.repo,
+        status: "cloned",
+        message: "",
+      };
+    } catch (error) {
+      await updateRepoEntry(registry, repo.owner, repo.repo, false);
+      results[index] = {
+        owner: repo.owner,
+        repo: repo.repo,
+        status: "failed",
+        message: getErrorMessage(error),
+      };
+    }
+
+    if (delayMs > 0 && index < orphanedRepos.length - 1) {
+      await sleepFn(delayMs);
+    }
+  };
+
+  if (concurrency === 1) {
+    for (const [index, repo] of orphanedRepos.entries()) {
+      await cloneSingleRepo(repo, index);
+    }
+  } else {
+    let nextIndex = 0;
+    const workerCount = Math.min(concurrency, orphanedRepos.length);
+    const workers = Array.from({ length: workerCount }, async () => {
+      while (nextIndex < orphanedRepos.length) {
+        const currentIndex = nextIndex;
+        nextIndex += 1;
+        await cloneSingleRepo(orphanedRepos[currentIndex]!, currentIndex);
+      }
+    });
+
+    await Promise.all(workers);
+  }
+
+  const succeeded = results.filter(result => result?.status === "cloned").length;
+  const failed = results.filter(result => result?.status === "failed").length;
+
+  return {
+    succeeded,
+    failed,
+    results,
+  };
 }
 
 /**
@@ -815,7 +980,7 @@ async function main(): Promise<void> {
     
     console.log("");
     return;
-  } else if (isVerify) {
+  } else if (isVerifyMode) {
     // Verify mode - check registry integrity
     await handleVerifyCommand();
     return;
@@ -897,4 +1062,6 @@ async function main(): Promise<void> {
   console.log("");
 }
 
-main().catch(console.error);
+if (import.meta.main) {
+  main().catch(console.error);
+}

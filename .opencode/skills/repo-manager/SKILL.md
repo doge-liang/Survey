@@ -84,8 +84,10 @@ Use `bun scripts/sync-repos.ts` for all sync operations.
 | `bun scripts/sync-repos.ts --pull` | Only pull existing repos |
 | `bun scripts/sync-repos.ts --update-registry` | Check and update renamed repos |
 | `bun scripts/sync-repos.ts --update-registry --rename-dirs` | Update registry and rename local dirs |
+| `bun scripts/sync-repos.ts --verify` | Verify registry integrity |
+| `bun scripts/sync-repos.ts --verify-fix` | Auto-fix orphaned repos |
+| `bun scripts/sync-repos.ts --verify-fix --concurrent N` | Fix with controlled concurrency |
 | `bun scripts/sync-repos.ts <owner/repo>` | Sync single repo |
-
 ### Output Directory Convention
 
 Cloned repositories go to: `github/{owner}/{repo}/`
@@ -143,6 +145,38 @@ Use `--rename-dirs` to also rename local directories:
 bun scripts/sync-repos.ts --update-registry --rename-dirs
 ```
 
+### Registry Verification
+
+Check and fix registry integrity issues:
+
+```bash
+# Verify registry integrity (dry run)
+bun scripts/sync-repos.ts --verify
+
+# Auto-fix orphaned repos (clone missing repos)
+bun scripts/sync-repos.ts --verify-fix
+
+# Fix with controlled concurrency (prevent system overload)
+bun scripts/sync-repos.ts --verify-fix --concurrent 3
+```
+
+#### Verification Checks
+
+| Check Type | Description | Auto-Fix |
+|------------|-------------|----------|
+| Orphaned entries | In registry but no local clone | Clone repo |
+| Unindexed repos | Local repo but not in registry | Add to registry |
+| Invalid entries | Missing required fields | Remove from registry |
+
+#### Verification Report
+
+Running `--verify` produces a report showing:
+- Total repos in registry
+- Orphaned entries (repos in registry without local clone)
+- Unindexed repos (local repos not in registry)
+- Invalid entries (malformed registry entries)
+
+
 ## Error Handling
 
 ### Registry File Not Found
@@ -187,8 +221,9 @@ export GITHUB_TOKEN=ghp_your_token
 | Clone missing | `bun scripts/sync-repos.ts --clone` |
 | Pull existing | `bun scripts/sync-repos.ts --pull` |
 | Fix renamed | `bun scripts/sync-repos.ts --update-registry` |
+| Verify registry | `bun scripts/sync-repos.ts --verify` |
+| Fix orphaned | `bun scripts/sync-repos.ts --verify-fix` |
 | Sync single | `bun scripts/sync-repos.ts owner/repo` |
-
 ### Registry Schema
 
 ```
