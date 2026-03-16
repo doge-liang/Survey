@@ -20,24 +20,14 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { $ } from "bun";
 
-// Types
-interface Repo {
-  id: string;
-  url: string;
-  owner: string;
-  repo: string;
-  stars?: number;
-  tags?: string[];
-  cloned_at?: string;
-  last_commit?: string;
-  renamed_at?: string;
-}
-
-interface RepoRegistry {
-  repos: Repo[];
-  version?: string;
-  updated_at?: string;
-}
+import {
+  find as findRepo,
+  list as listRepos,
+  load as loadRegistry,
+  save as saveRegistry,
+  upsert as upsertRepo,
+} from "./lib/repo-registry";
+import type { Repo, RepoRegistry } from "./lib/repo-registry";
 
 interface VerificationIssue {
   type: "orphaned" | "unindexed" | "invalid";
@@ -359,6 +349,22 @@ async function handleVerifyCommand(): Promise<void> {
   console.log("");
 }
 
+function createEmptyRegistry(): RepoRegistry {
+  return {
+    version: "1",
+    updated_at: new Date().toISOString(),
+    repos: [],
+  };
+}
+
+function normalizeRegistry(registry: RepoRegistry): RepoRegistry {
+  return {
+    version: registry.version ?? "1",
+    updated_at: registry.updated_at ?? new Date().toISOString(),
+    repos: listRepos(registry),
+  };
+}
+
 /**
  * Load repo registry from file
  */
@@ -366,23 +372,14 @@ function loadRepos(): RepoRegistry {
   if (!fs.existsSync(REPOS_FILE)) {
     console.warn(`⚠️  Repos file not found: ${REPOS_FILE}`);
     console.log("   Creating empty registry...");
-    return { repos: [] };
+    return createEmptyRegistry();
   }
-  
+
   try {
-    const content = fs.readFileSync(REPOS_FILE, "utf-8");
-    const parsed = JSON.parse(content);
-    // Handle both formats: { repos: [...] } or { version: "...", repos: [...] }
-    if (Array.isArray(parsed)) {
-      return { repos: parsed };
-    }
-    if (parsed.repos && Array.isArray(parsed.repos)) {
-      return parsed;
-    }
-    return { repos: [] };
+    return normalizeRegistry(loadRegistry());
   } catch (error) {
     console.error(`Error reading repos file: ${error}`);
-    return { repos: [] };
+    return createEmptyRegistry();
   }
 }
 
@@ -390,11 +387,10 @@ function loadRepos(): RepoRegistry {
  * Save repo registry to file
  */
 function saveRepos(registry: RepoRegistry): void {
-  const dataDir = path.dirname(REPOS_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  fs.writeFileSync(REPOS_FILE, JSON.stringify(registry, null, 2), "utf-8");
+  saveRegistry({
+    ...normalizeRegistry(registry),
+    updated_at: new Date().toISOString(),
+  });
 }
 
 
@@ -614,30 +610,44 @@ async function pullRepo(owner: string, repo: string): Promise<number> {
   }
 }
 
+function applyRegistryUpdate(target: RepoRegistry, next: RepoRegistry): void {
+  target.version = next.version;
+  target.updated_at = next.updated_at;
+  target.repos = next.repos;
+}
+
 /**
  * Get or create repo entry in registry
  */
 function getOrCreateRepoEntry(registry: RepoRegistry, owner: string, repo: string): Repo {
-  const id = `${owner}-${repo}`.replace(/\//g, "-");
-  
-  // Ensure repos array exists
-  if (!registry.repos) {
-    registry.repos = [];
+  const id = `${owner}/${repo}`;
+  const existing = findRepo(registry, id)
+    ?? registry.repos.find(entry => entry.owner === owner && entry.repo === repo);
+
+  if (existing) {
+    if (existing.id !== id || existing.url !== `https://github.com/${owner}/${repo}`) {
+      const next = upsertRepo(normalizeRegistry(registry), {
+        ...existing,
+        id,
+        url: `https://github.com/${owner}/${repo}`,
+        owner,
+        repo,
+      });
+      applyRegistryUpdate(registry, next);
+      return findRepo(registry, id)!;
+    }
+
+    return existing;
   }
-  
-  let entry = registry.repos.find(r => r.id === id || (r.owner === owner && r.repo === repo));
-  
-  if (!entry) {
-    entry = {
-      id,
-      url: `https://github.com/${owner}/${repo}`,
-      owner,
-      repo,
-    };
-    registry.repos.push(entry);
-  }
-  
-  return entry;
+
+  const next = upsertRepo(normalizeRegistry(registry), {
+    id,
+    url: `https://github.com/${owner}/${repo}`,
+    owner,
+    repo,
+  });
+  applyRegistryUpdate(registry, next);
+  return findRepo(registry, id)!;
 }
 
 /**
@@ -650,7 +660,7 @@ async function updateRepoEntry(registry: RepoRegistry, owner: string, repo: stri
     const dir = getRepoDir(owner, repo);
     const commit = await getCurrentCommit(dir);
     
-    entry.last_commit = commit ?? undefined;
+    entry.last_commit = commit;
     // Only set cloned_at on first clone, not on pull
     if (!entry.cloned_at) {
       entry.cloned_at = new Date().toISOString();
@@ -811,18 +821,22 @@ function updateRepoEntryAfterRename(
   newOwner: string,
   newRepo: string
 ): void {
-  const oldId = `${oldOwner}-${oldRepo}`.replace(/\//g, "-");
-  const newId = `${newOwner}-${newRepo}`.replace(/\//g, "-");
-  
-  const entry = registry.repos.find(r => r.id === oldId);
-  
+  const oldId = `${oldOwner}/${oldRepo}`;
+  const newId = `${newOwner}/${newRepo}`;
+  const entry = findRepo(registry, oldId)
+    ?? registry.repos.find(repo => repo.owner === oldOwner && repo.repo === oldRepo);
+
   if (entry) {
-    entry.owner = newOwner;
-    entry.repo = newRepo;
-    entry.url = `https://github.com/${newOwner}/${newRepo}`;
-    entry.id = newId;
-    entry.renamed_at = new Date().toISOString();
-    
+    const next = upsertRepo(normalizeRegistry(registry), {
+      ...entry,
+      owner: newOwner,
+      repo: newRepo,
+      url: `https://github.com/${newOwner}/${newRepo}`,
+      id: newId,
+      renamed_at: new Date().toISOString(),
+    });
+    applyRegistryUpdate(registry, next);
+
     console.log(`   ✓ Updated: ${oldOwner}/${oldRepo} → ${newOwner}/${newRepo}`);
   }
 }
