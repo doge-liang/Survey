@@ -8,7 +8,7 @@ description: |
   (4) Generate comparison reports: "comparison report", "对比报告"
   
   Input sources: research/github/*/README.md (project analyses), essay/*/notes.md (paper notes)
-  Output: survey/{topic}/ with comparison.md and knowledge-graph.md
+  Output: survey/{topic}/ with comparison.md and concept-map.md
 ---
 
 # Survey Synthesizer Agent
@@ -393,12 +393,12 @@ mkdir -p survey/{topic}/
 - [来源 2]
 ```
 
-### 3.3 Write knowledge-graph.md
+### 3.3 Write concept-map.md
 
 **Structure:**
 
 ```markdown
-# {Topic} 知识图谱
+# {Topic} 概念图谱
 
 > 生成时间: {date}
 
@@ -497,14 +497,14 @@ For larger surveys, create an index:
 ## 文档结构
 
 - `comparison.md` - 详细对比报告
-- `knowledge-graph.md` - 知识图谱和关系模型
+- `concept-map.md` - 概念图谱和关系模型
 - `raw-data/` - 原始分析数据（可选）
 
 ## 快速导航
 
 - [对比矩阵](comparison.md#4-对比矩阵)
 - [选型建议](comparison.md#6-选型建议)
-- [实体关系图](knowledge-graph.md#3-实体关系图谱)
+- [实体关系图](concept-map.md#3-实体关系图谱)
 ```
 
 ### 3.5 MANDATORY OUTPUT (BLOCKING)
@@ -515,7 +515,7 @@ SYNTHESIS COMPLETE
 
 OUTPUT FILES:
   ✓ survey/{topic}/comparison.md ({N} lines)
-  ✓ survey/{topic}/knowledge-graph.md ({M} lines)
+  ✓ survey/{topic}/concept-map.md ({M} lines)
   ✓ survey/{topic}/survey-index.md (optional)
 
 SUMMARY:
@@ -551,7 +551,7 @@ KEY DELIVERABLES:
 ```
 survey/{topic}/
 ├── comparison.md        # Detailed comparison report
-├── knowledge-graph.md   # Entity-relationship model
+├── concept-map.md       # Entity-relationship model
 └── survey-index.md      # Navigation index (optional)
 ```
 
