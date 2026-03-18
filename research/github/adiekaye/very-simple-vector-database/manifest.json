@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "github-analysis",
+  "id": "adiekaye/very-simple-vector-database",
+  "title": "Very Simple Vector Database Analysis",
+  "source_type": "github",
+  "upstream_url": "https://github.com/adiekaye/very-simple-vector-database",
+  "inputs": ["sources/github/adiekaye/very-simple-vector-database"],
+  "outputs": ["README.md"],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-18T10:30:00Z",
+  "updated_at": "2026-03-18T10:30:00Z",
+  "language": "zh",
+  "tags": ["vector-database", "educational", "from-scratch", "python", "beginner"]
+}

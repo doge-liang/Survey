@@ -1,295 +1,201 @@
-# AGENTS.md - Survey 项目指南
+# AGENTS.md - Survey Repository Guide
 
-## 项目概述
+## Project Overview
 
-Survey 是一个调研材料管理项目，支持 GitHub 开源项目分析和学术论文管理。使用 TypeScript + Bun 构建。
+Survey is a TypeScript + Bun repository for research-material workflows.
+Primary areas:
+- `scripts/` for automation and CLIs
+- `data/` for registries and generated indexes
+- `.opencode/skills/` for project-specific agent skills
+- `github/`, `essay/`, `survey/`, `domains/` for generated outputs
 
-包含 4 个 OpenCode Skills 用于自动化调研工作流。
+## Instruction Files
 
----
+Found during analysis:
+- `AGENTS.md` at repo root - main repo instructions
+- `.opencode/skills/README.md` - project skill documentation
 
-## Build/Lint 命令
+Not found:
+- `.cursor/rules/`
+- `.cursorrules`
+- `.github/copilot-instructions.md`
+- `.clinerules`
+- `.windsurfrules`
 
-### 使用 Skills
+Do not assume Cursor or Copilot-specific rules exist here.
 
-Skills 通过自然语言触发，无需手动运行脚本：
+## Build / Run / Test Commands
 
-```bash
-# GitHub 项目调研
-"研究一下 vercel/next.js"
-
-# 学术论文阅读
-"阅读论文 https://arxiv.org/abs/2301.07041"
-
-# 调研合成
-"对比分析 React 和 Vue"
-
-# 领域探索
-"探索 RAG 领域"
-```
----
-
-## Survey Skills
-
-### Skills 概述
-
-| Skill | 用途 | 触发词示例 |
-|-------|------|-----------|
-| `github-researcher` | GitHub 项目调研 | "项目调研", "research this project" |
-| `paper-reader` | 论文阅读分析 | "论文阅读", "read this paper" |
-| `survey-synthesizer` | 调研合成对比 | "对比分析", "compare these" |
-| `domain-explorer` | 领域探索学习 | "领域探索", "explore domain" |
-
-### 使用方式
-
-在 OpenCode 对话中直接使用触发词：
-
-```
-研究一下 vercel/next.js
-阅读论文 https://arxiv.org/abs/2301.07041
-对比分析 React 和 Vue
-探索 RAG 领域
-```
-
-### 输出目录
-
-| Skill | 输出目录 |
-|-------|----------|
-| `github-researcher` | `github/{owner}-{repo}/README.md` |
-| `paper-reader` | `essay/{paper-id}/notes.md` |
-| `survey-synthesizer` | `survey/{topic}/comparison.md` |
-| `domain-explorer` | `domains/{domain}/learning-path.md` |
-
----
-
-## 环境配置
-
-### 必需
-
-- Bun >= 1.0.0
-- Git
-
-### 环境变量
+The root `package.json` is minimal and does not define dedicated `build`, `lint`, or `typecheck` scripts.
+Run Bun commands directly.
 
 ```bash
-# LLM 分析（必需）
-KIMI_API_KEY=your-api-key
+# Run a single test file
+bun test scripts/lib/repo-registry.test.ts
+bun test scripts/repo-cli.test.ts
+bun test scripts/sync-repos.test.ts
 
-# GitHub API（可选，提升限额 60 → 5000 req/hr）
-GITHUB_TOKEN=ghp_your_token
+# Run all repo-owned tests safely
+bun test scripts/repo-cli.test.ts scripts/sync-repos.test.ts scripts/lib/repo-registry.test.ts
 
-# Semantic Scholar API（可选，提升限额 100 → 5000 req/5min）
-SEMANTIC_SCHOLAR_API_KEY=your_key
-```
----
+# Watch one test file
+bun test --watch scripts/repo-cli.test.ts
 
-## 同步机制
-
-### 项目注册表
-
-所有已调研的项目记录在 `data/repos.json`，包含：
-- 项目 URL 和元数据
-- 克隆时间和最后 commit
-- Tags 和难度级别
-
-### 同步命令
-
-```bash
-# 同步所有项目（clone 或 pull）
+# Repo sync
 bun scripts/sync-repos.ts
-
-# 检查哪些项目有更新
 bun scripts/sync-repos.ts --check
-
-# 只克隆缺失的项目
 bun scripts/sync-repos.ts --clone
-
-# 只拉取已有项目
 bun scripts/sync-repos.ts --pull
-
-# 同步单个项目
 bun scripts/sync-repos.ts vercel/next.js
+bun scripts/sync-repos.ts --verify
+bun scripts/sync-repos.ts --verify-fix
+
+# Repo registry CLI
+bun scripts/repo-cli.ts list --json
+bun scripts/repo-cli.ts get vercel/next.js --json
+bun scripts/repo-cli.ts validate
+bun scripts/repo-cli.ts repair
+
+# Domain index generation
+bun scripts/generate-domain-index.ts
 ```
 
-### 自然语言触发
+### Test Guidance
 
-在 OpenCode 对话中可以直接说：
-- "同步所有项目" - 调用同步脚本
-- "检查更新" - 检查版本变化
-- "更新 next.js 分析" - 拉取并重新分析
+- Do not use bare `bun test` as a default. It discovers tests inside cloned repos under `github/` and can fail for unrelated reasons.
+- Prefer the smallest relevant test file first.
+- When multiple local script files change, run the explicit `scripts/*.test.ts` file list.
+- Validate command examples against real script entrypoints before finishing.
 
-### 新机器初始化
+## Repository Structure
 
-```bash
-# 1. 克隆 Survey 仓库
-git clone <repo-url>
-
-# 2. 同步所有 GitHub 项目
+```text
+.
+|- .opencode/skills/        Project-specific OpenCode skills
+|- data/                    Registry and generated data
+|- docs/                    Documentation
+|- domains/                 Domain learning-path outputs
+|- essay/                   Paper reading outputs
+|- research/                Generated research outputs (GitHub analysis reports)
+|- sources/                 Cloned source repositories (GitHub projects)
+|- scripts/                 TypeScript automation and colocated tests
+|  |- lib/                  Shared script libraries
+|- survey/                  Survey synthesis outputs
 ```
 
-### 检查仓库重命名
+## Code Style Guidelines
 
-GitHub 仓库可能被重命名（如 `oh-my-opencode` → `oh-my-openagent`）。使用以下命令检测和更新：
+These rules are based on observed patterns in `scripts/*.ts` and `scripts/lib/*.ts`.
 
-```bash
-# 检查所有仓库的重命名状态
-bun scripts/sync-repos.ts --update-registry
+### Imports
 
-# 检查重命名并同时更新本地目录名
-bun scripts/sync-repos.ts --update-registry --rename-dirs
-```
+Group imports in this order:
+1. `bun:test` imports in test files only
+2. Node.js built-ins with `node:` prefix
+3. Third-party packages
+4. Local value imports
+5. Local type imports via `import type`
 
-#### 自然语言触发
+### Formatting
 
-在 OpenCode 对话中可以直接说：
-- "检查哪些仓库被重命名了"
-- "更新项目注册表"
-- "项目改名了"
+- Use 2-space indentation.
+- Use double quotes unless a template string is clearer.
+- Keep semicolons.
+- Prefer readable wrapping over very long lines.
+- Add spaces between Chinese and English in mixed text.
 
-#### 输出示例
+### Naming
 
-```
-检查仓库重命名...
+- Interfaces and type aliases: `PascalCase`
+- Functions and variables: `camelCase`
+- Constants: `SCREAMING_SNAKE_CASE`
+- Files: `kebab-case`
+- Tests: colocated `*.test.ts`
 
-✓ vercel/next.js - 无变化
-⚠ oh-my-opencode → oh-my-openagent (已更新)
-✓ langchain-ai/langchain - 无变化
+Examples seen in the repo:
+- `RepoRegistry`
+- `fixOrphanedRepos`
+- `LEVELS`
+- `repo-registry.ts`
 
-统计：1 个仓库已重命名，已更新 repos.json
-```
+### Types
 
----
+- Use `interface` for structured object shapes.
+- Use `type` for unions and string literal sets.
+- Prefer explicit optional fields over loose dictionaries.
+- Avoid `any`.
+- Use `string | null` only when null is part of the data model.
 
-## 代码风格指南
+Typical example:
+- `export type RepoLevel = "beginner" | "intermediate" | "advanced" | "expert";`
+- `last_commit?: string | null`
 
-### Imports 组织顺序
+### Error Handling
 
-1. Node.js 内置模块
-2. 第三方库（如有）
-3. 本地模块导入
-4. 类型导入（使用 `import type`）
+- Throw explicit, actionable errors.
+- Use `catch` without a variable only when intentionally ignoring an expected failure.
+- Keep fallback behavior obvious when ignoring an error.
+- Prefer validation helpers over scattered ad-hoc checks.
 
-### 命名约定
+Typical pattern:
+- `throw new Error(\`Failed to read registry: ${error}\`)`
 
-| 类型 | 风格 | 示例 |
-|------|------|------|
-| 类 | PascalCase | `ProjectAnalyzer` |
-| 函数/变量 | camelCase | `getProjectInfo` |
-| 常量 | SCREAMING_SNAKE_CASE | `SKIP_DIRS` |
-| 文件 | kebab-case | `update-github-index.ts` |
+## Testing Conventions
 
-### 类型定义
+- Use Bun's built-in test runner from `bun:test`.
+- Group tests with `describe(...)` and name `test(...)` by concrete behavior.
+- Use temp directories plus `process.chdir(...)` for filesystem isolation.
+- Clean up with `fs.rmSync(..., { recursive: true, force: true })` in `afterEach(...)`.
+- Use `mock.restore()` when spies or mocks are involved.
 
-- 使用 `interface` + JSDoc 定义对象类型
-- 使用 `type` 定义联合类型
+## Script and Data Rules
 
-### 错误处理
+- Run scripts directly with `bun scripts/<name>.ts`.
+- For registry changes, use `scripts/lib/repo-registry.ts` or `scripts/repo-cli.ts`.
+- Do not rewrite `data/repos.json` with ad-hoc JSON logic when shared helpers exist.
+- Keep registry IDs in `owner/repo` format.
+- Preserve atomic write behavior for registry persistence.
+- Preserve existing Chinese documentation tone.
+- Do not commit secrets.
+- Archive outdated materials into `archive/` instead of deleting casually.
 
-```typescript
-// 推荐：明确错误消息
-try {
-  const result = await riskyOperation();
-} catch (error) {
-  throw new Error(`Operation failed: ${error}`);
-}
+## Commit Conventions
 
-// 可接受：静默忽略需注释说明
-try {
-  return await readOptionalFile();
-} catch {
-  return undefined; // 文件不存在时返回 undefined
-}
-```
+Use `type(scope): subject`.
 
-### 代码格式
+Common scopes: `scripts`, `skills`, `data`, `survey`, `essay`, `github`
+Common types: `feat`, `fix`, `docs`, `refactor`, `chore`
 
-- 缩进：2 空格
-- 字符串：双引号或模板字符串
-- 中英文混排：中英文之间加空格
+## Agent Checklist
 
----
+Before finishing work:
+- Re-run the smallest relevant local test file.
+- If multiple script files changed, run the explicit `scripts/*.test.ts` list.
+- Verify any changed command examples still work.
+- Keep docs aligned with the actual file layout and workflow.
 
-## 目录结构
+## Research Repository Index
 
-├── .opencode/skills/          # OpenCode Skills
-│   ├── github-researcher/     # GitHub 项目调研
-│   ├── paper-reader/          # 论文阅读
-│   ├── survey-synthesizer/    # 调研合成
-│   ├── domain-explorer/       # 领域探索
-│   └── README.md              # Skills 详细文档
-├── scripts/                   # TypeScript 脚本
-│   ├── sync-repos.ts          # 项目同步
-│   └── generate-domain-index.ts # 领域索引生成
-├── data/                      # 数据文件
-│   ├── repos.json             # 项目注册表
-│   └── generated/             # 自动生成的索引
-├── domains/                   # 领域探索输出
-│   └── LLM/                   # LLM 学习路径
-├── github/                    # GitHub 项目分析输出（gitignore）
-├── essay/                     # 论文笔记输出
-├── survey/                    # 调研合成输出
-├── docs/                      # 文档资料
-└── archive/                   # 归档文件
-```
+The repository maintains an auto-generated master index of all GitHub research artifacts:
 
----
+- **Location**: `research/REPOSITORY_INDEX.md`
+- **Total Repositories**: 21 (as of March 2026)
+- **Categories**: Core Learning (5), LLM Training (4), RAG Systems (2), Vector DB (3), Fine-tuning (3), Advanced LLM (3), Frameworks (3)
 
-## Git 提交规范
+Each research entry includes:
+- `README.md` - Comprehensive project analysis report
+- `manifest.json` - Machine-readable metadata following `data/schemas/manifest.json` schema
 
-### 格式
+### Manifest Schema
 
-```
-type(scope): subject
-```
-
-### Type
-
-| Type | 用途 |
-|------|------|
-| `feat` | 新功能/新文档 |
-| `fix` | 修复错误 |
-| `docs` | 文档更新 |
-| `refactor` | 重构 |
-| `chore` | 杂项 |
-
-### Scope
-
-`scripts` | `github` | `survey` | `essay` | `skills` | `data`
-
----
-
-## Agent 工作准则
-
-### 文档操作
-
-- 新建：小写+连字符命名
-- 编辑：保持原有风格
-- 删除：确认无引用
-
-### 脚本开发
-
-- 遵循代码风格
-- 添加 JSDoc 注释
-- 完善错误处理
-- 避免 `any`
-
-### 数据处理
-
-- 原始 → `data/raw/`
-- 处理 → `data/processed/`
-- **禁止修改原始数据**
-
-### 自动提交
-
-```bash
-git add . && git commit -m "type(scope): subject" && git push
-```
-
----
-
-## 注意事项
-
-1. 不提交敏感信息（API Key、密码等）
-2. 及时归档过期内容到 `archive/`
-3. 中英文之间加空格
-4. `github/*/` 已加入 `.gitignore`
+All research artifacts include a `manifest.json` with the following structure:
+- `version` - Manifest schema version (semver)
+- `kind` - Artifact type: `github-analysis`, `paper-notes`, `survey-synthesis`, `domain-exploration`
+- `id` - Unique identifier (e.g., `owner/repo`)
+- `source_type` - Origin: `github`, `arxiv`, `doi`, `manual`
+- `upstream_url` - Link to original source
+- `inputs` / `outputs` - File paths for reproducibility
+- `generated_by` - Skill that created the artifact
+- `created_at` / `updated_at` - ISO 8601 timestamps
+- `language` - Content language: `zh`, `en`, `mixed`
+- `tags` - Topic tags for categorization

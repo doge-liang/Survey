@@ -1,0 +1,188 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/your-org/survey/main/data/schemas/manifest.json",
+  "title": "Research Artifact Manifest",
+  "description": "Schema for machine-readable metadata of generated research artifacts (GitHub analysis, paper notes, surveys, domain explorations)",
+  "type": "object",
+  "required": [
+    "version",
+    "kind",
+    "id",
+    "source_type",
+    "inputs",
+    "outputs",
+    "generated_by",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference URI"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Manifest schema version (semver)"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "github-analysis",
+        "paper-notes",
+        "survey-synthesis",
+        "domain-exploration"
+      ],
+      "description": "Artifact type identifier"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique identifier for the artifact (e.g., 'vercel/next.js', 'arxiv:2301.07041', 'RAG-frameworks')"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable title of the artifact"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "github",
+        "arxiv",
+        "doi",
+        "manual",
+        "domain",
+        "mixed"
+      ],
+      "description": "Origin type of the source material"
+    },
+    "upstream_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to the source (GitHub repo, arXiv link, DOI link)"
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Array of input file paths used to generate this artifact"
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Array of generated output files"
+    },
+    "generated_by": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Skill name that created this artifact (e.g., 'github-researcher', 'paper-reader')"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when artifact was first created"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when artifact was last updated"
+    },
+    "language": {
+      "type": "string",
+      "enum": ["zh", "en", "mixed"],
+      "description": "Primary content language"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Topic tags for categorization"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of the artifact"
+    },
+    "upstream_ids": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "id"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["github", "arxiv", "doi"]
+          },
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "description": "Array of upstream source identifiers (for surveys with multiple sources)"
+    },
+    "related": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "github-analysis",
+              "paper-notes",
+              "survey-synthesis",
+              "domain-exploration"
+            ]
+          },
+          "relationship": {
+            "type": "string",
+            "enum": ["related", "parent", "child", "derived"]
+          }
+        }
+      },
+      "description": "Related artifacts (for building knowledge graphs)"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional skill-specific metadata"
+    }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "artifact_kind": {
+      "type": "string",
+      "enum": [
+        "github-analysis",
+        "paper-notes",
+        "survey-synthesis",
+        "domain-exploration"
+      ]
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "github",
+        "arxiv",
+        "doi",
+        "manual",
+        "domain",
+        "mixed"
+      ]
+    }
+  }
+}

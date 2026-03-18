@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "github-analysis",
+  "id": "pguso/rag-from-scratch",
+  "title": "RAG from Scratch Analysis",
+  "source_type": "github",
+  "upstream_url": "https://github.com/pguso/rag-from-scratch",
+  "inputs": ["sources/github/pguso/rag-from-scratch"],
+  "outputs": ["README.md"],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-18T10:30:00Z",
+  "updated_at": "2026-03-18T10:30:00Z",
+  "language": "zh",
+  "tags": ["rag", "educational", "nodejs", "tutorial", "local-llm", "embeddings"]
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "github-analysis",
+  "id": "jingyaogong/minimind",
+  "title": "MiniMind - 从零训练超小型 LLM 分析",
+  "source_type": "github",
+  "upstream_url": "https://github.com/jingyaogong/minimind",
+  "inputs": ["sources/github/jingyaogong/minimind"],
+  "outputs": ["README.md"],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-18T10:05:00Z",
+  "updated_at": "2026-03-18T10:05:00Z",
+  "language": "zh",
+  "tags": ["llm", "training", "from-scratch", "mini", "pytorch", "chinese"]
+}

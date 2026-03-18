@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "github-analysis",
+  "id": "kagisearch/vectordb",
+  "title": "VectorDB Analysis",
+  "source_type": "github",
+  "upstream_url": "https://github.com/kagisearch/vectordb",
+  "inputs": ["sources/github/kagisearch/vectordb"],
+  "outputs": ["README.md"],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-18T10:40:00Z",
+  "updated_at": "2026-03-18T10:40:00Z",
+  "language": "zh",
+  "tags": ["vector-database", "kagi", "lightweight", "python", "embeddings", "intermediate"]
+}

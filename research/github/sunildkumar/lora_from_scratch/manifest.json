@@ -1,0 +1,26 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "github-analysis",
+  "id": "sunildkumar/lora_from_scratch",
+  "title": "LoRA from Scratch Analysis",
+  "source_type": "github",
+  "upstream_url": "https://github.com/sunildkumar/lora_from_scratch",
+  "inputs": [
+    "sources/github/sunildkumar/lora_from_scratch"
+  ],
+  "outputs": [
+    "README.md"
+  ],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-18T03:02:36Z",
+  "updated_at": "2026-03-18T03:02:36Z",
+  "language": "zh",
+  "tags": [
+    "lora",
+    "fine-tuning",
+    "pytorch",
+    "educational",
+    "from-scratch"
+  ]
+}
