@@ -51,6 +51,10 @@ USER REQUEST PARSING:
 SOURCE TYPES:
   - project_analyses: research/github/*/README.md (project analysis reports)
   - paper_notes: essay/*/notes.md (paper reading notes)
+  - **manifest_metadata: research/github/*/manifest.json, essay/*/manifest.json** (metadata including tags, language, timestamps)
+  - web_search: Supplement missing information
+  - project_analyses: research/github/*/README.md (project analysis reports)
+  - paper_notes: essay/*/notes.md (paper reading notes)
   - web_search: Supplement missing information
 ```
 
@@ -66,6 +70,27 @@ ls essay/*/notes.md 2>/dev/null
 # Check for existing surveys
 ls survey/*/comparison.md 2>/dev/null
 ```
+
+### 0.2b Read Manifest Metadata (CRITICAL)
+
+When filtering by topic, use manifest.json for efficient source discovery:
+
+```bash
+# Use test-synthesis.ts to find sources by tags
+bun scripts/test-synthesis.ts --topic "{topic}" --json
+
+# Or search by keyword
+bun scripts/test-synthesis.ts --search "{keyword}" --json
+```
+
+**Manifest fields to extract:**
+- `tags[]` - Topic categories for filtering
+- `language` - Content language (zh/en/mixed)
+- `updated_at` - Report freshness
+- `upstream_url` - Original source link
+- `title` - Display name
+
+**IMPORTANT:** Always prefer manifest-based discovery over file scanning when topic keywords are provided.
 
 ### 0.3 Determine Synthesis Scope
 
@@ -114,6 +139,29 @@ SOURCES IDENTIFIED:
 ## PHASE 1: Data Collection
 
 <data_collection>
+
+### 1.0 Read Source Manifests (NEW STEP)
+
+Before reading content files, load each source's manifest.json for metadata:
+
+```
+FOR EACH source in sources:
+  1. Read manifest.json from source directory
+  2. Extract metadata:
+     - id: Unique identifier
+     - title: Display name
+     - tags[]: Topic categories
+     - language: Content language
+     - updated_at: Last updated timestamp
+     - upstream_url: Original source URL
+  3. Use tags to validate source relevance to topic
+  4. Check updated_at to identify stale analyses (> 30 days)
+```
+
+**Source metadata enriches the synthesis:**
+- Include `upstream_url` in citations for traceability
+- Use `language` to inform report language choice
+- Filter by `tags[]` for domain-specific synthesis
 ### 1.1 Read Existing Analyses
 
 For each identified source, read the analysis file:
