@@ -1,0 +1,17 @@
+{
+  "pdf_path": "paper/2602.05065/paper.pdf",
+  "method": "pymupdf",
+  "status": "ok",
+  "pages_total": 25,
+  "pages_with_text": 25,
+  "total_chars": 70995,
+  "avg_chars_per_page": 2839.8,
+  "non_empty_ratio": 1.0,
+  "sections_found": [
+    "Introduction",
+    "Experiments",
+    "Conclusion",
+    "References"
+  ],
+  "warnings": []
+}

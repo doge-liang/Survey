@@ -233,104 +233,53 @@ Size: XXX KB
 <pdf_extraction>
 **Extract text from downloaded PDF for analysis.**
 
-### 1.6.1 Library Selection (Priority Order)
+### 1.6.1 MANDATORY Extraction Step
 
-| PDF Type | Library | Rationale | Command |
-|----------|---------|-----------|----------|
-| Standard text PDF | **PyMuPDF (fitz)** | Fast, accurate, minimal deps | `pip install pymupdf` |
-| Scanned document | PyMuPDF + OCR | Built-in Tesseract | `fitz.open().get_textpage_ocr()` |
-| Complex layout | marker-pdf | Multi-column, figures | `pip install marker-pdf` |
-| Tables-heavy | pdfplumber | Superior table extraction | `pip install pdfplumber` |
+**This step is MANDATORY when paper.pdf exists.**
 
-**推荐使用 PyMuPDF (fitz)**：学术论文提取的最佳选择，速度和准确率最优。
+Before proceeding to Phase 2, you MUST attempt text extraction:
 
-### 1.6.2 Extraction Commands
+1. If `extract.txt` already exists and `extract-status.json` shows `status: ok` or `ocr_ok` → skip to Phase 2
+2. Otherwise → run extraction below
 
-**Standard (PyMuPDF) - 推荐首选：**
-```python
-import fitz  # PyMuPDF
+### 1.6.2 Extraction Script (Recommended)
 
-def extract_text(pdf_path: str) -> str:
-    doc = fitz.open(pdf_path)
-    text = "\n".join(page.get_text() for page in doc)
-    doc.close()
-    return text
-
-# Usage
-text = extract_text("paper/2312.00752/paper.pdf")
-```
-
-**With OCR (for scanned papers)：**
-```python
-def extract_with_ocr(pdf_path: str, dpi: int = 300) -> str:
-    doc = fitz.open(pdf_path)
-    text = ""
-    for page in doc:
-        tp = page.get_textpage_ocr(dpi=dpi, full=True)
-        text += page.get_text(textpage=tp)
-    doc.close()
-    return text
-```
-
-**Complex Layout (marker-pdf)：**
-```bash
-# CLI usage (requires ~5GB disk for models)
-marker_single paper.pdf output/ --output_format markdown
-```
-
-### 1.6.3 Save Extracted Text
+Use the dedicated extraction script for reliable, consistent results:
 
 ```bash
-# Create extract file
-python -c "
-import fitz
-doc = fitz.open('paper/{paper-id}/paper.pdf')
-text = '\n'.join(page.get_text() for page in doc)
-open('paper/{paper-id}/extract.txt', 'w').write(text)
-"
+# Create venv and install PyMuPDF if not already done
+python -m venv .venv
+.venv/Scripts/pip install pymupdf
 
-# Verify extraction
-wc -l paper/{paper-id}/extract.txt
+# Run extraction
+.venv/Scripts/python scripts/extract-pdf-text.py \
+  --pdf "paper/{paper-id}/paper.pdf" \
+  --out "paper/{paper-id}/extract.txt" \
+  --report "paper/{paper-id}/extract-status.json" \
+  --ocr-if-needed
 ```
 
-### 1.6.4 Section Detection Pattern
+### 1.6.3 Quality Thresholds
 
-提取后识别论文章节：
-```python
-SECTION_HEADERS = [
-    'Abstract', 'Introduction', 'Related Work',
-    'Methodology', 'Methods', 'Experiments',
-    'Results', 'Discussion', 'Conclusion',
-    'References', 'Appendix'
-]
+| Metric | Minimum | Notes |
+|--------|---------|-------|
+| Total chars | 4,000 | ~10+ pages of text |
+| Avg chars/page | 200 | Too low suggests scanned PDF |
+| Non-empty ratio | 70% | Pages with actual text |
 
-def split_sections(text: str) -> dict:
-    sections = {}
-    current = 'preamble'
-    content = []
-    for line in text.split('\n'):
-        for header in SECTION_HEADERS:
-            if header.lower() in line.lower() and len(line.strip()) < 50:
-                if content:
-                    sections[current] = '\n'.join(content)
-                current = header.lower()
-                content = []
-                break
-        else:
-            content.append(line)
-    return sections
+### 1.6.4 Access Level Gate
+
+**CRITICAL**: The access level is determined by extraction quality, NOT PDF existence:
+
+```
+IF extract-status.json exists AND status in [ok, ocr_ok]:
+  → FULL_TEXT analysis
+ELSE:
+  → ABSTRACT_ONLY analysis
 ```
 
-**OUTPUT (BLOCKING)：**
-```
-PDF EXTRACTION
-===============
-Method: [pymupdf | pymupdf-ocr | marker | pdfplumber]
-File: paper/{paper-id}/extract.txt
-Lines: XXX
-Sections detected: [abstract, introduction, methods, results, conclusion]
-```
-</pdf_extraction>
+**Never claim FULL_TEXT when extract.txt is missing or low-quality.**
+
 
 ---
 
@@ -339,15 +288,22 @@ Sections detected: [abstract, introduction, methods, results, conclusion]
 <paper_analysis>
 ### 2.1 Access Level Detection
 
-```
-IF openAccessPdf exists OR arXiv PDF available:
-  → FULL_TEXT analysis possible
-ELSE:
-  → ABSTRACT_ONLY analysis (acknowledge limitation)
+**MANDATORY GATE**: Before claiming FULL_TEXT analysis, verify extraction quality:
 
-**Prerequisite**: PDF must be downloaded in Phase 1.5
-IF PDF unavailable: Use abstract + web search for paper summaries
 ```
+IF extract-status.json exists AND status in [ok, ocr_ok]:
+  → FULL_TEXT analysis
+ELSE:
+  → ABSTRACT_ONLY analysis (explain why: missing extract.txt, low quality, or PDF unavailable)
+```
+
+**Common reasons for ABSTRACT_ONLY:**
+- `extract.txt` does not exist (Phase 1.6 skipped or failed)
+- `extract-status.json` status is not `ok` or `ocr_ok`
+- PDF is paywalled or unavailable
+
+When in ABSTRACT_ONLY mode, you MUST acknowledge this limitation in your output.
+
 
 ### 2.2 Analysis Depth by Access
 

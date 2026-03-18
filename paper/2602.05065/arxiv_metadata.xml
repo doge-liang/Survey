@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/rJSl3oN6kGcFexpITskTcrW5gAs</id>
+  <title>arXiv Query: search_query=&amp;id_list=2602.05065&amp;start=0&amp;max_results=10</title>
+  <updated>2026-03-18T15:39:46Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=&amp;start=0&amp;max_results=10&amp;id_list=2602.05065" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>
+  <opensearch:totalResults>1</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2602.05065v1</id>
+    <title>Does SGD Seek Flatness or Sharpness? An Exactly Solvable Model</title>
+    <updated>2026-02-04T21:36:31Z</updated>
+    <link href="https://arxiv.org/abs/2602.05065v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2602.05065v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>A large body of theory and empirical work hypothesizes a connection between the flatness of a neural network's loss landscape during training and its performance. However, there have been conceptually opposite pieces of evidence regarding when SGD prefers flatter or sharper solutions during training. In this work, we partially but causally clarify the flatness-seeking behavior of SGD by identifying and exactly solving an analytically solvable model that exhibits both flattening and sharpening behavior during training. In this model, the SGD training has no \textit{a priori} preference for flatness, but only a preference for minimal gradient fluctuations. This leads to the insight that, at least within this model, it is data distribution that uniquely determines the sharpness at convergence, and that a flat minimum is preferred if and only if the noise in the labels is isotropic across all output dimensions. When the noise in the labels is anisotropic, the model instead prefers sharpness and can converge to an arbitrarily sharp solution, depending on the imbalance in the noise in the labels spectrum. We reproduce this key insight in controlled settings with different model architectures such as MLP, RNN, and transformers.</summary>
+    <category term="cs.LG" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="math.OC" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="stat.ML" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-02-04T21:36:31Z</published>
+    <arxiv:primary_category term="cs.LG"/>
+    <author>
+      <name>Yizhou Xu</name>
+    </author>
+    <author>
+      <name>Pierfrancesco Beneventano</name>
+    </author>
+    <author>
+      <name>Isaac Chuang</name>
+    </author>
+    <author>
+      <name>Liu Ziyin</name>
+    </author>
+  </entry>
+</feed>
