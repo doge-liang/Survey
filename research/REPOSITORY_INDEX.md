@@ -4,7 +4,11 @@
 
 ## Statistics
 
-- **Total Repositories**: 26
+- **Total Repositories**: 27
+- **By Language**: zh: 27
+- **By Source Type**: github: 27
+- **By Kind**: github-analysis: 27
+- **Generated At**: 2026-03-18T09:15:00.000Z
 - **By Language**: zh: 26
 - **By Source Type**: github: 26
 - **By Kind**: github-analysis: 26
@@ -40,6 +44,7 @@
 | 24 | [sunildkumar/lora_from_scratch](https://github.com/sunildkumar/lora_from_scratch) | github-analysis | zh | lora, fine-tuning, pytorch...|
 | 25 | [tinygrad/tinygrad](https://github.com/tinygrad/tinygrad) | github-analysis | zh | deep-learning, framework, python...|
 | 26 | [Wenyueh/MinivLLM](https://github.com/Wenyueh/MinivLLM) | github-analysis | zh | llm, inference, vllm...|
+| 27 | [Opencode-DCP/opencode-dynamic-context-pruning](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | github-analysis | zh | opencode, plugin, context-pruning, token-optimization...|
 
 ## Repository by Phase
 
@@ -108,6 +113,11 @@
 - **pguso/ai-agents-from-scratch** - AI Agents From Scratch: 从零构建 AI 代理
   - Tags: agent, react, from-scratch, tutorial, javascript, local-llm
   - Path: research/github/pguso/ai-agents-from-scratch/
+
+- **Opencode-DCP/opencode-dynamic-context-pruning** - OpenCode 智能上下文剪枝插件
+  - Tags: opencode, plugin, context-pruning, token-optimization, llm, ai-programming, typescript
+  - Path: research/github/Opencode-DCP/opencode-dynamic-context-pruning/
+
 
 ### Phase 3B - Fine-tuning
 

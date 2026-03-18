@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "github-analysis",
+  "id": "QasimWani/LeetHub",
+  "title": "LeetHub - 自动同步 LeetCode 到 GitHub",
+  "source_type": "github",
+  "upstream_url": "https://github.com/QasimWani/LeetHub",
+  "inputs": [],
+  "outputs": ["README.md"],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-18T09:20:00Z",
+  "updated_at": "2026-03-18T09:20:00Z",
+  "language": "zh",
+  "tags": ["chrome-extension", "leetcode", "github", "automation", "javascript", "portfolio"]
+}

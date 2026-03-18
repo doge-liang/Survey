@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "github-analysis",
+  "id": "youngyangyang04/leetcode-master",
+  "title": "代码随想录 · LeetCode-Master 分析报告",
+  "source_type": "github",
+  "upstream_url": "https://github.com/youngyangyang04/leetcode-master",
+  "inputs": [],
+  "outputs": ["README.md"],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-18T10:30:00Z",
+  "updated_at": "2026-03-18T10:30:00Z",
+  "language": "zh",
+  "tags": [
+    "algorithm",
+    "leetcode",
+    "interview",
+    "cpp",
+    "java",
+    "python",
+    "go",
+    "javascript",
+    "dynamic-programming",
+    "backtracking",
+    "graph-theory",
+    "education"
+  ],
+  "description": "代码随想录 LeetCode 刷题攻略，200道经典题目按知识脉络排序，配图文题解与视频讲解，支持多语言版本",
+  "metadata": {
+    "stars": 60768,
+    "forks": 12346,
+    "watchers": 60768,
+    "contributors": 390,
+    "primary_language": "Shell",
+    "default_branch": "master",
+    "created_at": "2019-12-14T12:05:42Z",
+    "last_push": "2026-03-11T02:52:47Z",
+    "open_issues": 241,
+    "topics": [
+      "algorithm",
+      "cpp",
+      "go",
+      "interview",
+      "java",
+      "javascript",
+      "leetcode",
+      "offer",
+      "programmer",
+      "python"
+    ]
+  }
+}

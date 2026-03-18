@@ -91,17 +91,6 @@
       "level": "advanced"
     },
     {
-      "id": "inception-rag/inception-rag",
-      "url": "https://github.com/inception-rag/inception-rag",
-      "owner": "inception-rag",
-      "repo": "inception-rag",
-      "description": "",
-      "stars": null,
-      "tags": [],
-      "level": "intermediate",
-      "cloned_at": "2026-03-15T09:28:32.835Z"
-    },
-    {
       "id": "Infrasys-AI/AIInfra",
       "url": "https://github.com/Infrasys-AI/AIInfra",
       "owner": "Infrasys-AI",
