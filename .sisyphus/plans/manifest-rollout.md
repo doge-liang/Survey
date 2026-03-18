@@ -115,7 +115,8 @@ Enable survey-synthesizer to consume manifest data and test end-to-end synthesis
   - **QA Verification:**
     ```bash
     bun scripts/test-synthesis.ts --list-sources
-    # Expected: Text output showing sources with manifest metadata
+    # Verify it shows "Research Sources" and "Paper Sources" sections
+    ```
     # Verify it shows "Research Sources" and "Paper Sources" sections
     ```
     # Expected: JSON with manifest metadata (tags, language, etc.)
