@@ -23,5 +23,16 @@ Thumbs.db
 .env
 .env.local
 
+# Serena (local project metadata)
+.serena/
+
+# Sisyphus local state
 .sisyphus/tasks
+.sisyphus/boulder.json
+
+# Git worktrees
 .worktrees/
+
+# Cleanup scripts (temporary)
+clean_skill.py
+clean_skill.ts
