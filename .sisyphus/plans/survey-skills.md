@@ -29,7 +29,7 @@
 - **Skills 范围**: 全部 4 个 Skills（github-researcher, paper-reader, survey-synthesizer, domain-explorer）
 - **API 集成**: Semantic Scholar, arXiv, GitHub APIs
 - **MCP 策略**: 不创建专用 MCP，使用内置 websearch MCP + 直接 HTTP 调用
-- **数据存储**: Markdown 文件，使用现有 `github/`, `essay/` 目录
+- **数据存储**: Markdown 文件，使用现有 `github/`, `paper/` 目录
 - **实现策略**: 重新实现，不依赖现有脚本
 
 **Research Findings**:
@@ -62,7 +62,7 @@
 | Skill | 触发词 | 输出位置 |
 |-------|--------|----------|
 | `github-researcher` | "research this project", "analyze repo", "项目调研" | `github/{owner}-{repo}/` |
-| `paper-reader` | "read this paper", "论文阅读", "analyze arxiv" | `essay/{paper-id}/` |
+| `paper-reader` | "read this paper", "论文阅读", "analyze arxiv" | `paper/{paper-id}/` |
 | `survey-synthesizer` | "compare these", "synthesize survey", "调研合成" | `survey/{topic}/` |
 | `domain-explorer` | "explore domain", "领域探索", "learning path" | `domains/{domain}/` |
 
@@ -251,7 +251,7 @@ Task 1,2 → Task 3,4 → Task 5 → F1
       1. Invoke skill with "read https://arxiv.org/abs/2301.07041"
       2. Skill extracts arXiv ID, fetches metadata
       3. Generates notes.md with summary, methods, citations
-    Expected Result: `essay/2301.07041/notes.md` exists
+    Expected Result: `paper/2301.07041/notes.md` exists
     Evidence: .sisyphus/evidence/skill-paper-reader-happy.md
 
   Scenario: Error case - Invalid DOI
@@ -295,7 +295,7 @@ Task 1,2 → Task 3,4 → Task 5 → F1
 
   **References**:
   - `github/` - 已有项目分析目录
-  - `essay/` - 已有论文笔记目录
+  - `paper/` - 已有论文笔记目录
 
   **Acceptance Criteria**:
   - [x] `.opencode/skills/survey-synthesizer/SKILL.md` 文件存在

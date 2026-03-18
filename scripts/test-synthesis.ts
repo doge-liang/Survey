@@ -104,7 +104,7 @@ function listSourcesCommand(): void {
     console.log();
   }
 
-  console.log("=== Essay Sources ===\n");
+  console.log("=== Paper Sources ===\n");
   for (const source of papers) {
     console.log(`  ${source.manifest.id}`);
     console.log(`    Kind: ${source.kind}`);

@@ -234,7 +234,7 @@ Survey/
 
 **解决方案:**
 1. 先运行 `github-researcher` 或 `paper-reader` 生成分析文件
-2. 检查 `research/github/*/README.md` 和 `essay/*/notes.md` 是否存在
+2. 检查 `research/github/*/README.md` 和 `paper/*/notes.md` 是否存在
 3. 使用 `--force` 参数重新分析
 
 ### Q: 领域探索结果太宽泛?
