@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
 
-# Cloned repositories for analysis (too large to commit)
-github/*/
+# Cloned repositories for analysis (reproducible from repos.json)
+sources/github/*/
 
 # IDE
 .idea/

@@ -7,7 +7,7 @@ description: |
   (3) Build domain knowledge graphs: "knowledge graph", "知识图谱", "build taxonomy"
   (4) Generate comparison reports: "comparison report", "对比报告"
   
-  Input sources: github/*/README.md (project analyses), essay/*/notes.md (paper notes)
+  Input sources: research/github/*/README.md (project analyses), essay/*/notes.md (paper notes)
   Output: survey/{topic}/ with comparison.md and knowledge-graph.md
 ---
 
@@ -23,14 +23,14 @@ You are a research synthesis specialist. You combine multiple project analyses a
 **NO HALLUCINATION = HARD RULE**
 
 Every claim in your synthesis MUST trace back to:
-1. An existing analysis file (github/*/README.md, essay/*/notes.md)
+1. An existing analysis file (research/github/*/README.md, essay/*/notes.md)
 2. A web search result (with citation)
 3. Original source documentation
 
 **If you cannot verify a claim, mark it as [NEEDS VERIFICATION] instead of guessing.**
 
 **Citation format:**
-- From local analysis: `[source: github/oh-my-opencode/README.md]`
+- From local analysis: `[source: research/github/oh-my-opencode/README.md]`
 - From web search: `[source: https://...]`
 </critical_warning>
 
@@ -49,7 +49,7 @@ USER REQUEST PARSING:
   implicit_scope: Domain keywords to search (e.g., "RAG", "LLM training")
   
 SOURCE TYPES:
-  - project_analyses: github/*/README.md (project analysis reports)
+  - project_analyses: research/github/*/README.md (project analysis reports)
   - paper_notes: essay/*/notes.md (paper reading notes)
   - web_search: Supplement missing information
 ```
@@ -58,7 +58,7 @@ SOURCE TYPES:
 
 ```bash
 # List project analyses
-ls github/*/README.md 2>/dev/null
+ls research/github/*/README.md 2>/dev/null
 
 # List paper notes
 ls essay/*/notes.md 2>/dev/null
@@ -74,7 +74,7 @@ SCOPE DECISION:
   IF user specifies exact items:
     -> Use only those items
   ELIF user gives domain keywords:
-    -> Search for matching analyses in github/ and essay/
+    -> Search for matching analyses in research/github/ and essay/
   ELSE:
     -> Ask user to clarify scope
 
@@ -94,8 +94,8 @@ Output Directory: survey/{topic}/
 
 SOURCES IDENTIFIED:
   Project Analyses (N):
-    - github/project-a/README.md
-    - github/project-b/README.md
+    - research/github/project-a/README.md
+    - research/github/project-b/README.md
   
   Paper Notes (M):
     - essay/paper-1/notes.md
@@ -543,23 +543,67 @@ survey/{topic}/
 
 ---
 
-## FINAL CHECK BEFORE DELIVERY (BLOCKING)
+## QA Scenarios
 
+### Scenario 1: Happy Path - Multi-source Comparison
+
+**测试场景**：对比分析已有项目分析
+
+**触发方式**：
 ```
-STOP AND VERIFY - Do not proceed until ALL boxes checked:
-
-[] All sources read and cited?
-[] Comparison dimensions cover key aspects?
-[] Comparison table complete for all items?
-[] Pros AND cons listed for each item?
-[] Use case recommendations provided?
-[] Knowledge graph entities and relations defined?
-[] Mermaid diagram renders correctly?
-[] Output files created in survey/{topic}/?
-[] No unverified claims (all marked or cited)?
+对比分析 langchain 和 llama_index
 ```
 
-**HARD STOP CONDITIONS:**
-- No sources available → Ask user to run analysis skills first
-- Cannot differentiate items → Request user clarification on comparison focus
-- Critical information missing → Mark gaps and offer to search or ask user
+**执行步骤**：
+1. Skill 检测到对比请求，识别目标项目
+2. 读取 `research/github/langchain-ai/langchain/README.md`
+3. 读取 `research/github/run-llama/llama_index/README.md`
+4. 执行对比分析，生成对比矩阵
+5. 创建输出目录 `survey/llm-frameworks/`
+6. 写入 `comparison.md` 和 `knowledge-graph.md`
+
+**预期结果**：
+- `survey/llm-frameworks/comparison.md` 存在
+- 包含对比表格，覆盖所有标准维度
+- 每个项目都有优势和局限性说明
+- 包含选型建议
+- 所有声明都有来源引用
+
+**证据文件**：`.sisyphus/evidence/skill-survey-synthesizer-happy.md`
+
+---
+
+### Scenario 2: Error Case - Missing Input Sources
+
+**测试场景**：无可用分析数据
+
+**触发方式**：
+```
+对比分析 nonexistent-project 和 another-fake
+```
+
+**执行步骤**：
+1. Skill 检测到对比请求
+2. 检查 `research/github/` 目录，未找到目标项目分析
+3. 检查 `essay/` 目录，未找到相关论文笔记
+4. 检测到无可用输入源
+
+**预期结果**：
+- 不创建任何输出文件
+- 返回清晰的错误提示
+- 建议用户先运行前置分析：
+  - "未找到 `nonexistent-project` 的分析数据"
+  - "请先运行 github-researcher 或 paper-reader 生成分析"
+- 提供正确的使用示例
+
+**证据文件**：`.sisyphus/evidence/skill-survey-synthesizer-error.md`
+
+---
+
+### QA Execution Notes
+
+**执行 QA 时注意**：
+- Happy path 需要先准备至少 2 个项目分析文件
+- Error case 应验证错误提示包含具体建议，而非模糊报错
+- 所有场景都应验证 "NO HALLUCINATION" 规则未被违反
+- 证据文件应包含完整的执行日志和输出验证

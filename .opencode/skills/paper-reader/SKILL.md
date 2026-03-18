@@ -788,3 +788,67 @@ IF full analysis fails:
 4. 尝试 Semantic Scholar 的 openAccessPdf
 
 </troubleshooting>
+
+---
+
+## QA Scenarios
+
+<qa_scenarios>
+以下场景用于验证 Skill 功能是否正常工作。
+
+### 场景 1: Happy Path - 读取 arXiv 论文
+
+**测试命令:**
+```
+Invoke skill with: "read https://arxiv.org/abs/2301.07041"
+```
+
+**执行步骤:**
+1. Skill 检测输入为 arXiv URL 格式
+2. 提取 arXiv ID: `2301.07041`
+3. 调用 arXiv API 获取元数据
+4. 调用 Semantic Scholar API 获取引用数据
+5. 下载 PDF 到 `essay/2301.07041/paper.pdf`
+6. 生成 `essay/2301.07041/notes.md` 包含摘要、方法、贡献、引用
+7. 生成 `essay/2301.07041/metadata.json` 包含结构化元数据
+
+**预期结果:**
+- `essay/2301.07041/notes.md` 文件存在
+- notes.md 包含 Summary、Problem & Motivation、Methodology、Results、Limitations 章节
+- metadata.json 包含 title、authors、year、arxiv_id、citation_count 字段
+
+**证据文件:** `.sisyphus/evidence/skill-paper-reader-happy.md`
+
+---
+
+### 场景 2: Error Case - 无效 DOI 查询
+
+**测试命令:**
+```
+Invoke skill with: "read paper 10.0000/fake-doi-notexist"
+```
+
+**执行步骤:**
+1. Skill 检测输入为 DOI 格式
+2. 尝试通过 Semantic Scholar API 解析 DOI
+3. API 返回 404 (DOI 不存在)
+4. Fallback 到 DOI resolver，仍然 404
+5. Fallback 到 Web Search，无结果
+6. 返回错误信息并提供搜索建议
+
+**预期结果:**
+- 不创建任何文件
+- 显示错误信息: "DOI not found: 10.0000/fake-doi-notexist"
+- 提供搜索建议: 尝试使用论文标题搜索
+- 优雅退出，不抛出未处理异常
+
+**证据文件:** `.sisyphus/evidence/skill-paper-reader-error.md`
+
+---
+
+### 验证检查清单
+
+- [ ] Happy Path: arXiv 论文成功读取并生成完整笔记
+- [ ] Error Case: 无效输入返回有帮助的错误信息
+- [ ] 两种场景都有对应的证据文件
+</qa_scenarios>

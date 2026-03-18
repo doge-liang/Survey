@@ -85,7 +85,7 @@ function getRepoDir(owner: string, repo: string): string {
 }
 
 // Configuration
-const GITHUB_DIR = path.join(process.cwd(), "github");
+const GITHUB_DIR = path.join(process.cwd(), "sources", "github");
 const REPOS_FILE = path.join(process.cwd(), "data", "repos.json");
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // ms

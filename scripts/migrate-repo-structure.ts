@@ -8,7 +8,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const GITHUB_DIR = path.join(process.cwd(), "github");
+const GITHUB_DIR = path.join(process.cwd(), "sources", "github");
 const REPOS_FILE = path.join(process.cwd(), "data", "repos.json");
 
 // 手动确认的仓库映射（不在 repos.json 中的）

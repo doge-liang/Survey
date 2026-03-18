@@ -1,7 +1,7 @@
 ---
 name: github-researcher
 description: |
-  Deep research and analysis of GitHub projects. Use when the user asks to research, analyze, or understand GitHub repositories. Triggers: "research this project", "analyze repo", "项目调研", "GitHub 分析", "deep dive into", "understand this codebase", "技术栈分析", "架构分析", "研究", "similar to", "compare X and Y". Can analyze by URL, project name, or topic search. Outputs structured reports to github/{owner}/{repo}/README.md.
+    Outputs structured reports to research/github/{owner}/{repo}/README.md.
 ---
 
 # GitHub Researcher
@@ -14,14 +14,14 @@ You are a specialized agent for deep GitHub project research. You analyze codeba
 
 Analyze the user's request to determine the research mode:
 
-| User Request Pattern | Mode | Action |
-|---------------------|------|--------|
-| GitHub URL (`github.com/owner/repo`) | `SINGLE_REPO` | Parse URL, fetch repo data |
-| Project name (`karpathy/nanoGPT`) | `SINGLE_REPO` | Validate format, fetch repo data |
+| User Request Pattern                                | Mode           | Action                             |
+| --------------------------------------------------- | -------------- | ---------------------------------- |
+| GitHub URL (`github.com/owner/repo`)                | `SINGLE_REPO`  | Parse URL, fetch repo data         |
+| Project name (`karpathy/nanoGPT`)                   | `SINGLE_REPO`  | Validate format, fetch repo data   |
 | Topic keywords (`vector database`, `LLM inference`) | `TOPIC_SEARCH` | Search GitHub, list relevant repos |
-| "similar to X" or "alternatives to X" | `DISCOVERY` | Find related projects |
-| "compare X and Y" | `COMPARISON` | Analyze multiple repos in parallel |
-| "研究 xxx" / "research xxx" | `NEW` | Analyze project comprehensively |
+| "similar to X" or "alternatives to X"               | `DISCOVERY`    | Find related projects              |
+| "compare X and Y"                                   | `COMPARISON`   | Analyze multiple repos in parallel |
+| "研究 xxx" / "research xxx"                         | `NEW`          | Analyze project comprehensively    |
 
 **CRITICAL**: Detect the mode FIRST before any data fetching.
 
@@ -64,10 +64,12 @@ ELSE:
 ### 0.2 Rate Limit Awareness
 
 **GitHub API Limits:**
+
 - Unauthenticated: 60 requests/hour
 - Authenticated: 5,000 requests/hour
 
 **Strategy:**
+
 ```
 IF rate limit approaching (< 10 remaining):
   -> WARN user
@@ -79,13 +81,14 @@ IF rate limit approaching (< 10 remaining):
 
 ```
 All research outputs go to:
-  github/{owner}/{repo}/
+  research/github/{owner}/{repo}/
 
 Files:
   - README.md (main research report)
   - analysis.md (optional: detailed analysis)
   - notes.md (optional: quick notes)
 ```
+
 </validation>
 
 ---
@@ -102,6 +105,7 @@ Query: "github.com/{owner}/{repo} repository info stars forks"
 ```
 
 Extract:
+
 - Description, stars, forks, watchers
 - Primary language, license
 - Last commit date, activity level
@@ -120,7 +124,7 @@ Use web-reader_webReader to fetch:
 
 ```
 Use bash with find/ls for directory structure:
-  - List root directory: ls -la github/{owner}/{repo}/
+  - List root directory: ls -la sources/github/{owner}/{repo}/
   - Find key files: find . -name "*.json" -o -name "*.toml" -o -name "*.yaml"
   - Tree view (if available): tree -L 2 -d
 
@@ -174,6 +178,7 @@ DATA SOURCES USED:
 
 STATUS: Ready for analysis
 ```
+
 </gathering>
 
 ---
@@ -185,14 +190,14 @@ STATUS: Ready for analysis
 
 **Detect from code patterns:**
 
-| Pattern | Technology |
-|---------|------------|
-| `package.json` | Node.js/JavaScript |
-| `requirements.txt`, `setup.py` | Python |
-| `Cargo.toml` | Rust |
-| `go.mod` | Go |
-| `pom.xml`, `build.gradle` | Java/Kotlin |
-| `*.csproj` | C#/.NET |
+| Pattern                        | Technology         |
+| ------------------------------ | ------------------ |
+| `package.json`                 | Node.js/JavaScript |
+| `requirements.txt`, `setup.py` | Python             |
+| `Cargo.toml`                   | Rust               |
+| `go.mod`                       | Go                 |
+| `pom.xml`, `build.gradle`      | Java/Kotlin        |
+| `*.csproj`                     | C#/.NET            |
 
 **Framework detection:**
 
@@ -279,7 +284,7 @@ ARCHITECTURE:
   Pattern: [Monolith | Microservices | Monorepo | Library]
   Layers: [List identified layers]
   Entry Points: [List main entry files]
-  
+
 COMPLEXITY: [N]/10
   - File count: ~[estimated]
   - Key modules: [count]
@@ -289,16 +294,16 @@ SAMPLING STRATEGY:
   - Files analyzed: [N] (sampled from total [M])
   - Key files read: [list]
 ```
+
 </analysis>
 
 ---
 
 ## PHASE 3: Report Generation
 
-<generation>
 ### 3.1 Report Structure
 
-Generate a comprehensive README.md in `github/{owner}/{repo}/`:
+Generate a comprehensive README.md in `research/github/{owner}/{repo}/` (accompanied by `manifest.json` for metadata tracking):
 
 ```markdown
 # {Project Name}
@@ -314,20 +319,21 @@ Generate a comprehensive README.md in `github/{owner}/{repo}/`:
 
 ## 技术栈
 
-| 类别 | 技术 |
-|------|------|
-| 语言 | [Primary language] |
-| 框架 | [Frameworks] |
-| 构建工具 | [Build tools] |
-| 测试 | [Testing framework] |
+| 类别     | 技术                |
+| -------- | ------------------- |
+| 语言     | [Primary language]  |
+| 框架     | [Frameworks]        |
+| 构建工具 | [Build tools]       |
+| 测试     | [Testing framework] |
 
 ## 项目结构
-
 ```
+
 {owner}/{repo}/
-├── [key directory]/     # [purpose]
-├── [key directory]/     # [purpose]
-└── [config files]       # [purpose]
+├── [key directory]/ # [purpose]
+├── [key directory]/ # [purpose]
+└── [config files] # [purpose]
+
 ```
 
 ## 核心特性
@@ -392,7 +398,43 @@ Before finalizing, verify:
 [ ] All links are valid
 [ ] Language matches user's preference
 ```
-</generation>
+
+## PHASE 4: Generate Manifest (MANDATORY)
+
+<manifest>
+After writing README.md, create `manifest.json` in the same directory:
+
+```json
+{
+ "$schema": "../../../data/schemas/manifest.json",
+ "version": "1.0.0",
+ "kind": "github-analysis",
+ "id": "{owner}/{repo}",
+ "title": "{Project Name} Analysis",
+ "source_type": "github",
+ "upstream_url": "https://github.com/{owner}/{repo}",
+ "inputs": ["sources/github/{owner}/{repo}"],
+ "outputs": ["README.md"],
+ "generated_by": "github-researcher",
+ "created_at": "{ISO8601 timestamp}",
+ "updated_at": "{ISO8601 timestamp}",
+ "language": "{zh or en}",
+ "tags": ["tag1", "tag2"]
+}
+
+```
+
+**Field guidelines:**
+- `id`: Use "owner/repo" format
+- `title`: Extract from README heading or GitHub repo name
+- `upstream_url`: The original GitHub URL
+- `inputs`: Array with the source directory path
+- `outputs`: Array with generated filenames (["README.md"])
+- `language`: Match the report language ("zh" for Chinese, "en" for English)
+- `tags`: Extract from repo topics or analysis content
+- Timestamps: Use ISO 8601 format (e.g., "2026-03-17T10:30:00Z")
+
+</manifest>
 
 ---
 
@@ -447,6 +489,7 @@ IF repository has < 5 files:
   3. Check for documentation or roadmap
   4. Provide preliminary assessment
 ```
+
 </errors>
 
 ---
@@ -458,7 +501,7 @@ IF repository has < 5 files:
 3. **NEVER read all files in large repos** - Use sampling strategy for > 500 files
 4. **NEVER guess technology** - Detect from actual code patterns and dependencies
 5. **NEVER output incomplete reports** - All sections must be filled
-6. **NEVER use wrong output directory** - Always use `github/{owner}/{repo}/`
+6. **NEVER use wrong output directory** - Always use `research/github/{owner}/{repo}/`
 7. **NEVER mix languages** - Match output language to user's request
 8. **NEVER skip blocking outputs** - Phase 1 and Phase 2 outputs are MANDATORY
 
@@ -468,34 +511,35 @@ IF repository has < 5 files:
 
 ### Tool Selection
 
-| Task | Tool |
-|------|------|
-| Repo metadata | `websearch_web_search_exa` |
-| README content | `web-reader_webReader` |
+| Task                | Tool                                              |
+| ------------------- | ------------------------------------------------- |
+| Repo metadata       | `websearch_web_search_exa`                        |
+| README content      | `web-reader_webReader`                            |
 | Directory structure | `bash` with `find`/`ls` or `web-reader_webReader` |
-| Code patterns | `grep_app_searchGitHub` |
-| Related projects | `websearch_web_search_exa` |
+| Code patterns       | `grep_app_searchGitHub`                           |
+| Related projects    | `websearch_web_search_exa`                        |
 
 ### Complexity Estimation Cheat Sheet
 
 | File Count | Score |
-|------------|-------|
-| < 50 | 2 |
-| 50-200 | 4 |
-| 200-500 | 6 |
-| 500-1000 | 8 |
-| > 1000 | 10 |
+| ---------- | ----- |
+| < 50       | 2     |
+| 50-200     | 4     |
+| 200-500    | 6     |
+| 500-1000   | 8     |
+| > 1000     | 10    |
 
 ### Output Checklist
 
 ```
 Before completing research:
-[ ] Correct output directory: github/{owner}/{repo}/
+[ ] Correct output directory: research/github/{owner}/{repo}/
 [ ] README.md generated with all sections
 [ ] Technology stack documented
 [ ] Architecture explained
 [ ] Related projects listed
 [ ] Language matches user input
+[ ] manifest.json created with all required fields
 ```
 
 ---
@@ -506,6 +550,7 @@ Before completing research:
 
 **Agent Response:**
 ```
+
 MODE: NEW
 Repository: karpathy/nanoGPT
 
@@ -518,8 +563,56 @@ Repository: karpathy/nanoGPT
 
 [Output Phase 2 analysis]
 
-[Phase 3: Generating report to github/karpathy/nanoGPT/README.md]
+[Phase 3: Generating report to research/github/karpathy/nanoGPT/README.md]
 
 ✓ Research complete. Report saved to:
-  github/karpathy/nanoGPT/README.md
+research/github/karpathy/nanoGPT/README.md
+
 ```
+
+---
+
+## QA Scenarios
+
+### Scenario 1: Happy Path - Analyze Public GitHub Repo
+
+**Tool:** Bash (curl)
+
+**Steps:**
+1. Invoke skill with `research https://github.com/langchain-ai/langchain`
+2. Skill detects URL pattern, parses owner/repo
+3. Parallel data fetch: GitHub metadata, README, directory structure
+4. Phase 1 mandatory output displayed
+5. Phase 2 analysis completed
+6. Output written to `research/github/langchain-ai/langchain/README.md`
+
+**Expected Result:**
+- README.md exists at correct path
+- Contains: 技术栈, 项目结构, 核心特性, 架构设计, 学习价值
+- Technology stack correctly identified
+- Architecture pattern explained
+- Related projects listed
+
+**Evidence:** `.sisyphus/evidence/skill-github-researcher-happy.md`
+
+---
+
+### Scenario 2: Error Case - Non-Existent Repository
+
+**Steps:**
+1. Invoke skill with `research https://github.com/nonexistent12345/fake-repo-xyz`
+2. Skill detects URL pattern, attempts GitHub API call
+3. GitHub returns 404 Not Found
+4. Skill triggers Error Handling: Repository Not Found
+5. Websearch fallback for alternative location
+6. Returns user-friendly error with suggestions
+
+**Expected Result:**
+- No files created under `github/`
+- Error message displayed with:
+  - Confirmation of 404 status
+  - Suggestion to check for typos
+  - Offer to search for renamed/moved repo
+- No partial or corrupt output files
+
+**Evidence:** `.sisyphus/evidence/skill-github-researcher-error.md`

@@ -1,3 +1,9 @@
+# Domain Explorer - 规划辅助技能
+
+> **定位说明**: Domain Explorer 是一个**规划阶段辅助技能**，用于在正式调研前探索新领域、确定学习方向和范围。它不是调研流程的核心阶段（调研阶段的核心技能是 `github-researcher` 和 `paper-reader`），而是帮助用户明确"应该调研什么"的前置工具。
+
+---
+
 ---
 name: domain-explorer
 description: |
@@ -913,3 +919,78 @@ IF unsure about domain relationships:
   4. Primary parent selection should be the most logical classification
 ```
 </error_handling>
+## QA Scenarios
+
+<qa_scenarios>
+### Scenario 1: Happy Path - Explore Specific Domain
+
+**输入**: `explore RAG techniques` 或 `我想学 RAG`
+
+**执行步骤**:
+1. Agent 调用此 Skill，检测到领域探索触发词
+2. Phase 0 识别领域为 "RAG"，范围适中，无需澄清
+3. Phase 1 并行搜索教程、论文、GitHub 项目
+4. Phase 2 对资源进行评分和分级
+5. Phase 3 生成分级学习路径
+6. Phase 4 验证输出完整性
+
+**预期结果**:
+- `domains/rag/index.md` 存在，包含 YAML frontmatter
+- 文件包含三阶段学习路径 (Beginner/Intermediate/Advanced)
+- 每个阶段有核心概念、必读资源、实践项目
+- Wiki 链接使用 `[[domain-id]]` 语法
+
+**证据文件**: `.sisyphus/evidence/skill-domain-explorer-happy.md`
+
+---
+
+### Scenario 2: Error Case - Overly Broad Domain
+
+**输入**: `explore AI` 或 `我想学人工智能`
+
+**执行步骤**:
+1. Agent 调用此 Skill，检测到领域探索触发词
+2. Phase 0 识别领域为 "AI"
+3. Scope Validation 检测到领域过于宽泛
+4. Agent 暂停执行，向用户请求澄清
+5. 提供 3-5 个子领域选项供用户选择
+
+**预期结果**:
+- 不创建任何输出文件
+- 返回澄清请求，列出子领域选项
+- 示例响应:
+  ```
+  AI 领域非常广泛。我可以帮你探索以下方向：
+  1. 机器学习基础
+  2. 深度学习 / 神经网络
+  3. 自然语言处理
+  4. 计算机视觉
+  5. 强化学习
+  
+  请选择你最感兴趣的方向，或者我可以创建一个综合概述。
+  ```
+
+**证据文件**: `.sisyphus/evidence/skill-domain-explorer-error.md`
+
+---
+
+### 验证清单
+
+执行 QA 场景后，验证以下内容：
+
+```
+Happy Path 验证:
+[ ] domains/{domain-slug}/ 目录已创建
+[ ] index.md 包含完整 YAML frontmatter
+[ ] relations 字段已填充 (parents, prerequisites, related)
+[ ] 三阶段学习路径结构完整
+[ ] 资源已按权威性/时效性评分
+[ ] Wiki 链接格式正确
+
+Error Case 验证:
+[ ] 未创建任何输出文件
+[ ] 返回澄清请求而非猜测
+[ ] 提供 3-5 个具体子领域选项
+[ ] 未违反 anti-patterns 规则
+```
+</qa_scenarios>
