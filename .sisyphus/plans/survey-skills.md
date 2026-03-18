@@ -72,11 +72,11 @@
 - [x] 每个 Skill 包含错误处理指导
 - [x] 测试命令可验证 Skill 功能
 - [x] README.md 文档说明使用方法和环境变量
-- [ ] 4 个 SKILL.md 文件已创建且格式正确
-- [ ] 每个 Skill 包含完整工作流（模式检测 → 执行阶段 → 输出生成）
-- [ ] 每个 Skill 包含 2+ QA 场景
-- [ ] 测试命令可验证 Skill 功能
-- [ ] README.md 文档说明使用方法和环境变量
+- [x] 4 个 SKILL.md 文件已创建且格式正确
+- [x] 每个 Skill 包含完整工作流（模式检测 → 执行阶段 → 输出生成）
+- [x] 每个 Skill 包含 2+ QA 场景
+- [x] 测试命令可验证 Skill 功能
+- [x] README.md 文档说明使用方法和环境变量
 
 ### Must Have
 - 4 个独立可用的 Skills
@@ -178,10 +178,10 @@ Task 1,2 → Task 3,4 → Task 5 → F1
   - `scripts/analyzer.ts` - 现有分析逻辑参考
 
   **Acceptance Criteria**:
-  - [ ] `.opencode/skills/github-researcher/SKILL.md` 文件存在
-  - [ ] YAML frontmatter 包含 name 和 description
-  - [ ] 包含至少 3 个工作流阶段
-  - [ ] 包含错误处理指导
+  - [x] `.opencode/skills/github-researcher/SKILL.md` 文件存在
+  - [x] YAML frontmatter 包含 name 和 description
+  - [x] 包含至少 3 个工作流阶段
+  - [x] 包含错误处理指导
 
   **QA Scenarios**:
   ```
@@ -240,9 +240,9 @@ Task 1,2 → Task 3,4 → Task 5 → F1
   - arXiv API: `http://export.arxiv.org/api/query`
 
   **Acceptance Criteria**:
-  - [ ] `.opencode/skills/paper-reader/SKILL.md` 文件存在
-  - [ ] 支持多种输入格式 (arXiv URL, DOI, 标题)
-  - [ ] 包含引用分析功能
+  - [x] `.opencode/skills/paper-reader/SKILL.md` 文件存在
+  - [x] 支持多种输入格式 (arXiv URL, DOI, 标题)
+  - [x] 包含引用分析功能
 
   **QA Scenarios**:
   ```
@@ -298,9 +298,9 @@ Task 1,2 → Task 3,4 → Task 5 → F1
   - `essay/` - 已有论文笔记目录
 
   **Acceptance Criteria**:
-  - [ ] `.opencode/skills/survey-synthesizer/SKILL.md` 文件存在
-  - [ ] 支持多输入源对比
-  - [ ] 生成结构化对比报告
+  - [x] `.opencode/skills/survey-synthesizer/SKILL.md` 文件存在
+  - [x] 支持多输入源对比
+  - [x] 生成结构化对比报告
 
   **QA Scenarios**:
   ```
@@ -355,9 +355,9 @@ Task 1,2 → Task 3,4 → Task 5 → F1
   - `github/oh-my-opencode/docs/guide/overview.md` - 文档结构参考
 
   **Acceptance Criteria**:
-  - [ ] `.opencode/skills/domain-explorer/SKILL.md` 文件存在
-  - [ ] 支持任意领域探索
-  - [ ] 生成分级学习路径
+  - [x] `.opencode/skills/domain-explorer/SKILL.md` 文件存在
+  - [x] 支持任意领域探索
+  - [x] 生成分级学习路径
 
   **QA Scenarios**:
   ```
@@ -407,9 +407,9 @@ Task 1,2 → Task 3,4 → Task 5 → F1
   - `github/oh-my-opencode/docs/guide/overview.md` - 文档风格参考
 
   **Acceptance Criteria**:
-  - [ ] `.opencode/skills/README.md` 文件存在
-  - [ ] 包含所有 4 个 Skills 的说明
-  - [ ] 包含环境变量配置指南
+  - [x] `.opencode/skills/README.md` 文件存在
+  - [x] 包含所有 4 个 Skills 的说明
+  - [x] 包含环境变量配置指南
 
   **Commit**: YES
   - Message: `docs(skills): add README with usage instructions`
@@ -463,8 +463,8 @@ grep -l "description:" .opencode/skills/*/SKILL.md | wc -l  # Expected: 4
 - [x] Each Skill has error handling
 - [x] README.md documents usage
 - [x] Environment variables documented
-- [ ] All 4 Skills created
-- [ ] Each Skill has name, description, phases
-- [ ] Each Skill has QA scenarios
-- [ ] README.md documents usage
-- [ ] Environment variables documented
+- [x] All 4 Skills created
+- [x] Each Skill has name, description, phases
+- [x] Each Skill has QA scenarios
+- [x] README.md documents usage
+- [x] Environment variables documented
