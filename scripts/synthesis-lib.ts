@@ -40,7 +40,7 @@ function getProjectRoot(): string {
 
 const PROJECT_ROOT = getProjectRoot();
 const RESEARCH_DIR = path.join(PROJECT_ROOT, "research/github");
-const ESSAY_DIR = path.join(PROJECT_ROOT, "essay");
+const ESSAY_DIR = path.join(PROJECT_ROOT, "paper");
 
 // ============================================================================
 // Manifest Loading
@@ -118,7 +118,7 @@ export function listResearchSources(): SynthesisSource[] {
 }
 
 /**
- * List all available essay sources
+ * List all available paper sources
  */
 export function listEssaySources(): SynthesisSource[] {
   const sources: SynthesisSource[] = [];
@@ -156,7 +156,7 @@ export function listEssaySources(): SynthesisSource[] {
 }
 
 /**
- * List all available sources (research + essay)
+ * List all available sources (research + paper)
  */
 export function listAllSources(): SynthesisSource[] {
   return [...listResearchSources(), ...listEssaySources()];
@@ -259,7 +259,7 @@ export function validateAllManifests(): ValidationResult {
   };
 
   const researchDir = RESEARCH_DIR;
-  const essayDir = ESSAY_DIR;
+  const paperDir = ESSAY_DIR;
 
   // Check research directory (owner/repo structure)
   if (fs.existsSync(researchDir)) {
@@ -284,10 +284,10 @@ export function validateAllManifests(): ValidationResult {
     }
   }
 
-  // Check essay directory
-  if (fs.existsSync(essayDir)) {
-    for (const entry of fs.readdirSync(essayDir)) {
-      const manifestPath = path.join(essayDir, entry, MANIFEST_FILENAME);
+  // Check paper directory
+  if (fs.existsSync(paperDir)) {
+    for (const entry of fs.readdirSync(paperDir)) {
+      const manifestPath = path.join(paperDir, entry, MANIFEST_FILENAME);
       if (!fs.existsSync(manifestPath)) continue;
 
       try {

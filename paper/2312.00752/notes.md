@@ -5,7 +5,7 @@
 > - Year: 2023 (arXiv), published at COLM 2024
 > - arXiv: https://arxiv.org/abs/2312.00752
 > - DOI: https://doi.org/10.48550/arXiv.2312.00752
-> - PDF: `essay/2312.00752/paper.pdf`
+> - PDF: `paper/2312.00752/paper.pdf`
 
 ## Summary
 

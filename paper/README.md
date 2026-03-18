@@ -5,7 +5,14 @@
 ## 目录结构
 
 ```
-essay/
+paper/
+├── README.md           # 本文件
+└── {topic}/            # 按主题组织
+    ├── {paper-name}.pdf        # 原始论文
+    ├── {paper-name}-notes.md   # 阅读笔记
+    └── summary.md              # 主题总结
+```
+paper/
 ├── README.md           # 本文件
 └── {topic}/            # 按主题组织
     ├── {paper-name}.pdf        # 原始论文

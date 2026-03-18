@@ -44,7 +44,7 @@ export SEMANTIC_SCHOLAR_API_KEY=your_key_here
 | Skill                | 用途                | 输出目录                 |
 | -------------------- | ------------------- | ------------------------ |
 | `github-researcher`  | GitHub 项目深度调研 | `research/github/{owner}/{repo}/` |
-| `paper-reader`       | 学术论文阅读分析    | `essay/{paper-id}/`      |
+| `paper-reader`       | 学术论文阅读分析    | `paper/{paper-id}/`      |
 | `survey-synthesizer` | 多源调研合成对比    | `survey/{topic}/`        |
 | `domain-explorer`    | 领域探索学习路径    | `domains/{domain}/`      |
 | `repo-manager`       | 项目注册表管理      | -                        |
@@ -57,7 +57,7 @@ Domain Exploration (规划阶段)
        ↓
 Research Phase (调研阶段)
 ├── github-researcher → research/github/*/
-└── paper-reader → essay/*/
+└── paper-reader → paper/*/
         ↓
 Synthesis Phase (合成阶段)
 └── survey-synthesizer → survey/{topic}/
@@ -127,7 +127,7 @@ Synthesis Phase (合成阶段)
 这篇论文讲了什么: Attention Is All You Need
 ```
 
-**输出**：`essay/{paper-id}/notes.md`
+**输出**：`paper/{paper-id}/notes.md`
 
 ---
 
@@ -144,7 +144,7 @@ Synthesis Phase (合成阶段)
 **输入来源**：
 
 - 已有项目分析：`research/github/*/README.md`
-- 已有论文笔记：`essay/*/notes.md`
+- 已有论文笔记：`paper/*/notes.md`
 
 **使用示例**：
 
@@ -228,7 +228,9 @@ Survey/
 │               ├── README.md  # 项目调研报告
 │               └── manifest.json  # 元数据
 │
-├── essay/                     # 论文笔记
+├── paper/                     # 论文笔记
+│   └── {paper-id}/
+│       └── notes.md           # 阅读笔记
 │   └── {paper-id}/
 │       └── notes.md           # 阅读笔记
 │
@@ -269,7 +271,7 @@ Survey/
    "研究 run-llama/llama_index" → research/github/run-llama/llama_index/README.md
 
 3. 阅读关键论文
-   "阅读 arxiv:2005.14165" → essay/2005.14165/notes.md
+   "阅读 arxiv:2005.14165" → paper/2005.14165/notes.md
 
 4. 综合分析
    "对比分析 RAG 框架" → survey/RAG-frameworks/comparison.md

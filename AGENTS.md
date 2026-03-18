@@ -7,7 +7,7 @@ Primary areas:
 - `scripts/` for automation and CLIs
 - `data/` for registries and generated indexes
 - `.opencode/skills/` for project-specific agent skills
-- `github/`, `essay/`, `survey/`, `domains/` for generated outputs
+- `github/`, `paper/`, `survey/`, `domains/` for generated outputs
 
 ## Instruction Files
 
@@ -75,7 +75,7 @@ bun scripts/generate-domain-index.ts
 |- data/                    Registry and generated data
 |- docs/                    Documentation
 |- domains/                 Domain learning-path outputs
-|- essay/                   Paper reading outputs
+|- paper/                   Paper reading outputs
 |- research/                Generated research outputs (GitHub analysis reports)
 |- sources/                 Cloned source repositories (GitHub projects)
 |- scripts/                 TypeScript automation and colocated tests
@@ -163,7 +163,7 @@ Typical pattern:
 
 Use `type(scope): subject`.
 
-Common scopes: `scripts`, `skills`, `data`, `survey`, `essay`, `github`
+Common scopes: `scripts`, `skills`, `data`, `survey`, `paper`, `github`
 Common types: `feat`, `fix`, `docs`, `refactor`, `chore`
 
 ## Agent Checklist

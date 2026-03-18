@@ -91,7 +91,7 @@ Examples:
 
 function listSourcesCommand(): void {
   const research = listResearchSources();
-  const essays = listEssaySources();
+  const papers = listEssaySources();
 
   console.log("=== Research Sources ===\n");
   for (const source of research) {
@@ -105,7 +105,7 @@ function listSourcesCommand(): void {
   }
 
   console.log("=== Essay Sources ===\n");
-  for (const source of essays) {
+  for (const source of papers) {
     console.log(`  ${source.manifest.id}`);
     console.log(`    Kind: ${source.kind}`);
     console.log(`    Title: ${source.manifest.title || "N/A"}`);
@@ -115,9 +115,9 @@ function listSourcesCommand(): void {
     console.log();
   }
 
-  console.log(`\nTotal: ${research.length + essays.length} sources`);
+  console.log(`\nTotal: ${research.length + papers.length} sources`);
   console.log(`  Research: ${research.length}`);
-  console.log(`  Essays: ${essays.length}`);
+  console.log(`  Essays: ${papers.length}`);
 }
 
 function validateManifestsCommand(): void {

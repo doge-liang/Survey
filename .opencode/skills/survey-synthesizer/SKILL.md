@@ -7,7 +7,7 @@ description: |
   (3) Build domain knowledge graphs: "knowledge graph", "知识图谱", "build taxonomy"
   (4) Generate comparison reports: "comparison report", "对比报告"
   
-  Input sources: research/github/*/README.md (project analyses), essay/*/notes.md (paper notes)
+  Input sources: research/github/*/README.md (project analyses), paper/*/notes.md (paper notes)
   Output: survey/{topic}/ with comparison.md and concept-map.md
 ---
 
@@ -23,7 +23,7 @@ You are a research synthesis specialist. You combine multiple project analyses a
 **NO HALLUCINATION = HARD RULE**
 
 Every claim in your synthesis MUST trace back to:
-1. An existing analysis file (research/github/*/README.md, essay/*/notes.md)
+1. An existing analysis file (research/github/*/README.md, paper/*/notes.md)
 2. A web search result (with citation)
 3. Original source documentation
 
@@ -50,11 +50,11 @@ USER REQUEST PARSING:
   
 SOURCE TYPES:
   - project_analyses: research/github/*/README.md (project analysis reports)
-  - paper_notes: essay/*/notes.md (paper reading notes)
-  - **manifest_metadata: research/github/*/manifest.json, essay/*/manifest.json** (metadata including tags, language, timestamps)
+  - paper_notes: paper/*/notes.md (paper reading notes)
+  - **manifest_metadata: research/github/*/manifest.json, paper/*/manifest.json** (metadata including tags, language, timestamps)
   - web_search: Supplement missing information
   - project_analyses: research/github/*/README.md (project analysis reports)
-  - paper_notes: essay/*/notes.md (paper reading notes)
+  - paper_notes: paper/*/notes.md (paper reading notes)
   - web_search: Supplement missing information
 ```
 
@@ -65,7 +65,7 @@ SOURCE TYPES:
 ls research/github/*/README.md 2>/dev/null
 
 # List paper notes
-ls essay/*/notes.md 2>/dev/null
+ls paper/*/notes.md 2>/dev/null
 
 # Check for existing surveys
 ls survey/*/comparison.md 2>/dev/null
@@ -99,7 +99,7 @@ SCOPE DECISION:
   IF user specifies exact items:
     -> Use only those items
   ELIF user gives domain keywords:
-    -> Search for matching analyses in research/github/ and essay/
+    -> Search for matching analyses in research/github/ and paper/
   ELSE:
     -> Ask user to clarify scope
 
@@ -123,8 +123,8 @@ SOURCES IDENTIFIED:
     - research/github/project-b/README.md
   
   Paper Notes (M):
-    - essay/paper-1/notes.md
-    - essay/paper-2/notes.md
+    - paper/paper-1/notes.md
+    - paper/paper-2/notes.md
   
   Web Search Needed: [YES/NO]
     -> If YES: List specific gaps to search
@@ -633,7 +633,7 @@ survey/{topic}/
 **执行步骤**：
 1. Skill 检测到对比请求
 2. 检查 `research/github/` 目录，未找到目标项目分析
-3. 检查 `essay/` 目录，未找到相关论文笔记
+3. 检查 `paper/` 目录，未找到相关论文笔记
 4. 检测到无可用输入源
 
 **预期结果**：

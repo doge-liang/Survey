@@ -189,13 +189,13 @@ Source: [semantic_scholar | arxiv_api | arxiv_web | web_search]
 
 ```bash
 # Create directory
-mkdir -p essay/{paper-id}/
+mkdir -p paper/{paper-id}/
 
 # Download PDF
-curl -L -o essay/{paper-id}/paper.pdf "{pdf_url}"
+curl -L -o paper/{paper-id}/paper.pdf "{pdf_url}"
 
 # Example for arXiv
-curl -L -o essay/1706.03762/paper.pdf "https://arxiv.org/pdf/1706.03762.pdf"
+curl -L -o paper/1706.03762/paper.pdf "https://arxiv.org/pdf/1706.03762.pdf"
 ```
 
 ### 1.5.3 Handle Paywalled Papers
@@ -212,10 +212,10 @@ IF no open access PDF available:
 
 ```bash
 # Check file size (should be > 100KB for real PDF)
-ls -la essay/{paper-id}/paper.pdf
+ls -la paper/{paper-id}/paper.pdf
 
 # Verify PDF header
-head -c 4 essay/{paper-id}/paper.pdf | grep "%PDF"
+head -c 4 paper/{paper-id}/paper.pdf | grep "%PDF"
 ```
 
 **OUTPUT (BLOCKING):**
@@ -223,7 +223,7 @@ head -c 4 essay/{paper-id}/paper.pdf | grep "%PDF"
 PDF DOWNLOAD
 ============
 Status: [SUCCESS | PAYWALLED | FAILED]
-File: essay/{paper-id}/paper.pdf
+File: paper/{paper-id}/paper.pdf
 Size: XXX KB
 ```
 </pdf_download>
@@ -257,7 +257,7 @@ def extract_text(pdf_path: str) -> str:
     return text
 
 # Usage
-text = extract_text("essay/2312.00752/paper.pdf")
+text = extract_text("paper/2312.00752/paper.pdf")
 ```
 
 **With OCR (for scanned papers)：**
@@ -284,13 +284,13 @@ marker_single paper.pdf output/ --output_format markdown
 # Create extract file
 python -c "
 import fitz
-doc = fitz.open('essay/{paper-id}/paper.pdf')
+doc = fitz.open('paper/{paper-id}/paper.pdf')
 text = '\n'.join(page.get_text() for page in doc)
-open('essay/{paper-id}/extract.txt', 'w').write(text)
+open('paper/{paper-id}/extract.txt', 'w').write(text)
 "
 
 # Verify extraction
-wc -l essay/{paper-id}/extract.txt
+wc -l paper/{paper-id}/extract.txt
 ```
 
 ### 1.6.4 Section Detection Pattern
@@ -326,7 +326,7 @@ def split_sections(text: str) -> dict:
 PDF EXTRACTION
 ===============
 Method: [pymupdf | pymupdf-ocr | marker | pdfplumber]
-File: essay/{paper-id}/extract.txt
+File: paper/{paper-id}/extract.txt
 Lines: XXX
 Sections detected: [abstract, introduction, methods, results, conclusion]
 ```
@@ -512,7 +512,7 @@ MEDIUM PRIORITY:
 <notes_generation>
 ### 5.1 Output Directory
 
-essay/{paper-id}/
+paper/{paper-id}/
 ├── paper.pdf     # PDF 文件
 ├── notes.md      # Main reading notes
 ├── metadata.json # Structured metadata
@@ -808,12 +808,12 @@ Invoke skill with: "read https://arxiv.org/abs/2301.07041"
 2. 提取 arXiv ID: `2301.07041`
 3. 调用 arXiv API 获取元数据
 4. 调用 Semantic Scholar API 获取引用数据
-5. 下载 PDF 到 `essay/2301.07041/paper.pdf`
-6. 生成 `essay/2301.07041/notes.md` 包含摘要、方法、贡献、引用
-7. 生成 `essay/2301.07041/metadata.json` 包含结构化元数据
+5. 下载 PDF 到 `paper/2301.07041/paper.pdf`
+6. 生成 `paper/2301.07041/notes.md` 包含摘要、方法、贡献、引用
+7. 生成 `paper/2301.07041/metadata.json` 包含结构化元数据
 
 **预期结果:**
-- `essay/2301.07041/notes.md` 文件存在
+- `paper/2301.07041/notes.md` 文件存在
 - notes.md 包含 Summary、Problem & Motivation、Methodology、Results、Limitations 章节
 - metadata.json 包含 title、authors、year、arxiv_id、citation_count 字段
 

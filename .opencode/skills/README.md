@@ -7,7 +7,7 @@
 | Skill | 用途 | 输出目录 |
 |-------|------|----------|
 | `github-researcher` | GitHub 项目深度调研 | `research/github/{owner}/{repo}/` |
-| `paper-reader` | 学术论文阅读分析 | `essay/{paper-id}/` |
+| `paper-reader` | 学术论文阅读分析 | `paper/{paper-id}/` |
 | `survey-synthesizer` | 多源调研合成对比 | `survey/{topic}/` |
 | `domain-explorer` | 领域探索学习路径 | `domains/{domain}/` |
 
@@ -29,7 +29,7 @@ Planning Phase
            ↓
 Research Phase (可并行)
     github-researcher → research/github/*/
-    paper-reader → essay/*/
+    paper-reader → paper/*/
            ↓
 Synthesis Phase
     survey-synthesizer → survey/{topic}/
@@ -101,7 +101,7 @@ GitHub 项目深度调研，分析代码库结构、技术栈、架构设计。
 
 **输入来源:**
 - 项目分析: `research/github/*/README.md`
-- 论文笔记: `essay/*/notes.md`
+- 论文笔记: `paper/*/notes.md`
 
 **使用示例:**
 ```
@@ -187,7 +187,7 @@ Survey/
 │           ├── analysis.md    # 详细分析 (可选)
 │           └── notes.md       # 快速笔记 (可选)
 │
-├── essay/                     # 论文笔记
+├── paper/                     # 论文笔记
 │   └── {paper-id}/
 │       ├── notes.md           # 阅读笔记
 │       ├── metadata.json      # 元数据
