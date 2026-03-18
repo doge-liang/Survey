@@ -32,7 +32,16 @@ Validate the 33 existing manifests and verify the end-to-end workflow.
 
 ### Tasks
 
-#### Day 1: Validate All Existing Manifests
+#### Day 1: Setup and Validate
+
+- [ ] **TASK-0.0:** Create logs directory
+  - **Command:** `mkdir -p .sisyphus/logs`
+  - **QA Verification:**
+    ```bash
+    test -d .sisyphus/logs && echo "exists"
+    ```
+
+- [ ] **TASK-1.0:** Run batch validation on all 33 manifests
 
 - [ ] **TASK-1.0:** Run batch validation on all 33 manifests
   - **Command:** `bun scripts/validate-manifest.ts --all`
@@ -92,7 +101,7 @@ Enable survey-synthesizer to consume manifest data and test end-to-end synthesis
   - **Implementation:** Update `scripts/test-synthesis.ts` to produce this schema
   - **QA Verification:**
     ```bash
-    bun scripts/test-synthesis.ts --topic "LLM Training" --output .sisyphus/logs/test-schema.json
+    bun scripts/test-synthesis.ts --topic "llm" --output .sisyphus/logs/test-schema.json
     # Verify output is valid JSON with required fields
     cat .sisyphus/logs/test-schema.json | python -c "import json,sys; d=json.load(sys.stdin); assert'sources'in d and 'relationships'in d"
     ```
@@ -104,7 +113,7 @@ Enable survey-synthesizer to consume manifest data and test end-to-end synthesis
   - **Steps:**
     1. Load manifest.json for each source
     2. Extract tags, language, timestamps for filtering
-    3. Use related_artifacts for knowledge graph edges
+    3. Use `related` field for knowledge graph edges
   - **QA Verification:**
     ```bash
     bun scripts/test-synthesis.ts --list-sources
@@ -113,7 +122,35 @@ Enable survey-synthesizer to consume manifest data and test end-to-end synthesis
 
 #### Day 3-4: Synthesis Testing (TASK-4.2-4.4)
 
-- [ ] **TASK-4.2:** Test LLM Training synthesis
+- [ ] **TASK-4.2:** Test LLM synthesis
+  - **Tag:** "llm"
+  - **Sources:** rasbt/LLMs-from-scratch, jingyaogong/minimind, karpathy/llama2.c
+  - **QA Verification:
+    ```bash
+    bun scripts/test-synthesis.ts --topic "llm" --output .sisyphus/logs/test-llm.json
+    # Verify: sources >= 3, relationships non-empty, summary exists
+    cat .sisyphus/logs/test-llm.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=3 and d['relationships']"
+    ```
+
+- [ ] **TASK-4.3:** Test RAG synthesis
+  - **Tag:** "rag"
+  - **Sources:** langchain-ai/rag-from-scratch, pguso/rag-from-scratch, ruizguille/rag-from-scratch
+  - **QA Verification:
+    ```bash
+    bun scripts/test-synthesis.ts --topic "rag" --output .sisyphus/logs/test-rag.json
+    # Verify: sources >= 3, summary exists
+    cat .sisyphus/logs/test-rag.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=3 and 'summary' in d"
+    ```
+
+- [ ] **TASK-4.4:** Test Vector DB synthesis
+  - **Tag:** "vector-database"
+  - **Sources:** adiekaye/very-simple-vector-database, jbarrow/tinyhnsw, kagisearch/vectordb
+  - **QA Verification:
+    ```bash
+    bun scripts/test-synthesis.ts --topic "vector-database" --output .sisyphus/logs/test-vector.json
+    # Verify: sources >= 3, summary exists
+    cat .sisyphus/logs/test-vector.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=3 and 'summary' in d"
+    ```
   - **Topic:** "LLM Training"
   - **Sources:** rasbt/LLMs-from-scratch, jingyaogong/minimind, karpathy/llama2.c
   - **QA Verification:**
@@ -171,6 +208,21 @@ Enable survey-synthesizer to consume manifest data and test end-to-end synthesis
 ---
 
 ## Sign-off
+
+**Plan Author:** OpenCode Agent
+**Date:** 2026-03-17
+**Version:** 1.8
+**Status:** Momus review v1.7 addressed - practical blockers fixed
+
+**Review History:**
+- v1.4: Momus REJECTED - baseline mismatch, scope contradiction, missing TASK-4.XX
+- v1.5: Momus REJECTED - Phase 1 still had duplicate obsolete content
+- v1.6: Momus REJECTED - stale content remained, duplicate TASK-4.XX
+- v1.7: Momus REJECTED - logs dir missing, wrong field name, wrong topic tags
+- v1.8: Fixed - added TASK-0.0 for logs dir, `related_artifacts` → `related`, topics use actual tags
+
+**Review Status:** ⬜ Re-submitted for Momus Review
+**Approved For Execution:** ⬜ Pending Momus approval
 
 **Plan Author:** OpenCode Agent
 **Date:** 2026-03-17
