@@ -1,0 +1,40 @@
+{
+  "title": "Does SGD Seek Flatness or Sharpness? An Exactly Solvable Model",
+  "authors": [
+    "Yizhou Xu",
+    "Pierfrancesco Beneventano",
+    "Isaac Chuang",
+    "Liu Ziyin"
+  ],
+  "year": 2026,
+  "arxiv_id": "2602.05065",
+  "doi": "10.48550/arXiv.2602.05065",
+  "s2_id": null,
+  "citation_count": null,
+  "reference_count": null,
+  "open_access": true,
+  "pdf_available": true,
+  "pdf_path": "paper/2602.05065/paper.pdf",
+  "pdf_url": "https://arxiv.org/pdf/2602.05065.pdf",
+  "publication_venue": null,
+  "abstract": "A large body of theory and empirical work hypothesizes a connection between the flatness of a neural network's loss landscape during training and its performance. However, there have been conceptually opposite pieces of evidence regarding when SGD prefers flatter or sharper solutions during training. In this work, we partially but causally clarify the flatness-seeking behavior of SGD by identifying and exactly solving an analytically solvable model that exhibits both flattening and sharpening behavior during training. In this model, the SGD training has no a priori preference for flatness, but only a preference for minimal gradient fluctuations. This leads to the insight that, at least within this model, it is data distribution that uniquely determines the sharpness at convergence, and that a flat minimum is preferred if and only if the noise in the labels is isotropic across all output dimensions. When the noise in the labels is anisotropic, the model instead prefers sharpness and can converge to an arbitrarily sharp solution, depending on the imbalance in the noise in the labels spectrum. We reproduce this key insight in controlled settings with different model architectures such as MLP, RNN, and transformers.",
+  "categories": [
+    "Machine Learning",
+    "Optimization and Control",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "SGD",
+    "Flatness",
+    "Sharpness",
+    "Loss Landscape",
+    "Generalization",
+    "Exactly Solvable Model",
+    "Label Noise",
+    "Isotropic Noise",
+    "Anisotropic Noise"
+  ],
+  "fetched_at": "2026-03-18T23:39:00Z",
+  "notes_path": "paper/2602.05065/notes.md",
+  "citations_path": "paper/2602.05065/citations.md"
+}
