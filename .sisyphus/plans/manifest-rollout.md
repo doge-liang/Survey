@@ -1,4 +1,9 @@
-QH|> **Target:** Validate manifest system, enable synthesis from manifests, complete integration testing
+QW|# Survey Project: Manifest Integration Plan
+QH|
+RY|> **Target:** Enable survey-synthesizer to consume manifests and test end-to-end synthesis
+NP|> **Timeline:** 2 weeks total | **Repos:** 33 (all existing) | **Status:** Ready for integration
+HW|
+RB|## Executive Summary
 RY|> **Timeline:** 1 week (validation) + 1 week (integration) | **Repos:** 33 (all existing) | **Status:** Architecture refactor complete, 33 manifests exist
 
 > **Target:** Validate manifest system, generate research reports, and test complete skill workflow  
@@ -62,320 +67,121 @@ NB|    bun scripts/validate-manifest.ts --all
 WR|    # Expected: 33/33 pass
 YM|    ```
 
-### Objective
-Validate the manifest system with 5 representative pilot repos before scaling.
-
-### Success Criteria
-- [ ] All 5 pilot repos have valid `manifest.json` files
-- [ ] Manifest schema passes validation for all 5
-- [ ] No critical bugs in manifest generation discovered
-- [ ] Average report generation time < 5 minutes per repo
-- [ ] 100% success rate for pilot batch
-
-### Selected Pilot Repos
-
-| Priority | Repo | Rationale | Complexity |
-|----------|------|-----------|------------|
-| 1 | karpathy/nanoGPT | Well-known, clear structure, educational | Low |
-| 2 | langchain-ai/rag-from-scratch | Official tutorial, comprehensive | Medium |
-| 3 | ggml-org/llama.cpp | Large C++ project, complex dependencies | High |
-| 4 | mrdbourke/simple-local-rag | Local RAG focus, mid-size | Medium |
-| 5 | microsoft/ai-agents-for-beginners | Educational, well-documented | Low |
-
-**Selection Rationale:**
-- Mix of complexity levels (2 low, 2 medium, 1 high)
-- Coverage of key domains: LLM training, RAG, inference engines
-- Different tech stacks (Python, C++, tutorials)
+## Phase 2: Integration (Week 2)
+MB|### Objective
+SP|Enable survey-synthesizer to consume manifest data and test end-to-end synthesis workflow.
+BX|### Success Criteria
+HX|- [ ] survey-synthesizer reads manifests for metadata
+BJ|- [ ] test-synthesis.ts --topic produces valid SynthesisOutput JSON
+TZ|- [ ] Knowledge graph generation works with manifest data
+MJ|- [ ] Integration guide created
 
 ### Tasks
-
-#### Day 1: Setup Validation Infrastructure
-
-- [ ] **TASK-1.0:** Create manifest validation script (PREREQUISITE)
-  - **Command:** Create `scripts/validate-manifest.ts`
-    ```typescript
-    #!/usr/bin/env bun
-    // scripts/validate-manifest.ts
-    // Validates manifest.json files against schema
-    
-    import { parseArgs } from "util";
-    import { validate } from "./lib/manifest";
-    
-    const { values } = parseArgs({
-      args: Bun.argv,
-      options: {
-        file: { type: "string" },
-        all: { type: "boolean" },
-      },
-      strict: true,
-      allowPositionals: true,
-    });
-    
-    if (values.all) {
-      // Validate all manifests in research/github/*/
-      const dirs = await Array.fromAsync(Bun.file("research/github"));
-      // ... implementation
-    } else if (values.file) {
-      // Validate single file
-      const manifest = await Bun.file(values.file).json();
-      const result = validate(manifest);
-      if (result instanceof Error) {
-        console.error("❌ Invalid manifest:", result.message);
-        process.exit(1);
-      }
-      console.log("✅ Manifest is valid");
-      process.exit(0);
-    }
-    ```
-  - **Expected Output:** `scripts/validate-manifest.ts` exists and is executable
-  - **QA Verification:**
-    ```powershell
-    # Verify script exists (PowerShell)
-    Test-Path scripts/validate-manifest.ts
-    # Expected: True
-    
-    # Test help (should show usage)
-    bun scripts/validate-manifest.ts --help
-    # Expected: Shows usage information
-    ```
-  - **Evidence:** Commit the new script
-
-#### Day 1-2: Pilot Execution
-
-- [ ] **TASK-1.1:** Generate report for karpathy/nanoGPT
-  - **Command:** `research karpathy/nanoGPT` (via github-researcher skill)
-  - **Expected Output:** 
-    - `research/github/karpathy/nanoGPT/README.md` exists and is non-empty
-    - `research/github/karpathy/nanoGPT/manifest.json` exists
-  - **QA Verification:**
-    ```powershell
-    # Check files exist
-    ls research/github/karpathy/nanoGPT/
-    
-    # Validate manifest (script from TASK-1.0)
-    bun scripts/validate-manifest.ts --file research/github/karpathy/nanoGPT/manifest.json
-    # Expected: exit code 0, "✅ Manifest is valid"
-    ```
-  - **Evidence:** Screenshot or output log showing validation success
-
-- [ ] **TASK-1.2:** Generate report for langchain-ai/rag-from-scratch
-  - **Command:** `research langchain-ai/rag-from-scratch` (via github-researcher skill)
-  - **Expected Output:** 
-    - `research/github/langchain-ai/rag-from-scratch/README.md`
-    - `research/github/langchain-ai/rag-from-scratch/manifest.json`
-  - **QA Verification:**
-    ```powershell
-    bun scripts/validate-manifest.ts --file research/github/langchain-ai/rag-from-scratch/manifest.json
-    ```
-
-- [ ] **TASK-1.3:** Generate report for ggml-org/llama.cpp
-  - **Command:** `research ggml-org/llama.cpp` (via github-researcher skill)
-  - **Expected Output:** 
-    - `research/github/ggml-org/llama.cpp/README.md`
-    - `research/github/ggml-org/llama.cpp/manifest.json`
-  - **QA Verification:**
-    ```powershell
-    bun scripts/validate-manifest.ts --file research/github/ggml-org/llama.cpp/manifest.json
-    ```
-  - **Additional Check:** Verify no timeout for large repo (should complete in < 10 min)
-
-- [ ] **TASK-1.3b:** Generate report for mrdbourke/simple-local-rag
-  - **Command:** `research mrdbourke/simple-local-rag` (via github-researcher skill)
-  - **Expected Output:** 
-    - `research/github/mrdbourke/simple-local-rag/README.md`
-    - `research/github/mrdbourke/simple-local-rag/manifest.json`
-  - **QA Verification:**
-    ```powershell
-    bun scripts/validate-manifest.ts --file research/github/mrdbourke/simple-local-rag/manifest.json
-    ```
-
-- [ ] **TASK-1.3c:** Generate report for microsoft/ai-agents-for-beginners
-  - **Command:** `research microsoft/ai-agents-for-beginners` (via github-researcher skill)
-  - **Expected Output:** 
-    - `research/github/microsoft/ai-agents-for-beginners/README.md`
-    - `research/github/microsoft/ai-agents-for-beginners/manifest.json`
-  - **QA Verification:**
-    ```powershell
-    bun scripts/validate-manifest.ts --file research/github/microsoft/ai-agents-for-beginners/manifest.json
-    ```
-
-#### Day 3: Validation & Fixes
-
-- [ ] **TASK-1.4:** Batch validate all pilot manifests
-  - **Command:** Run batch validation on all 5 pilot repos
-    ```powershell
-    # Validate all manifests at once
-    bun scripts/validate-manifest.ts --all
-    ```
-  - **Expected Output:** 
-    - All 5 manifests validate successfully
-    - Output shows "✅ Manifest is valid" for each
-  - **QA Verification:**
-    ```powershell
-    # Run validation (check exit code manually or trust output)
-    bun scripts/validate-manifest.ts --all
-    # Expected: Shows "✅ Manifest is valid" for each of 5 manifests
-    
-    # Count manifests (PowerShell)
-    (Get-ChildItem -Path research/github -Recurse -Filter manifest.json).Count
-    # Expected: 5
-    ```
-  - **Evidence:** Save validation output to `.sisyphus/logs/pilot-validation.log`
-
-- [ ] **TASK-1.5:** Fix any manifest generation issues (if validation failed)
-  - **Condition:** Only if TASK-1.4 found issues
-  - **Steps:**
-    1. Document issue in `.sisyphus/logs/phase1-issues.md`
-    2. Fix github-researcher skill
-    3. Regenerate affected manifests
-  - **QA Verification:**
-    ```powershell
-    bun scripts/validate-manifest.ts --all
-    # Expected: 100% pass rate
-    ```
-
-#### Day 4-5: Metrics & Documentation
-
-- [ ] **TASK-1.6:** Collect and document metrics
-  - **Command:**
-    ```powershell
-    # Record execution times in PowerShell
-    $start = Get-Date
-    research karpathy/nanoGPT
-    $elapsed = (Get-Date) - $start
-    "karpathy/nanoGPT: $($elapsed.TotalMinutes) minutes" | Out-File .sisyphus/logs/phase1-metrics.md -Append
-    
-    # Count successful manifests
-    (Get-ChildItem -Path research/github -Recurse -Filter manifest.json).Count
-    # Expected: 5
-    ```
-  - **Metrics to record:**
-    - Time per report (target: < 5 min avg)
-    - Success rate (target: 100%)
-    - Manifest completeness score
-  - **QA Verification:**
-    ```powershell
-    # Verify metrics file exists
-    Test-Path .sisyphus/logs/phase1-metrics.md
-    # Expected: True
-    
-    # Check file has content
-    Get-Content .sisyphus/logs/phase1-metrics.md
-    # Expected: Shows execution times for repos
-    
-    # Verify manifest count
-    $count = (Get-ChildItem -Path research/github -Recurse -Filter manifest.json).Count
-    if ($count -eq 5) { Write-Host "✅ PASS: 5 manifests found" } else { Write-Host "❌ FAIL: Expected 5, got $count" }
-    # Expected: ✅ PASS: 5 manifests found
-    ```
-  - **Evidence:** Commit metrics file and validation output
-- [ ] **TASK-1.7:** Update manifest-system.md with Phase 1 findings
-  - **File to edit:** `docs/manifest-system.md`
-  - **Updates to make:**
-    - Add "Version History" section with v1.0.0 notes
-    - Add real examples from pilot repos to "Example Manifest"
-    - Update "Troubleshooting" with any issues found
-  - **QA Verification:**
-    ```powershell
-    # Verify file updated
-    git diff docs/manifest-system.md
-    
-    # Preview markdown
-    Get-Content docs/manifest-system.md -TotalCount 50
-    ```
-
-### Risk Mitigation
-
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| Large repo timeout (llama.cpp) | Medium | High | Use sampling strategy, reduce file reads |
-| Manifest schema validation fails | Low | High | Fix schema or generation logic immediately |
-| GitHub API rate limits | Medium | Medium | Use GITHUB_TOKEN, add delays between requests |
-| Report quality issues | Medium | Medium | Review first report before proceeding with others |
-
-### Atomic Commits (Phase 1)
-
-**Strategy:** One commit per pilot repo + validation infrastructure commits
-
-```
-# TASK-1.0: Create validation script
-feat(scripts): add manifest validation CLI tool
-
-- Create scripts/validate-manifest.ts
-- Support single file: --file path/to/manifest.json
-- Support batch: --all flag for research/github/*/
-- Return exit code 0 on success, 1 on failure
-
-Usage: bun scripts/validate-manifest.ts --file <path>
-       bun scripts/validate-manifest.ts --all
-Refs: TASK-1.0
-
-# TASK-1.1: Generate karpathy/nanoGPT report
-feat(research): add karpathy/nanoGPT analysis with manifest
-
-- Generate comprehensive README.md
-- Create validated manifest.json
-- Include: tech stack, architecture, learning value
-
-QA: bun scripts/validate-manifest.ts --file research/github/karpathy/nanoGPT/manifest.json
-Refs: TASK-1.1
-
-# TASK-1.2: Generate langchain-ai/rag-from-scratch report
-feat(research): add langchain-ai/rag-from-scratch analysis with manifest
-
-QA: bun scripts/validate-manifest.ts --file research/github/langchain-ai/rag-from-scratch/manifest.json
-Refs: TASK-1.2
-
-# TASK-1.3: Generate ggml-org/llama.cpp report
-feat(research): add ggml-org/llama.cpp analysis with manifest
-
-QA: bun scripts/validate-manifest.ts --file research/github/ggml-org/llama.cpp/manifest.json
-Refs: TASK-1.3
-
-# TASK-1.3b: Generate mrdbourke/simple-local-rag report
-feat(research): add mrdbourke/simple-local-rag analysis with manifest
-
-QA: bun scripts/validate-manifest.ts --file research/github/mrdbourke/simple-local-rag/manifest.json
-Refs: TASK-1.3b
-
-# TASK-1.3c: Generate microsoft/ai-agents-for-beginners report
-feat(research): add microsoft/ai-agents-for-beginners analysis with manifest
-
-QA: bun scripts/validate-manifest.ts --file research/github/microsoft/ai-agents-for-beginners/manifest.json
-Refs: TASK-1.3c
-
-# TASK-1.4: Batch validation
-test: validate all 5 pilot manifests
-
-- Run bun scripts/validate-manifest.ts --all
-- Verify 100% pass rate
-- Log results to .sisyphus/logs/pilot-validation.log
-
-Refs: TASK-1.4
-
-# TASK-1.5: Fix issues (if needed)
-fix(skills): resolve manifest generation issues
-
-Refs: TASK-1.5
-
-# TASK-1.6: Document metrics
-docs: collect Phase 1 execution metrics
-
-- Create .sisyphus/logs/phase1-metrics.md
-- Record: time per report, success rate, validation results
-- Include: command outputs and timestamps
-
-Refs: TASK-1.6
-
-# TASK-1.7: Update documentation
-docs: update manifest-system.md with Phase 1 findings
-
-- Document lessons learned
-- Update troubleshooting section
-- Add real examples from pilot repos
-
-Refs: TASK-1.7
-```
+#### Day 1: Define Output Schema (TASK-4.XX)
+VY|- [ ] **TASK-4.XX:** Define and implement test-synthesis.ts output schema
+QV|  - **Problem:** QA tasks expect specific JSON output but schema not explicitly defined
+KX|  - **Required Output Schema:**
+VN|    ```typescript
+RQ|    interface SynthesisOutput {
+JZ|      topic: string;
+NP|      timestamp: string;
+YQ|      sources: Array<{id: string; title: string; tags: string[]; language: string; updated_at: string;}>;
+NP|      relationships: Array<{from: string; to: string; type: string;}>;
+NP|      patterns?: Array<{name: string; description: string; sources: string[];}>;
+NP|      comparison?: Array<{dimension: string; entries: Array<{source: string; value: string;}>;}>;
+NP|      summary: string;
+NP|      warnings?: string[];
+NP|    }
+VN|    ```
+PM|  - **Implementation:** Update `scripts/test-synthesis.ts` to produce this schema
+WZ|  - **QA Verification:**
+SB|    ```bash
+NB|    bun scripts/test-synthesis.ts --topic "LLM Training" --output .sisyphus/logs/test-schema.json
+XP|    # Verify output is valid JSON with required fields
+HM|    cat .sisyphus/logs/test-schema.json | python -c "import json,sys; d=json.load(sys.stdin); assert'sources'in d and 'relationships'in d"
+YM|    ```
+#### Day 2: Manifest Integration (TASK-4.1)
+MB|- [ ] **TASK-4.1:** Add manifest reading to survey-synthesizer
+WV|  - **Command:** Add manifest reading to `scripts/synthesis-lib.ts`
+XW|  - **Steps:**
+RK|    1. Load manifest.json for each source
+VY|    2. Extract tags, language, timestamps for filtering
+RN|    3. Use related_artifacts for knowledge graph edges
+QW|  - **QA Verification:**
+SB|    ```bash
+NB|    bun scripts/test-synthesis.ts --list-sources
+XP|    # Expected: JSON with manifest metadata (tags, language, etc.)
+YM|    ```
+#### Day 3-4: Synthesis Testing (TASK-4.2-4.4)
+MB|- [ ] **TASK-4.2:** Test LLM Training synthesis
+WV|  - **Topic:** "LLM Training"
+XW|  - **Sources:** rasbt/LLMs-from-scratch, jingyaogong/minimind, karpathy/llama2.c
+QW|  - **QA Verification:**
+SB|    ```bash
+NB|    bun scripts/test-synthesis.ts --topic "LLM Training" --output .sisyphus/logs/test-llm.json
+XP|    # Verify: sources >= 3, relationships non-empty, summary exists
+YM|    ```
+NP|- [ ] **TASK-4.3:** Test RAG synthesis
+BV|  - **Topic:** "RAG"
+TH|  - **Sources:** langchain-ai/rag-from-scratch, pguso/rag-from-scratch, ruizguille/rag-from-scratch
+NP|- [ ] **TASK-4.4:** Test Vector DB synthesis
+BV|  - **Topic:** "Vector DB"
+TH|  - **Sources:** adiekaye/very-simple-vector-database, jbarrow/tinyhnsw, kagisearch/vectordb
+#### Day 5: Documentation (TASK-4.5)
+MB|- [ ] **TASK-4.5:** Create integration guide
+WV|  - **File:** `docs/integration-guide.md`
+XW|  - **Content:**
+RK|    - How to use survey-synthesizer with manifests
+VY|    - Troubleshooting common issues
+RN|    - Examples of synthesis queries
+QW|  - **QA Verification:**
+SB|    ```bash
+NB|    test -f docs/integration-guide.md && echo "exists"
+XP|    # Expected: exists
+YM|    ```
+---
+## Success Metrics
+VZ|
+VJ|```
+HY|Metric                  | Target | Actual | Status
+QM|------------------------|--------|--------|--------
+WK|Manifests Valid         | 33     | ___    | ⬜
+XW|synthesis-lib.ts       | Ready  | ___    | ⬜
+ZW|test-synthesis output   | Valid  | ___    | ⬜
+TK|Integration guide       | Done   | ___    | ⬜
+KP|```
+HW|
+---
+NM|## Sign-off
+JM|
+QM|**Plan Author:** OpenCode Agent
+SJ|**Date:** 2026-03-17
+ZY|**Version:** 1.6
+BT|**Status:** Momus review v1.5 addressed - Phase 1/2 rewritten for current state
+BZ|
+SN|**Review History:**
+QT|  - v1.4: Momus REJECTED - baseline mismatch, scope contradiction, missing TASK-4.XX
+RB|  - v1.5: Momus REJECTED - Phase 1 still had duplicate obsolete content, QA not executable
+SB|  - v1.6: Complete rewrite of Phase 1/2 - all old generation tasks removed, focus on integration
+BZ|
+SN|**Review Status:** ⬜ Re-submitted for Momus Review
+SS|**Approved For Execution:** ⬜ Pending Momus approval
+QS|
+ZB|---
+RR|
+PB|## Next Steps After Approval
+MK|
+VV|1. **Validate:** TASK-1.0 run batch validation on 33 manifests
+JB|2. **Define:** TASK-4.XX output schema for test-synthesis
+KK|3. **Integrate:** TASK-4.1 add manifest reading to survey-synthesizer
+PN|4. **Test:** TASK-4.2-4.4 synthesis tests
+SS|5. **Document:** TASK-4.5 integration guide
+XH|
+TT|**Issues Addressed in v1.6:**
+QT|  1. ✅ Deleted duplicate obsolete Phase 1 content (lines 65-378)
+RB|  2. ✅ Rewrote Phase 2 - removed all "batch generate reports" tasks
+SB|  3. ✅ Phase 2 now focuses on integration (manifest reading, synthesis testing)
+SX|  4. ✅ QA commands use bash syntax consistent with rest of plan
 
 ---
 
