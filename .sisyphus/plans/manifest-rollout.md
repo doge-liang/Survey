@@ -1,4 +1,5 @@
-# Survey Project: Manifest Rollout Work Plan
+QH|> **Target:** Validate manifest system, enable synthesis from manifests, complete integration testing
+RY|> **Timeline:** 1 week (validation) + 1 week (integration) | **Repos:** 33 (all existing) | **Status:** Architecture refactor complete, 33 manifests exist
 
 > **Target:** Validate manifest system, generate research reports, and test complete skill workflow  
 > **Timeline:** 4 weeks | **Repos:** 34 total | **Status:** Architecture refactor complete  
@@ -8,21 +9,58 @@
 
 ## Executive Summary
 
-**Current State:**
-- ✅ Directory restructure (sources/ vs research/)
-- ✅ Manifest schema v1.0.0 designed and implemented
-- ✅ Documentation updated
-- ✅ github-researcher skill updated to generate manifests
-- 34 GitHub repos registered in `data/repos.json`
-- 30 repos cloned in `sources/github/`
-- `research/github/` is **empty** (no reports yet)
-- survey-synthesizer reads raw files, not manifests yet
+**Current State (CORRECTED):**
+✅ Directory restructure (sources/ vs research/)
+✅ Manifest schema v1.0.0 designed and implemented
+✅ Documentation updated
+✅ github-researcher skill updated to generate manifests
+✅ All scripts exist: validate-manifest.ts, test-synthesis.ts, synthesis-lib.ts
+33 GitHub repos already have manifest.json in `research/github/`
+33 repos cloned in `sources/github/`
+survey-synthesizer reads raw files, not manifests yet
+
+**:warning: PLAN BASELINE CORRECTED:** This plan starts from current state (33 manifests), not from empty. All task counts and QA checks must reflect actual current state.
+
+**Scope Decision Required:**
+- `data/repos.json` has 33 repos
+- Plan mentions 27 (completion target) and 34 (initial scope)
+- **Recommended:** Target = 33 repos, completion = all have valid manifests
 
 **Goal:** Validate end-to-end workflow, generate first batch of reports, and enable synthesis capabilities.
 
 ---
 
-## Phase 1: Validation (Week 1)
+## Phase 1: Validate Existing Manifests
+Objective
+MB|Validate the 33 existing manifests and verify the end-to-end workflow.
+BX|### Success Criteria
+YJ|- [ ] All 33 existing manifests pass validation
+BP|- [ ] No critical bugs in manifest validation discovered
+WS|- [ ] survey-synthesizer can read manifests
+SW|- [ ] test-synthesis.ts --topic produces structured JSON output
+KS|- [ ] Knowledge graph generation works with manifest data
+KR|### Tasks
+#### Day 1: Validate All Existing Manifests
+MB|- [ ] **TASK-1.0:** Run batch validation on all 33 manifests
+QV|  - **Command:** `bun scripts/validate-manifest.ts --all`
+KX|  - **Expected:** All 33 manifests validate successfully
+PM|  - **QA Verification:**
+SB|    ```bash
+NB|    bun scripts/validate-manifest.ts --all
+QP|    # Expected: 33/33 pass, exit code 0
+WR|    ```
+#### Day 2: Fix Validation Issues
+MB|- [ ] **TASK-1.1:** Fix any manifests that fail validation
+WV|  - **Condition:** Only if TASK-1.0 found issues
+QP|  - **Steps:**
+YS|    1. Document issues in `.sisyphus/logs/phase1-issues.md`
+HW|    2. Fix affected manifests or schema
+QW|    3. Re-run validation until 33/33 pass
+WZ|  - **QA Verification:**
+SB|    ```bash
+NB|    bun scripts/validate-manifest.ts --all
+WR|    # Expected: 33/33 pass
+YM|    ```
 
 ### Objective
 Validate the manifest system with 5 representative pilot repos before scaling.
@@ -804,7 +842,46 @@ import type { ArtifactManifest } from "./lib/manifest";;
     # Expected: JSON with sources and their metadata
     ```
 
-- [ ] **TASK-4.3:** Update synthesis workflow
+#### Day 3: Define test-synthesis Output Schema (CRITICAL - Missing Task)
+MB|- [ ] **TASK-4.XX:** Define and implement test-synthesis.ts output schema
+QV|  - **Problem:** TASK-4.3 adds synthesize() but never explicitly defines what JSON output test-synthesis.ts should produce
+KX|  - **Required Output Schema:**
+VN|    ```typescript
+RQ|    interface SynthesisOutput {
+JZ|      topic: string;
+NP|      timestamp: string;
+YQ|      sources: Array<{
+HZ|        id: string;
+QK|        title: string;
+YV|        tags: string[];
+NP|        language: string;
+YQ|        updated_at: string;
+NP|      }>;
+NP|      relationships: Array<{
+NP|        from: string;
+NP|        to: string;
+NP|        type: string;
+NP|      }>;
+NP|      patterns?: Array<{
+NP|        name: string;
+NP|        description: string;
+NP|        sources: string[];
+NP|      }>;
+NP|      comparison?: Array<{
+NP|        dimension: string;
+NP|        entries: Array<{source: string; value: string}>;
+NP|      }>;
+NP|      summary: string;
+NP|      warnings?: string[];
+NP|    }
+VN|    ```
+PM|  - **Implementation:** Update `scripts/test-synthesis.ts` to produce this schema
+WZ|  - **QA Verification:**
+SB|    ```bash
+NB|    bun scripts/test-synthesis.ts --topic "LLM Training" --output /tmp/test.json
+QP|    # Verify output matches SynthesisOutput schema
+WR|    cat /tmp/test.json | python -m json.tool --schema  # should pass
+YM|    ```
   - **Command:** Add `synthesize()` function to `scripts/synthesis-lib.ts`
     ```typescript
     // Update synthesis logic to:
@@ -1200,7 +1277,36 @@ Refs: TASK-1.1
 
 ---
 
-## Sign-off
+NM|## Sign-off
+JM|
+QM|**Plan Author:** OpenCode Agent
+SJ|**Date:** 2026-03-17
+ZY|**Version:** 1.5
+BT|**Status:** Momus review addressed - baseline corrected, scope clarified, TASK-4.XX added
+BZ|
+SN|**Review History:**
+QT|  - v1.4: Momus REJECTED - 3 blocking issues found
+RB|  - v1.5: Fixed baseline (33 manifests exist), scope (33 repos), added TASK-4.XX
+BZ|
+SN|**Review Status:** ⬜ Re-submitted for Momus Review
+SS|**Approved For Execution:** ⬜ Pending Momus approval
+QS|
+ZB|---
+RR|
+PB|## Next Steps After Approval
+MK|
+VV|1. **Begin:** Start with TASK-1.0 (validate all 33 manifests)
+JB|2. **Fix:** TASK-1.1 for any validation failures
+KK|3. **Define:** TASK-4.XX for test-synthesis output schema
+PN|4. **Enhance:** survey-synthesizer to read manifests
+SS|5. **Test:** synthesis with LLM/RAG/Vector DB topics
+XH|6. **Document:** Integration guide
+NN|
+TT|**Issues Addressed:**
+QT|  1. ✅ Baseline corrected - 33 manifests already exist, scripts exist
+RB|  2. ✅ Scope clarified - 33 repos (not 27/34 contradictory)
+SB|  3. ✅ TASK-4.XX added - explicit output schema for test-synthesis
+SX|
 
 **Plan Author:** OpenCode Agent  
 **Date:** 2026-03-17  
