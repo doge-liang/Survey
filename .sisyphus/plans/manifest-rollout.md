@@ -42,8 +42,6 @@ Validate the 33 existing manifests and verify the end-to-end workflow.
     ```
 
 - [ ] **TASK-1.0:** Run batch validation on all 33 manifests
-
-- [ ] **TASK-1.0:** Run batch validation on all 33 manifests
   - **Command:** `bun scripts/validate-manifest.ts --all`
   - **Expected:** All 33 manifests validate successfully
   - **QA Verification:**
@@ -125,17 +123,18 @@ Enable survey-synthesizer to consume manifest data and test end-to-end synthesis
 - [ ] **TASK-4.2:** Test LLM synthesis
   - **Tag:** "llm"
   - **Sources:** rasbt/LLMs-from-scratch, jingyaogong/minimind, karpathy/llama2.c
-  - **QA Verification:
+  - **QA Verification:**
     ```bash
     bun scripts/test-synthesis.ts --topic "llm" --output .sisyphus/logs/test-llm.json
-    # Verify: sources >= 3, relationships non-empty, summary exists
-    cat .sisyphus/logs/test-llm.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=3 and d['relationships']"
+    # Verify: sources >= 3, summary exists
+    cat .sisyphus/logs/test-llm.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=3 and 'summary' in d"
+    # Note: relationships field may be empty if no manifests have 'related' field populated
     ```
 
 - [ ] **TASK-4.3:** Test RAG synthesis
   - **Tag:** "rag"
   - **Sources:** langchain-ai/rag-from-scratch, pguso/rag-from-scratch, ruizguille/rag-from-scratch
-  - **QA Verification:
+  - **QA Verification:**
     ```bash
     bun scripts/test-synthesis.ts --topic "rag" --output .sisyphus/logs/test-rag.json
     # Verify: sources >= 3, summary exists
@@ -144,40 +143,12 @@ Enable survey-synthesizer to consume manifest data and test end-to-end synthesis
 
 - [ ] **TASK-4.4:** Test Vector DB synthesis
   - **Tag:** "vector-database"
-  - **Sources:** adiekaye/very-simple-vector-database, jbarrow/tinyhnsw, kagisearch/vectordb
-  - **QA Verification:
+  - **Sources:** adiekaye/very-simple-vector-database, kagisearch/vectordb
+  - **QA Verification:**
     ```bash
     bun scripts/test-synthesis.ts --topic "vector-database" --output .sisyphus/logs/test-vector.json
-    # Verify: sources >= 3, summary exists
-    cat .sisyphus/logs/test-vector.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=3 and 'summary' in d"
-    ```
-  - **Topic:** "LLM Training"
-  - **Sources:** rasbt/LLMs-from-scratch, jingyaogong/minimind, karpathy/llama2.c
-  - **QA Verification:**
-    ```bash
-    bun scripts/test-synthesis.ts --topic "LLM Training" --output .sisyphus/logs/test-llm.json
-    # Verify: sources >= 3, relationships non-empty, summary exists
-    cat .sisyphus/logs/test-llm.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=3 and d['relationships']"
-    ```
-
-- [ ] **TASK-4.3:** Test RAG synthesis
-  - **Topic:** "RAG"
-  - **Sources:** langchain-ai/rag-from-scratch, pguso/rag-from-scratch, ruizguille/rag-from-scratch
-  - **QA Verification:**
-    ```bash
-    bun scripts/test-synthesis.ts --topic "RAG" --output .sisyphus/logs/test-rag.json
-    # Verify: sources >= 3, summary exists
-    cat .sisyphus/logs/test-rag.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=3 and 'summary' in d"
-    ```
-
-- [ ] **TASK-4.4:** Test Vector DB synthesis
-  - **Topic:** "Vector DB"
-  - **Sources:** adiekaye/very-simple-vector-database, jbarrow/tinyhnsw, kagisearch/vectordb
-  - **QA Verification:**
-    ```bash
-    bun scripts/test-synthesis.ts --topic "Vector DB" --output .sisyphus/logs/test-vector.json
-    # Verify: sources >= 3, summary exists
-    cat .sisyphus/logs/test-vector.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=3 and 'summary' in d"
+    # Verify: sources >= 2, summary exists
+    cat .sisyphus/logs/test-vector.json | python -c "import json,sys; d=json.load(sys.stdin); assert len(d['sources'])>=2 and 'summary' in d"
     ```
 
 #### Day 5: Documentation (TASK-4.5)
@@ -211,29 +182,12 @@ Enable survey-synthesizer to consume manifest data and test end-to-end synthesis
 
 **Plan Author:** OpenCode Agent
 **Date:** 2026-03-17
-**Version:** 1.8
-**Status:** Momus review v1.7 addressed - practical blockers fixed
+**Version:** 1.9
+**Status:** Momus review v1.8 addressed - stale duplicates removed, sources fixed
 
 **Review History:**
-- v1.4: Momus REJECTED - baseline mismatch, scope contradiction, missing TASK-4.XX
-- v1.5: Momus REJECTED - Phase 1 still had duplicate obsolete content
-- v1.6: Momus REJECTED - stale content remained, duplicate TASK-4.XX
-- v1.7: Momus REJECTED - logs dir missing, wrong field name, wrong topic tags
-- v1.8: Fixed - added TASK-0.0 for logs dir, `related_artifacts` → `related`, topics use actual tags
-
-**Review Status:** ⬜ Re-submitted for Momus Review
-**Approved For Execution:** ⬜ Pending Momus approval
-
-**Plan Author:** OpenCode Agent
-**Date:** 2026-03-17
-**Version:** 1.7
-**Status:** Momus review v1.6 addressed - stale content removed, QA added
-
-**Review History:**
-- v1.4: Momus REJECTED - baseline mismatch, scope contradiction, missing TASK-4.XX
-- v1.5: Momus REJECTED - Phase 1 still had duplicate obsolete content
-- v1.6: Momus REJECTED - stale v1.4/v1.5 sections remain, duplicate TASK-4.XX, missing QA
-- v1.7: Complete rewrite - single authoritative plan, all QA added
+- v1.4-v1.8: Multiple Momus rejections (baseline, scope, QA, duplicates)
+- v1.9: Fixed stale duplicates, vector-db sources (2 not 3), relationships QA relaxed
 
 **Review Status:** ⬜ Re-submitted for Momus Review
 **Approved For Execution:** ⬜ Pending Momus approval
