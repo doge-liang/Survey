@@ -1,0 +1,17 @@
+{
+  "title": "Mathematical exploration and discovery at scale",
+  "authors": ["Bogdan Georgiev", "Javier Gómez-Serrano", "Terence Tao", "Adam Zsolt Wagner"],
+  "year": 2025,
+  "arxiv_id": "2511.02864",
+  "doi": null,
+  "s2_id": null,
+  "citation_count": null,
+  "reference_count": null,
+  "open_access": true,
+  "pdf_available": true,
+  "pdf_path": "paper/2511.02864/paper.pdf",
+  "pdf_url": "https://arxiv.org/pdf/2511.02864v3",
+  "abstract": "AlphaEvolve is a generic evolutionary coding agent that combines LLM capabilities with automated evaluation in an iterative evolutionary framework. The paper showcases AlphaEvolve discovering novel mathematical constructions across 67 problems in analysis, combinatorics, geometry, and number theory, often matching or improving best-known results.",
+  "categories": ["cs.NE", "cs.AI", "math.CA", "math.CO", "math.MG"],
+  "fetched_at": "2026-03-19T03:19:00Z"
+}
