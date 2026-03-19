@@ -211,25 +211,17 @@ Project-specific skills are in `.opencode/skills/{skill-name}/SKILL.md`:
 
 | Skill | Use when | Example prompts | Output |
 |-------|----------|-----------------|--------|
-| `github-researcher` | 调研单个 GitHub 仓库并生成结构化报告 | "分析这个项目", "调研 owner/repo" | `research/github/{owner}/{repo}/README.md` |
-| `paper-reader` | 阅读 arXiv/DOI/论文标题并生成笔记、引用分析 | "读这篇论文", "总结这篇 arXiv" | `paper/{id}/` |
-| `survey-synthesizer` | 比较多个项目/论文，生成综述和概念图 | "对比这些项目", "做 LLM survey" | `survey/{topic}/` |
+| `github-researcher` | 调研单个 GitHub 仓库并生成结构化报告 | "analyze this GitHub project", "research owner/repo", "调研 GitHub 项目", "understand this codebase", "deep dive into", "技术栈分析" | `research/github/{owner}/{repo}/README.md` |
+| `paper-reader` | 阅读 arXiv/DOI/论文标题并生成笔记、引用分析 | "read this paper", "analyze this arxiv", "论文阅读", "学术分析", "summarize this paper", "what is this paper about", "find related papers", "analyze citations" | `paper/{id}/` |
+| `survey-synthesizer` | 比较多个项目/论文，生成综述和概念图 | "compare these", "对比分析", "synthesize survey", "调研合成", "knowledge graph", "知识图谱", "comparison report", "对比报告" | `survey/{topic}/` |
 | `repo-manager` | 注册、同步、校验仓库源 | "sync all repos", "检查更新", "注册项目" | `data/repos.json`, `sources/` |
-| `domain-explorer` | 探索新领域并生成学习路径 | "我想学 XX", "入门指南", "learning path" | `domains/{domain}/` |
+| `domain-explorer` | 探索新领域并生成学习路径 | "explore domain", "领域探索", "learning path", "学习路径", "入门指南", "get started with", "how to learn", "我想学", "新手入门", "roadmap for", "introduction to", "beginner guide" | `domains/{domain}/` |
 ```
 
 Each skill has its own workflow and output conventions documented in its SKILL.md.
 
 > **Note**: `semantic-scholar-api` is a low-level API tool, not shown in the table above.
 
-Project-specific skills are in `.opencode/skills/{skill-name}/SKILL.md`:
-- `github-researcher` — GitHub project deep-dive analysis
-- `paper-reader` — Academic paper reading and citation analysis
-- `survey-synthesizer` — Multi-source survey synthesis and comparison
-- `domain-explorer` — Learning path generation
-- `repo-manager` — Repository registry management
-
-Each skill has its own workflow and output conventions documented in its SKILL.md.
 
 ## Key Patterns
 

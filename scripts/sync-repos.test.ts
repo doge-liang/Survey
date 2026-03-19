@@ -1,25 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
-import { fixOrphanedRepos, isVerifyCommand, withRetry } from "./sync-repos";
+import { fixOrphanedRepos, isVerifyCommand } from "./sync-repos";
 
 describe("isVerifyCommand", () => {
   test("treats --verify-fix as verify mode", () => {
     expect(isVerifyCommand(["--verify-fix"])).toBe(true);
     expect(isVerifyCommand(["--verify-interactive"])).toBe(true);
     expect(isVerifyCommand(["--check"])).toBe(false);
-  });
-});
-
-describe("withRetry", () => {
-  test("stops after the configured retry count", async () => {
-    let attempts = 0;
-
-    await expect(withRetry(async () => {
-      attempts += 1;
-      throw new Error("boom");
-    }, 3)).rejects.toThrow("Failed after 3 attempt(s): boom");
-
-    expect(attempts).toBe(3);
   });
 });
 

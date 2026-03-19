@@ -107,8 +107,8 @@ async function* walkResearchDir(dir: string): AsyncGenerator<{ name: string; pat
         yield { name: entry.name, path: fullPath };
       }
     }
-  } catch (error) {
-    // Directory might not exist or be readable
+  } catch {
+    // Intentionally ignored
   }
 }
 

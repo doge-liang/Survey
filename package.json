@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "gray-matter": "^4.0.3",
     "oh-my-opencode": "^3.11.2"
   }
 }
