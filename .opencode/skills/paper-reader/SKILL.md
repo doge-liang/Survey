@@ -1,6 +1,9 @@
 ---
 name: paper-reader
 description: |
+  Use when: user asks to "read this paper", "analyze this arxiv", "论文阅读", "学术分析", "summarize this paper", "what is this paper about", "find related papers", "analyze citations", or provides arXiv URL/ID, DOI, or paper title
+  DO NOT USE FOR: GitHub code analysis (use github-researcher), general web search, or non-academic content
+  Output: paper/{id}/ with notes.md and metadata.json
   Academic paper reading and analysis. Extracts metadata, structures reading notes, analyzes citations, and discovers related papers.
   
   Use when user asks to: "read this paper", "analyze this arxiv", "论文阅读", "学术分析", "summarize this paper", "what is this paper about", "find related papers", "analyze citations", or provides arXiv URL/ID, DOI, or paper title.

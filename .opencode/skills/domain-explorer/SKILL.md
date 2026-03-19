@@ -7,6 +7,9 @@
 ---
 name: domain-explorer
 description: |
+  Use when: user wants to "explore a new domain", "我想学 XX", "入门指南", "learning path", "how to learn", "roadmap for", "get started with", "beginner guide"
+  DO NOT USE FOR: GitHub analysis (use github-researcher), paper reading (use paper-reader), or existing survey synthesis
+  Output: domains/{domain}/ with index.md and resources.md
   New domain exploration and learning path planning. Use when the user wants to explore a new field, learn something new, or get started with a technology/concept. Triggers: "explore domain", "领域探索", "learning path", "学习路径", "入门指南", "get started with", "how to learn", "我想学", "新手入门", "roadmap for", "introduction to", "beginner guide". Generates structured learning paths with tiered resources (Beginner/Intermediate/Advanced) to domains/{domain}/ directory.
 ---
 

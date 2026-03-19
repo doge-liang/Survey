@@ -1,6 +1,9 @@
 ---
 name: survey-synthesizer
 description: |
+  Use when: user wants to "compare these projects", "synthesize survey", "调研合成", "knowledge graph", "知识图谱", "对比分析", "comparison report"
+  DO NOT USE FOR: single project analysis (use github-researcher), paper reading (use paper-reader), or real-time research
+  Output: survey/{topic}/ with comparison.md and concept-map.md
   Multi-source survey synthesis and comparative analysis skill. Use when user wants to:
   (1) Compare multiple projects, papers, or technologies: "compare these", "对比分析", "compare X and Y"
   (2) Synthesize survey from existing analyses: "synthesize survey", "调研合成", "综合调研"

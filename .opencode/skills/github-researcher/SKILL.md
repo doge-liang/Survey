@@ -1,6 +1,9 @@
 ---
 name: github-researcher
 description: |
+  Use when: user asks to "analyze this GitHub project", "research owner/repo", "调研 GitHub 项目"
+  DO NOT USE FOR: paper analysis (use paper-reader), general web search, or non-GitHub code analysis
+  Output: research/github/{owner}/{repo}/README.md
     Outputs structured reports to research/github/{owner}/{repo}/README.md.
 ---
 
