@@ -231,8 +231,6 @@ Survey/
 ├── paper/                     # 论文笔记
 │   └── {paper-id}/
 │       └── notes.md           # 阅读笔记
-│   └── {paper-id}/
-│       └── notes.md           # 阅读笔记
 │
 ├── survey/                    # 调研合成
 │   └── {topic}/
