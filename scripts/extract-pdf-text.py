@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -23,15 +24,29 @@ def extract_plain(doc: fitz.Document) -> list[str]:
     return [page.get_text("text") for page in doc]
 
 
+def _find_tesseract() -> str | None:
+    """Find tesseract binary, checking TESSERACT_CMD env var first."""
+    cmd = os.environ.get("TESSERACT_CMD")
+    if cmd and shutil.which(cmd):
+        return cmd
+    for name in ["tesseract", "tesseract.exe"]:
+        if shutil.which(name):
+            return name
+    return None
+
+
 def extract_ocr(doc: fitz.Document, dpi: int = 300) -> list[str]:
     pages: list[str] = []
     for page in doc:
-        textpage = page.get_textpage_ocr(dpi=dpi, full=True)
-        pages.append(page.get_text("text", textpage=textpage))
+        try:
+            textpage = page.get_textpage_ocr(dpi=dpi, full=True)
+            pages.append(page.get_text("text", textpage=textpage))
+        except Exception:
+            pages.append("")  # placeholder so page count stays consistent
     return pages
 
 
-def assess(pages: list[str]) -> dict:
+def assess(pages: list[str], ocr_attempted: bool = False) -> dict:
     total_pages = len(pages)
     non_empty_pages = sum(1 for page in pages if page.strip())
     total_chars = sum(len(page) for page in pages)
@@ -42,14 +57,19 @@ def assess(pages: list[str]) -> dict:
     warnings: list[str] = []
 
     if total_chars < MIN_TOTAL_CHARS:
-        status = "low_text"
-        warnings.append("total_chars_below_threshold")
-    elif avg_chars < MIN_AVG_CHARS_PER_PAGE:
-        status = "low_text"
-        warnings.append("avg_chars_per_page_below_threshold")
-    elif non_empty_ratio < MIN_NON_EMPTY_RATIO:
-        status = "low_text"
-        warnings.append("non_empty_ratio_below_threshold")
+        warnings.append(f"total_chars_below_threshold:{total_chars}<{MIN_TOTAL_CHARS}")
+    if avg_chars < MIN_AVG_CHARS_PER_PAGE:
+        warnings.append(f"avg_chars_per_page_below_threshold:{avg_chars}<{MIN_AVG_CHARS_PER_PAGE}")
+    if non_empty_ratio < MIN_NON_EMPTY_RATIO:
+        warnings.append(f"non_empty_ratio_below_threshold:{non_empty_ratio}<{MIN_NON_EMPTY_RATIO}")
+
+    # Determine actual status: only low/no_text when extraction produced nothing useful
+    if total_chars == 0:
+        status = "no_text"
+    elif not any(p.strip() for p in pages):
+        status = "no_text"
+    elif ocr_attempted and status == "ok":
+        status = "ocr_ok"
 
     return {
         "status": status,
@@ -106,17 +126,23 @@ def main() -> int:
 
     try:
         pages = extract_plain(doc)
-        quality = assess(pages)
+        quality = assess(pages, ocr_attempted=False)
 
-        if quality["status"] == "low_text" and args.ocr_if_needed:
-            if shutil.which("tesseract"):
-                pages = extract_ocr(doc)
-                quality = assess(pages)
-                result["method"] = "pymupdf-ocr"
-                if quality["status"] == "ok":
-                    quality["status"] = "ocr_ok"
+        low_quality = (
+            quality["status"] in ("no_text",)
+            or bool(quality["warnings"])
+        )
+        if low_quality and args.ocr_if_needed:
+            tesseract = _find_tesseract()
+            if tesseract:
+                try:
+                    pages = extract_ocr(doc)
+                    quality = assess(pages, ocr_attempted=True)
+                    result["method"] = "pymupdf-ocr"
+                except Exception as ocr_error:
+                    quality["warnings"].append(f"ocr_failed: {ocr_error}")
             else:
-                quality["warnings"].append("tesseract_not_found")
+                quality["warnings"].append("tesseract_not_available")
 
         # Join pages with double newline separator
         text = "\n\n".join(pages).strip()
@@ -132,7 +158,7 @@ def main() -> int:
             json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8"
         )
 
-        # Return codes: 0 = success, 2 = open failed, 3 = low quality
+        # Return codes: 0 = success, 2 = open failed, 3 = no/low text
         if result["status"] in {"ok", "ocr_ok"}:
             return 0
         return 3

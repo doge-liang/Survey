@@ -45,6 +45,7 @@ ones – yet the learning dynamics of SGD selects a solution whose sharpness is 
 1
 arXiv:2602.05065v1  [cs.LG]  4 Feb 2026
 
+
 the implicit-bias question in its cleanest form: when many equally good minima exist, which curvature does
 SGD pick, and what factors determine that choice? Our main contributions are:
 1. In the regime where SGD minimizes fluctuations, we identify an exactly solvable model of sharpness /
@@ -109,6 +110,7 @@ on average, sharpen the landscape, while a sharper initialization must, on avera
 noise or could be an inherent static noise in the labels such that the model cannot perfectly interpolate the data.
 2
 
+
 is difficult to tell whether the learning dynamics favor flatness or sharpness, as this largely depends on the
 initialization’s arbitrariness. The second confounding variable is the potential randomness of the outcome.
 It is also fully possible that every initialization (or sampling process) leads to a different local minimum
@@ -161,6 +163,7 @@ theorem, whose proof is given in the appendix. Readers wishing to learn more abo
 by reading the general theoretical framework outlined in Section 5. We will discuss the various implications
 of the theory in the next main section.
 3
+
 
 Notation:
 We use θ to denote the set of all trainable parameters. When used without a subscript, ∇
@@ -221,6 +224,7 @@ The following lemma shows that for the class of symmetries called
 exponential symmetries [ZWLW24], we can always find a global minimum with infinite sharpness:
 4
 
+
 Figure 2: Non-isotropic noise in the labels leads to progressive sharpening. Left: linear networks, with the minimal
 sharpness predicted by (15). Middle: Two layer ReLU networks trained under a teacher-student setting. Right:
 Two layer ReLU networks trained on MNIST. Each line is averaged over five trials shown with the standard error.
@@ -278,6 +282,7 @@ characterize the implicit bias of SGD via the following lemma.
 2Note that this is not a problem of our theory, but a problem of generally computing the largest eigenvalue of any matrix.
 5
 
+
 Figure 3: Across all four models, and for both regression and classification tasks, we observe that the learning process
 yields a sharper solution as the noise in the labels becomes increasingly non-isotropic. We define relative sharpness
 as the ratio of the Hessian trace under non-isotropic noise to that under isotropic noise. Left: MSE loss. Right:
@@ -323,6 +328,7 @@ detail in Section 4.
 3d is defined as the the smallest dimension of the output and input dimensions of Wi for all i ∈[D]. When d < rank(V ′), it
 learns the largest d eigenvalues, and the result is similar.
 6
+
 
 4
 Insights
@@ -386,6 +392,7 @@ c1D
 where H is the Hessian at the global minimum of (12) and c1,c2 are constants depending on V , Σx and dy.
 7
 
+
 Corollary 3 suggests that in a special case where all the matrices are aligned, the maximal eigenvalue
 of the Hessian at the global minimum of (12) is mainly determined by the noise imbalance and not by the
 depth. We expect that this should be true in general. For an illustrative example, we can choose V = Σx = I,
@@ -444,6 +451,7 @@ very long convergence time to reach the sharpest minima. To isolate the role of 
 a direct intervention: when switching to GD in the linear network setting, progressive sharpening disappears.
 This identifies the mechanism as unique to SGD, aligning with (12) where the second term vanishes for GD
 8
+
 
 at local minima, exerting no implicit bias. Comprehensive details and additional experiments on eigenvalues,
 condition numbers, and Transformers can be found in Appendix B.
@@ -504,6 +512,7 @@ Hessian: ∇2
 yℓ.
 9
 
+
 6
 Related Works
 Existing minimal models of sharpness and edge of stability.
@@ -562,6 +571,7 @@ again. For a similar reason, within our framework, only progressive sharpening c
 EoS. This is because to derive the entropic loss (12), one needs to essentially assume that the learning
 10
 
+
 is somewhat stable [SDBD21]. Solving these problems will certainly advance our understanding of deep
 learning optimization.
 Acknowledgment
@@ -606,6 +616,7 @@ Optimization in Deep Learning with Central Flows, October 2024. arXiv:2410.24206
 Michal Badura, Daniel Suo, David Cardoze, Zachary Nado, George E Dahl, et al. Adaptive
 gradient methods at the edge of stability. arXiv preprint arXiv:2207.14484, 2022.
 11
+
 
 [CKL+21] Jeremy M Cohen, Simran Kaur, Yuanzhi Li, J Zico Kolter, and Ameet Talwalkar.
 Gra-
@@ -663,6 +674,7 @@ Tak Peter Tang. On large-batch training for deep learning: Generalization gap an
 ima. arXiv preprint arXiv:1609.04836, 2016.
 12
 
+
 [KP25] Anil Kamber and Rahul Parhi. Sharpness of minima in deep matrix factorization: Exact expres-
 sions. arXiv preprint arXiv:2509.25783, 2025.
 [LB18] Thomas Laurent and James Brecht. Deep linear networks with arbitrary loss: All local minima
@@ -711,6 +723,7 @@ select flat minima: A stability analysis. Advances in Neural Information Process
 35:4680–4693, 2022.
 13
 
+
 [XATB18] Chen Xing, Devansh Arpit, Christos Tsirigotis, and Yoshua Bengio. A Walk with SGD, May
 2018. arXiv:1802.08770 [cs, stat].
 [XMT+23] Ziqing Xu, Hancheng Min, Salma Tarmoun, Enrique Mallada, and René Vidal. Linear conver-
@@ -733,6 +746,7 @@ preprint arXiv:1803.00195, 2018.
 [ZXC25] Liu Ziyin, Yizhou Xu, and Isaac Chuang. Neural thermodynamics: Entropic forces in deep and
 universal representation learning. Advances in Neural Information Processing Systems, 2025.
 14
+
 
 A
 Theory
@@ -798,6 +812,7 @@ S(θk) ≤S(y).
 5As f is coercive, M is compact and thus there exists a subsequence of {θk} which converges. Here for simplicity we assume
 {θk} converges.
 15
+
 
 Taking the limit as k →∞in (39), and noting that S is continuous (thus S(θk) remains bounded as θk →¯θ),
 the right-hand side vanishes:
@@ -905,6 +920,7 @@ Tr[Σx]1/D
 Tr[Σϵ](D−1)/D ,
 (49)
 16
+
 
 which proves (14).
 Step 3: Invariance of the Hessian Spectrum.
@@ -1047,6 +1063,7 @@ D−1.
 (58)
 17
 
+
 Step 3: Determining the Weights.
 By Lemma 2 of [ZXC25], we can decompose the matrices W ′
 1,W2,⋯,WD−1,WD as
@@ -1185,6 +1202,7 @@ k = σ2 and dk = d for all k, this simplifies to:
 E[T(θ)] = D ⋅dyTr[Σx](dσ2)D−1.
 (68)
 18
+
 
 Proof. Recall that T(θ) = ∑D
 k=1 Tr[AT
@@ -1327,6 +1345,7 @@ k=1
 (76)
 19
 
+
 This gives
 λmax(E[H(θ)]) ≤
 D
@@ -1462,6 +1481,7 @@ singular spaces, (84) cannot be further simplified under the solution (52). Thus
 tion assumption in Theorem 3.
 20
 
+
 A.6
 Proof of Corollary 1
 Proof. We begin by invoking Von Neumann’s trace inequality to derive three useful bounds:
@@ -1573,6 +1593,7 @@ Proof. The proof follows from a direct comparison of the minimal sharpness condi
 the singular value distributions across layers align perfectly with the requirements for minimal sharpness
 (52).
 21
+
 
 As a sanity check, when we substitute Σϵ = I into (14), we have V ′ = V √Σx = LSLT , S = ˆS, and thus
 T(θ) = D(TrS)2(D−1)/D(dyTrΣx)1/D,
@@ -1711,6 +1732,7 @@ D σmin(V √Σx)
 (101)
 22
 
+
 For the second term:
 (TrS)
 D−2
@@ -1810,6 +1832,7 @@ Corollary 4 further verifies that the noise imbalance is the main cause of sharp
 only increases when a increases, but not when b,c increase.
 23
 
+
 Figure 5: The maximal eigenvalue of the Hessian evolves similarly to the trace. Left: linear networks, with the
 minimal sharpness predicted by (71). Middle: Two layer ReLU networks trained under a teacher-student setting.
 Right: Two layer ReLU networks trained on MNIST. Each line is averaged over five trials shown with the standard
@@ -1837,6 +1860,7 @@ across all layers. Conversely, imbalanced noise primarily inflates the condition
 layers, while intermediate layers remain stable. Furthermore, Figure 7 demonstrates that depth acts only as
 a multiplicative factor for sharpness, as suggested by Corollary 1.
 24
+
 
 Figure 8: Non-isotropic noise leads to progressive sharpening also for transformers. Left: The evolution of the
 Hessian trace. Right: The evolution of the maximal eigenvalue.

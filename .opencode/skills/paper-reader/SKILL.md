@@ -242,43 +242,65 @@ Before proceeding to Phase 2, you MUST attempt text extraction:
 1. If `extract.txt` already exists and `extract-status.json` shows `status: ok` or `ocr_ok` → skip to Phase 2
 2. Otherwise → run extraction below
 
-### 1.6.2 Extraction Script (Recommended)
+### 1.6.2 Environment Bootstrap
+
+**Run the bootstrap script FIRST to ensure Python, venv, and PyMuPDF are ready:**
+
+```bash
+# Run from repo root — works on Windows and Unix
+# Detects Python, creates .venv, installs PyMuPDF 1.27.2
+python scripts/bootstrap-pdf-extractor.py
+
+# Exit codes:
+#   0 = ready to extract
+#   1 = bootstrap failed (Python missing, venv broken, pip failed) — BLOCKING
+#
+# If bootstrap fails, do NOT proceed. Fix the reported error first.
+```
+
+### 1.6.3 Extraction Script
 
 Use the dedicated extraction script for reliable, consistent results:
 
 ```bash
-# Create venv and install PyMuPDF if not already done
-python -m venv .venv
-.venv/Scripts/pip install pymupdf
-
-# Run extraction
-.venv/Scripts/python scripts/extract-pdf-text.py \
+# Windows (PowerShell/Cmd):
+.venv\Scripts\python.exe scripts\extract-pdf-text.py \
+  --pdf "paper/{paper-id}/paper.pdf" \
+  --out "paper/{paper-id}/extract.txt" \
+  --report "paper/{paper-id}/extract-status.json" \
+  --ocr-if-needed
+```
+```bash
+# Unix/macOS:
+.venv/bin/python scripts/extract-pdf-text.py \
   --pdf "paper/{paper-id}/paper.pdf" \
   --out "paper/{paper-id}/extract.txt" \
   --report "paper/{paper-id}/extract-status.json" \
   --ocr-if-needed
 ```
 
-### 1.6.3 Quality Thresholds
+
+### 1.6.4 Quality Thresholds
 
 | Metric | Minimum | Notes |
 |--------|---------|-------|
 | Total chars | 4,000 | ~10+ pages of text |
 | Avg chars/page | 200 | Too low suggests scanned PDF |
 | Non-empty ratio | 70% | Pages with actual text |
+### 1.6.5 Access Level Gate
 
-### 1.6.4 Access Level Gate
-
-**CRITICAL**: The access level is determined by extraction quality, NOT PDF existence:
+**CRITICAL**: The access level is determined by extraction quality AND file existence, NOT PDF existence:
 
 ```
-IF extract-status.json exists AND status in [ok, ocr_ok]:
+IF extract.txt exists AND extract-status.json exists AND status in [ok, ocr_ok]:
   → FULL_TEXT analysis
 ELSE:
   → ABSTRACT_ONLY analysis
 ```
 
 **Never claim FULL_TEXT when extract.txt is missing or low-quality.**
+
+**Why extract.txt must exist**: A stale `extract-status.json` with `status: ok` but no actual text file is a false positive. The file on disk is the source of truth.
 
 
 ---
@@ -291,10 +313,10 @@ ELSE:
 **MANDATORY GATE**: Before claiming FULL_TEXT analysis, verify extraction quality:
 
 ```
-IF extract-status.json exists AND status in [ok, ocr_ok]:
-  → FULL_TEXT analysis
+IF extract.txt exists AND extract-status.json exists AND status in [ok, ocr_ok]:
+    → FULL_TEXT analysis
 ELSE:
-  → ABSTRACT_ONLY analysis (explain why: missing extract.txt, low quality, or PDF unavailable)
+    → ABSTRACT_ONLY analysis (explain why: missing extract.txt, low quality, or PDF unavailable)
 ```
 
 **Common reasons for ABSTRACT_ONLY:**

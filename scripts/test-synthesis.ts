@@ -26,6 +26,7 @@ import {
   findByTag,
   searchSources,
   readSourceContent,
+  buildSynthesisOutput,
   type TopicFilter,
   type SynthesisSource,
 } from "./synthesis-lib";
@@ -198,42 +199,29 @@ function topicFilterCommand(topicTags: string): void {
   const sources = listAllSources();
   const filtered = filterSources(sources, filter);
 
-  const output = {
-    query: { tags, language: filter.language },
-    totalSources: sources.length,
-    matchedSources: filtered.length,
-    sources: filtered.map(s => ({
-      id: s.manifest.id,
-      title: s.manifest.title,
-      kind: s.kind,
-      tags: s.manifest.tags,
-      language: s.manifest.language,
-      updated_at: s.manifest.updated_at,
-      upstream_url: s.manifest.upstream_url,
-      manifestPath: s.manifestPath,
-      hasContent: !!readSourceContent(s),
-    })),
-  };
-
+  // When JSON output is requested, use buildSynthesisOutput for correct schema
   if (values.json || values.output) {
-    const jsonOutput = JSON.stringify(output, null, 2);
+    const synthesisOutput = buildSynthesisOutput(topicTags, filtered);
+    const jsonOutput = JSON.stringify(synthesisOutput, null, 2);
     if (values.output) {
       fs.writeFileSync(values.output, jsonOutput + "\n");
       console.log(`Output written to: ${values.output}`);
     } else {
       console.log(jsonOutput);
     }
-  } else {
-    console.log(`=== Topic Filter: ${topicTags} ===\n`);
-    console.log(`Query: tags=[${tags.join(", ")}]${filter.language ? `, lang=${filter.language}` : ""}`);
-    console.log(`Found: ${filtered.length} of ${sources.length} sources\n`);
+    return;
+  }
 
-    for (const source of filtered) {
-      console.log(`  ${source.manifest.id}`);
-      console.log(`    Title: ${source.manifest.title || "N/A"}`);
-      console.log(`    Tags: ${(source.manifest.tags || []).join(", ")}`);
-      console.log();
-    }
+  // Text output remains unchanged
+  console.log(`=== Topic Filter: ${topicTags} ===\n`);
+  console.log(`Query: tags=[${tags.join(", ")}]${filter.language ? `, lang=${filter.language}` : ""}`);
+  console.log(`Found: ${filtered.length} of ${sources.length} sources\n`);
+
+  for (const source of filtered) {
+    console.log(`  ${source.manifest.id}`);
+    console.log(`    Title: ${source.manifest.title || "N/A"}`);
+    console.log(`    Tags: ${(source.manifest.tags || []).join(", ")}`);
+    console.log();
   }
 }
 
