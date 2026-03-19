@@ -9,40 +9,24 @@ Primary areas:
 - `.opencode/skills/` for project-specific agent skills
 - `github/`, `paper/`, `survey/`, `domains/` for generated outputs
 
-## Instruction Files
-
-Found during analysis:
-- `AGENTS.md` at repo root - main repo instructions
-- `.opencode/skills/README.md` - project skill documentation
-
-Not found:
-- `.cursor/rules/`
-- `.cursorrules`
-- `.github/copilot-instructions.md`
-- `.clinerules`
-- `.windsurfrules`
-
-Do not assume Cursor or Copilot-specific rules exist here.
-
 ## Build / Run / Test Commands
 
-The root `package.json` is minimal and does not define dedicated `build`, `lint`, or `typecheck` scripts.
-Run Bun commands directly.
+The root `package.json` is minimal. Run Bun commands directly.
 
 ```bash
-# Run a single test file
+# Run a single test file (PREFERRED)
 bun test scripts/lib/repo-registry.test.ts
 bun test scripts/repo-cli.test.ts
 bun test scripts/sync-repos.test.ts
+bun test scripts/synthesis-lib.test.ts
 
-# Run all repo-owned tests safely
-bun test scripts/repo-cli.test.ts scripts/sync-repos.test.ts scripts/lib/repo-registry.test.ts
+# Run all repo-owned tests explicitly (avoid bare bun test)
+bun test scripts/repo-cli.test.ts scripts/sync-repos.test.ts scripts/lib/repo-registry.test.ts scripts/synthesis-lib.test.ts
 
-# Watch one test file
+# Watch mode for development
 bun test --watch scripts/repo-cli.test.ts
 
-# Repo sync
-bun scripts/sync-repos.ts
+# CLI scripts
 bun scripts/sync-repos.ts --check
 bun scripts/sync-repos.ts --clone
 bun scripts/sync-repos.ts --pull
@@ -50,42 +34,45 @@ bun scripts/sync-repos.ts vercel/next.js
 bun scripts/sync-repos.ts --verify
 bun scripts/sync-repos.ts --verify-fix
 
-# Repo registry CLI
 bun scripts/repo-cli.ts list --json
 bun scripts/repo-cli.ts get vercel/next.js --json
 bun scripts/repo-cli.ts validate
 bun scripts/repo-cli.ts repair
 
-# Domain index generation
+bun scripts/test-synthesis.ts --list-sources
+bun scripts/test-synthesis.ts --topic "LLM" --json
+bun scripts/test-synthesis.ts --validate-manifests
+bun scripts/test-synthesis.ts --stats
+
 bun scripts/generate-domain-index.ts
 ```
 
-### Test Guidance
-
-- Do not use bare `bun test` as a default. It discovers tests inside cloned repos under `github/` and can fail for unrelated reasons.
-- Prefer the smallest relevant test file first.
-- When multiple local script files change, run the explicit `scripts/*.test.ts` file list.
-- Validate command examples against real script entrypoints before finishing.
+**Important Test Guidance:**
+- **NEVER use bare `bun test`** — it discovers tests inside cloned repos under `github/` and fails for unrelated reasons
+- Always specify explicit test file paths
+- When multiple script files change, run the full explicit list
+- Validate command examples against real script entrypoints before finishing
 
 ## Repository Structure
 
-```text
+```
 .
-|- .opencode/skills/        Project-specific OpenCode skills
-|- data/                    Registry and generated data
-|- docs/                    Documentation
-|- domains/                 Domain learning-path outputs
-|- paper/                   Paper reading outputs
-|- research/                Generated research outputs (GitHub analysis reports)
-|- sources/                 Cloned source repositories (GitHub projects)
-|- scripts/                 TypeScript automation and colocated tests
-|  |- lib/                  Shared script libraries
-|- survey/                  Survey synthesis outputs
+├── .opencode/skills/        # Project-specific OpenCode skills (SKILL.md files)
+├── data/                    # Registry and generated data (repos.json, schemas/)
+├── docs/                    # Documentation
+├── domains/                 # Domain learning-path outputs
+├── paper/                   # Paper reading outputs (paper/{id}/)
+├── research/                # Generated research reports (research/github/{owner}/{repo}/)
+│   └── github/             # GitHub project analyses
+├── sources/                 # Cloned source repositories (GitHub projects)
+├── scripts/                 # TypeScript automation and colocated tests
+│   ├── lib/                # Shared script libraries (manifest.ts, repo-registry.ts)
+│   ├── *.test.ts           # Colocated tests
+│   └── *.ts                # Entry point scripts
+└── survey/                  # Survey synthesis outputs (survey/{topic}/)
 ```
 
 ## Code Style Guidelines
-
-These rules are based on observed patterns in `scripts/*.ts` and `scripts/lib/*.ts`.
 
 ### Imports
 
@@ -96,106 +83,196 @@ Group imports in this order:
 4. Local value imports
 5. Local type imports via `import type`
 
-### Formatting
+Example:
+```typescript
+import { describe, test, expect, beforeEach } from "bun:test";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { something } from "./lib/something";
+import type { SomeType } from "./lib/types";
+```
 
-- Use 2-space indentation.
-- Use double quotes unless a template string is clearer.
-- Keep semicolons.
-- Prefer readable wrapping over very long lines.
-- Add spaces between Chinese and English in mixed text.
+### Formatting
+- Use 2-space indentation
+- Use double quotes unless a template string is clearer
+- Keep semicolons
+- Prefer readable wrapping over very long lines
+- Add spaces between Chinese and English in mixed text
 
 ### Naming
-
 - Interfaces and type aliases: `PascalCase`
 - Functions and variables: `camelCase`
 - Constants: `SCREAMING_SNAKE_CASE`
 - Files: `kebab-case`
 - Tests: colocated `*.test.ts`
 
-Examples seen in the repo:
-- `RepoRegistry`
-- `fixOrphanedRepos`
-- `LEVELS`
-- `repo-registry.ts`
+Examples:
+- Types/Interfaces: `RepoRegistry`, `SynthesisSource`
+- Functions: `fixOrphanedRepos`, `buildSynthesisOutput`
+- Constants: `REPO_LEVELS`, `MANIFEST_FILENAME`
+- Files: `repo-registry.ts`, `synthesis-lib.ts`
 
 ### Types
+- Use `interface` for structured object shapes
+- Use `type` for unions and string literal sets
+- Prefer explicit optional fields over loose dictionaries
+- Avoid `any` — use proper typing
+- Use `string | null` only when null is part of the data model
 
-- Use `interface` for structured object shapes.
-- Use `type` for unions and string literal sets.
-- Prefer explicit optional fields over loose dictionaries.
-- Avoid `any`.
-- Use `string | null` only when null is part of the data model.
+```typescript
+// Good
+export type RepoLevel = "beginner" | "intermediate" | "advanced" | "expert";
+export interface Repo {
+  id: string;
+  stars?: number | null;
+  last_commit?: string | null;
+}
 
-Typical example:
-- `export type RepoLevel = "beginner" | "intermediate" | "advanced" | "expert";`
-- `last_commit?: string | null`
+// Avoid
+const data: any = fetchSomething();
+```
 
 ### Error Handling
+- Throw explicit, actionable errors with context
+- Use `catch` without variable only when ignoring expected failures
+- Keep fallback behavior obvious when ignoring errors
+- Prefer validation helpers over scattered ad-hoc checks
 
-- Throw explicit, actionable errors.
-- Use `catch` without a variable only when intentionally ignoring an expected failure.
-- Keep fallback behavior obvious when ignoring an error.
-- Prefer validation helpers over scattered ad-hoc checks.
+```typescript
+// Good
+throw new Error(`Failed to read registry: ${error}`);
 
-Typical pattern:
-- `throw new Error(\`Failed to read registry: ${error}\`)`
+// Ignoring expected failure
+try {
+  something();
+} catch {
+  // Intentionally ignored
+}
+```
 
 ## Testing Conventions
+- Use Bun's built-in test runner from `bun:test`
+- Group tests with `describe(...)` and name `test(...)` by concrete behavior
+- Use temp directories plus `process.chdir(...)` for filesystem isolation
+- Clean up with `fs.rmSync(..., { recursive: true, force: true })` in `afterEach(...)`
+- Use `mock.restore()` when spies or mocks are involved
 
-- Use Bun's built-in test runner from `bun:test`.
-- Group tests with `describe(...)` and name `test(...)` by concrete behavior.
-- Use temp directories plus `process.chdir(...)` for filesystem isolation.
-- Clean up with `fs.rmSync(..., { recursive: true, force: true })` in `afterEach(...)`.
-- Use `mock.restore()` when spies or mocks are involved.
+```typescript
+describe("some feature", () => {
+  let tempDir: string;
+  const originalCwd = process.cwd();
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "test-"));
+    process.chdir(tempDir);
+  });
+
+  afterEach(() => {
+    process.chdir(originalCwd);
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  test("does something", () => {
+    // test code
+  });
+});
+```
 
 ## Script and Data Rules
-
-- Run scripts directly with `bun scripts/<name>.ts`.
-- For registry changes, use `scripts/lib/repo-registry.ts` or `scripts/repo-cli.ts`.
-- Do not rewrite `data/repos.json` with ad-hoc JSON logic when shared helpers exist.
-- Keep registry IDs in `owner/repo` format.
-- Preserve atomic write behavior for registry persistence.
-- Preserve existing Chinese documentation tone.
-- Do not commit secrets.
-- Archive outdated materials into `archive/` instead of deleting casually.
+- Run scripts directly with `bun scripts/<name>.ts`
+- For registry changes, use `scripts/lib/repo-registry.ts` or `scripts/repo-cli.ts`
+- Do not rewrite `data/repos.json` with ad-hoc JSON logic — use shared helpers
+- Keep registry IDs in `owner/repo` format
+- Preserve atomic write behavior for registry persistence
+- Preserve existing Chinese documentation tone
+- Do not commit secrets
+- Archive outdated materials into `archive/` instead of deleting casually
 
 ## Commit Conventions
+Use `type(scope): subject` format.
 
-Use `type(scope): subject`.
+Scopes: `scripts`, `skills`, `data`, `survey`, `paper`, `github`, `docs`
+Types: `feat`, `fix`, `docs`, `refactor`, `chore`
 
-Common scopes: `scripts`, `skills`, `data`, `survey`, `paper`, `github`
-Common types: `feat`, `fix`, `docs`, `refactor`, `chore`
+## Agent Verification Checklist
 
-## Agent Checklist
+Before finishing any work:
+1. Run the smallest relevant test file to verify correctness
+2. If multiple script files changed, run the explicit `scripts/*.test.ts` list
+3. Verify changed command examples still work against real entrypoints
+4. Keep docs aligned with actual file layout and workflow
 
-Before finishing work:
-- Re-run the smallest relevant local test file.
-- If multiple script files changed, run the explicit `scripts/*.test.ts` list.
-- Verify any changed command examples still work.
-- Keep docs aligned with the actual file layout and workflow.
+## OpenCode Skills
 
-## Research Repository Index
+Project-specific skills are in `.opencode/skills/{skill-name}/SKILL.md`:
 
-The repository maintains an auto-generated master index of all GitHub research artifacts:
+```
+## Project Skills
 
-- **Location**: `research/REPOSITORY_INDEX.md`
-- **Total Repositories**: 21 (as of March 2026)
-- **Categories**: Core Learning (5), LLM Training (4), RAG Systems (2), Vector DB (3), Fine-tuning (3), Advanced LLM (3), Frameworks (3)
+| Skill | Use when | Example prompts | Output |
+|-------|----------|-----------------|--------|
+| `github-researcher` | 调研单个 GitHub 仓库并生成结构化报告 | "分析这个项目", "调研 owner/repo" | `research/github/{owner}/{repo}/README.md` |
+| `paper-reader` | 阅读 arXiv/DOI/论文标题并生成笔记、引用分析 | "读这篇论文", "总结这篇 arXiv" | `paper/{id}/` |
+| `survey-synthesizer` | 比较多个项目/论文，生成综述和概念图 | "对比这些项目", "做 LLM survey" | `survey/{topic}/` |
+| `repo-manager` | 注册、同步、校验仓库源 | "sync all repos", "检查更新", "注册项目" | `data/repos.json`, `sources/` |
+| `domain-explorer` | 探索新领域并生成学习路径 | "我想学 XX", "入门指南", "learning path" | `domains/{domain}/` |
+```
 
-Each research entry includes:
-- `README.md` - Comprehensive project analysis report
-- `manifest.json` - Machine-readable metadata following `data/schemas/manifest.json` schema
+Each skill has its own workflow and output conventions documented in its SKILL.md.
+
+> **Note**: `semantic-scholar-api` is a low-level API tool, not shown in the table above.
+
+Project-specific skills are in `.opencode/skills/{skill-name}/SKILL.md`:
+- `github-researcher` — GitHub project deep-dive analysis
+- `paper-reader` — Academic paper reading and citation analysis
+- `survey-synthesizer` — Multi-source survey synthesis and comparison
+- `domain-explorer` — Learning path generation
+- `repo-manager` — Repository registry management
+
+Each skill has its own workflow and output conventions documented in its SKILL.md.
+
+## Key Patterns
 
 ### Manifest Schema
+Research artifacts use `manifest.json` following `data/schemas/manifest.json`:
+- `version` — Schema version (semver)
+- `kind` — Artifact type: `github-analysis`, `paper-notes`, `survey-synthesis`, `domain-exploration`
+- `id` — Unique identifier (e.g., `owner/repo`)
+- `source_type` — Origin: `github`, `arxiv`, `doi`, `manual`
+- `upstream_url` — Link to original source
+- `created_at` / `updated_at` — ISO 8601 timestamps
+- `language` — Content language: `zh`, `en`, `mixed`
+- `tags` — Topic tags for categorization
 
-All research artifacts include a `manifest.json` with the following structure:
-- `version` - Manifest schema version (semver)
-- `kind` - Artifact type: `github-analysis`, `paper-notes`, `survey-synthesis`, `domain-exploration`
-- `id` - Unique identifier (e.g., `owner/repo`)
-- `source_type` - Origin: `github`, `arxiv`, `doi`, `manual`
-- `upstream_url` - Link to original source
-- `inputs` / `outputs` - File paths for reproducibility
-- `generated_by` - Skill that created the artifact
-- `created_at` / `updated_at` - ISO 8601 timestamps
-- `language` - Content language: `zh`, `en`, `mixed`
-- `tags` - Topic tags for categorization
+### SynthesisOutput Schema
+The synthesis system outputs:
+```typescript
+interface SynthesisOutput {
+  topic: string;
+  timestamp: string;
+  sources: SynthesisSourceItem[];
+  relationships: Relationship[];
+  patterns?: Pattern[];
+  comparison?: Comparison[];
+  summary: string;
+  warnings?: string[];
+}
+```
+
+## Environment Variables
+
+| Variable | Purpose | Free Limit | Authenticated |
+|----------|---------|------------|---------------|
+| GITHUB_TOKEN | GitHub API auth | 60 req/hr | 5000 req/hr |
+| SEMANTIC_SCHOLAR_API_KEY | Paper metadata | 100 req/5min | 5000 req/5min |
+
+## Instruction Files
+
+Found in this repo:
+- `AGENTS.md` at repo root — main repo instructions (this file)
+- `.opencode/skills/README.md` — project skill documentation
+
+No Cursor/Copilot-specific rules found in:
+- `.cursor/rules/`, `.cursorrules`, `.cursorrules.md`
+- `.github/copilot-instructions.md`
+- `.clinerules`, `.windsurfrules`
