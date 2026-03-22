@@ -5,13 +5,12 @@ description: |
   DO NOT USE FOR: single project analysis (use github-researcher), paper reading (use paper-reader), or real-time research
   Output: survey/{topic}/ with comparison.md and concept-map.md
   Multi-source survey synthesis and comparative analysis skill. Use when user wants to:
-  (1) Compare multiple projects, papers, or technologies: "compare these", "对比分析", "compare X and Y"
-  (2) Synthesize survey from existing analyses: "synthesize survey", "调研合成", "综合调研"
-  (3) Build domain knowledge graphs: "knowledge graph", "知识图谱", "build taxonomy"
-  (4) Generate comparison reports: "comparison report", "对比报告"
+  (1) Compare multiple projects, papers, or technologies
+  (2) Synthesize survey from existing analyses
+  (3) Build domain knowledge graphs
+  (4) Generate comparison reports
   
   Input sources: research/github/*/README.md (project analyses), paper/*/notes.md (paper notes)
-  Output: survey/{topic}/ with comparison.md and concept-map.md
 ---
 
 # Survey Synthesizer Agent
