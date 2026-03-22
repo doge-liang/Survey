@@ -448,7 +448,9 @@ async function getCurrentCommit(dir: string): Promise<string | null> {
     return result.trim();
   } catch {
     // Intentionally ignored - git not available or not a repo
+    return null;
   }
+}
 
 /**
  * Get commit count behind origin
@@ -460,6 +462,7 @@ async function getCommitsBehind(dir: string): Promise<number> {
   } catch {
     // Intentionally ignored - git fetch failed
   }
+}
 
 /**
  * Check if repo has updates
@@ -605,6 +608,7 @@ async function pullRepo(owner: string, repo: string): Promise<number> {
       // Intentionally ignored - git pull failed
     }
   }
+}
 
 function applyRegistryUpdate(target: RepoRegistry, next: RepoRegistry): void {
   target.version = next.version;
@@ -729,6 +733,7 @@ async function checkRepoUpdates(
   } catch {
     // Intentionally ignored - check failed
   }
+}
 
 /**
  * Check if a repo has been renamed/moved
