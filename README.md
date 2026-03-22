@@ -11,103 +11,83 @@
 
 ## 快速开始
 
-### 环境要求
-
-- Bun >= 1.0.0
-- Git
-
-### 安装
-
 ```bash
-git clone https://github.com/your-username/survey.git
-cd survey
+# 安装
+git clone <repo-url> && cd survey
+
+# 环境变量（可选）
+export GITHUB_TOKEN=...           # GitHub API (60 → 5000 req/hr)
+export SEMANTIC_SCHOLAR_API_KEY=... # Semantic Scholar (100 → 5000 req/5min)
 ```
 
-### 环境变量（可选）
-
-```bash
-export GITHUB_TOKEN=...    # GitHub API (60 → 5000 req/hr)
-export SEMANTIC_SCHOLAR_API_KEY=...  # Semantic Scholar (100 → 5000 req/5min)
-```
-
----
+环境要求: Bun >= 1.0.0, Git
 
 ## Survey Skills
 
-本项目包含 5 个 OpenCode Skills，用于自动化调研工作流。
+| Skill | 用途 | 输出目录 |
+|-------|------|----------|
+| `github-researcher` | GitHub 项目深度调研 | `research/github/{owner}/{repo}/` |
+| `paper-reader` | 学术论文阅读分析 | `paper/{paper-id}/` |
+| `survey-synthesizer` | 多源调研合成对比 | `survey/{topic}/` |
+| `domain-explorer` | 领域探索学习路径 | `domains/{domain}/` |
+| `repo-manager` | 项目注册表管理 | `data/repos.json` |
 
-### Skills 概述
-
-| Skill                | 用途                | 输出目录                 |
-| -------------------- | ------------------- | ------------------------ |
-| `github-researcher`  | GitHub 项目深度调研 | `research/github/{owner}/{repo}/` |
-| `paper-reader`       | 学术论文阅读分析    | `paper/{paper-id}/`      |
-| `survey-synthesizer` | 多源调研合成对比    | `survey/{topic}/`        |
-| `domain-explorer`    | 领域探索学习路径    | `domains/{domain}/`      |
-| `repo-manager`       | 项目注册表管理      | -                        |
-
-## 工作流程
-
-1. **规划阶段**: domain-explorer → 生成学习路径
-2. **调研阶段**: github-researcher + paper-reader → 并行调研
-3. **合成阶段**: survey-synthesizer → 生成对比报告
-
-
-## Skill 详细文档
-
-各 Skill 的详细使用说明、触发词、输入输出格式，请参阅：
-
-详见 [.opencode/skills/README.md](./.opencode/skills/README.md)
-
+详细使用说明、触发词、输入输出格式 → [AGENTS.md](AGENTS.md)
 
 ## 典型工作流
 
 ```
-1. 探索新领域
-   "探索 RAG 领域" → domains/RAG/index.md
-
-2. 调研相关项目
-   "研究 langchain-ai/langchain" → research/github/langchain-ai/langchain/README.md
-   "研究 run-llama/llama_index" → research/github/run-llama/llama_index/README.md
-
-3. 阅读关键论文
-   "阅读 arxiv:2005.14165" → paper/2005.14165/notes.md
-
-4. 综合分析
-   "对比分析 RAG 框架" → survey/RAG-frameworks/comparison.md
+探索领域 → "探索 RAG 领域" → domains/RAG/index.md
+调研项目 → "研究 owner/repo" → research/github/owner/repo/README.md
+阅读论文 → "阅读 arxiv:2005.14165" → paper/2005.14165/notes.md
+综合分析 → "对比分析 RAG 框架" → survey/RAG-frameworks/comparison.md
 ```
 
----
+## 常用命令
+
+```bash
+# 仓库同步
+bun scripts/sync-repos.ts --check --clone --pull
+bun scripts/sync-repos.ts --verify-fix
+
+# 仓库管理
+bun scripts/repo-cli.ts list --json
+bun scripts/repo-cli.ts get owner/repo --json
+
+# 测试
+bun test scripts/repo-cli.test.ts
+bun test scripts/sync-repos.test.ts scripts/lib/repo-registry.test.ts
+
+# 调研合成
+bun scripts/test-synthesis.ts --topic "LLM" --json
+```
+
+详细命令说明 → [AGENTS.md](AGENTS.md)
+
+## 目录结构
+
+```
+./scripts/          # 自动化脚本和 CLI
+./data/             # 注册表和生成数据
+./.opencode/skills/ # 项目 OpenCode Skills
+./research/github/  # GitHub 项目分析报告
+./paper/            # 论文阅读笔记
+./survey/           # 调研合成报告
+./domains/          # 领域学习路径
+```
 
 ## API 限制
 
-GitHub: 60 req/hr (免费) → 5000 req/hr (认证)
-Semantic Scholar: 100 req/5min (免费) → 5000 req/5min (认证)
-arXiv: 3 req/sec
+| 服务 | 免费限制 | 认证限制 |
+|------|---------|---------|
+| GitHub | 60 req/hr | 5000 req/hr |
+| Semantic Scholar | 100 req/5min | 5000 req/5min |
+| arXiv | 3 req/sec | - |
 
+## 更多信息
 
----
-
-## 多端同步
-
-```bash
-# 同步所有项目
-bun scripts/sync-repos.ts
-
-# 检查更新 / 只克隆 / 只拉取
-bun scripts/sync-repos.ts --check --clone --pull
-
-# 验证注册表完整性
-bun scripts/sync-repos.ts --verify
-
-# 自动修复孤儿项目
-bun scripts/sync-repos.ts --verify-fix
-```
-
-详见 [.opencode/skills/README.md](./.opencode/skills/README.md)
-
----
-
+- 详细开发规范 → [AGENTS.md](AGENTS.md)
+- Skill 文档 → [.opencode/skills/README.md](.opencode/skills/README.md)
 
 ## 许可证
 

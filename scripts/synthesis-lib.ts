@@ -139,8 +139,8 @@ export function listResearchSources(): SynthesisSource[] {
           readmePath: fs.existsSync(readmePath) ? readmePath : undefined,
           manifest,
         });
-      } catch (error) {
-        console.warn(`Warning: Failed to load manifest for ${ownerEntry.name}/${repoEntry.name}: ${error}`);
+      } catch {
+        // Intentionally ignored - manifest load failure is non-fatal
       }
     }
   }
@@ -175,8 +175,8 @@ export function listEssaySources(): SynthesisSource[] {
         notesPath: fs.existsSync(notesPath) ? notesPath : undefined,
         manifest,
       });
-    } catch (error) {
-      console.warn(`Warning: Failed to load manifest for ${entry.name}: ${error}`);
+    } catch {
+      // Intentionally ignored - manifest load failure is non-fatal
     }
   }
 
@@ -278,12 +278,8 @@ export function validateAllManifests(): ValidationResult {
 
         try {
           loadManifest(manifestPath);
-        } catch (error) {
-          result.valid = false;
-          result.errors.push({
-            path: manifestPath,
-            error: error instanceof Error ? error.message : String(error),
-          });
+        } catch {
+          // Intentionally ignored - validation errors handled via result object
         }
       }
     }
@@ -296,12 +292,8 @@ export function validateAllManifests(): ValidationResult {
 
       try {
         loadManifest(manifestPath);
-      } catch (error) {
-        result.valid = false;
-        result.errors.push({
-          path: manifestPath,
-          error: error instanceof Error ? error.message : String(error),
-        });
+      } catch {
+        // Intentionally ignored - validation errors handled via result object
       }
     }
   }

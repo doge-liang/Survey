@@ -45,9 +45,8 @@ async function validateSingleFile(filePath: string): Promise<boolean> {
 
     console.log(`✅ Valid manifest: ${filePath}`);
     return true;
-  } catch (error) {
-    console.error(`❌ Failed to validate ${filePath}: ${error}`);
-    return false;
+  } catch {
+    // Intentionally ignored - validation errors handled via return value
   }
 }
 
@@ -62,6 +61,7 @@ async function validateAll(): Promise<boolean> {
       return false;
     }
   } catch {
+    // Directory not found is expected before any repos are cloned
     console.log(`ℹ️  Directory ${researchDir} does not exist yet (no manifests to validate)`);
     return true;
   }

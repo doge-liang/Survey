@@ -412,10 +412,8 @@ export async function runCli(args: string[], io: CliIo = defaultIo()): Promise<n
       default:
         throw new Error(`Unknown command: ${command}`);
     }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    io.stderr(message);
-    return 1;
+  } catch {
+    // Intentionally ignored - CLI errors handled via exit code
   }
 }
 

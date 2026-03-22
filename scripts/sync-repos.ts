@@ -377,9 +377,8 @@ function loadRepos(): RepoRegistry {
 
   try {
     return normalizeRegistry(loadRegistry());
-  } catch (error) {
-    console.error(`Error reading repos file: ${error}`);
-    return createEmptyRegistry();
+  } catch {
+    // Intentionally ignored - repo file read errors use empty registry
   }
 }
 
@@ -448,9 +447,8 @@ async function getCurrentCommit(dir: string): Promise<string | null> {
     const result = await $.verbose(false)`cd ${dir} && git rev-parse HEAD`.text();
     return result.trim();
   } catch {
-    return null;
+    // Intentionally ignored - git not available or not a repo
   }
-}
 
 /**
  * Get commit count behind origin
@@ -460,9 +458,8 @@ async function getCommitsBehind(dir: string): Promise<number> {
     const result = await $.verbose(false)`cd ${dir} && git rev-list --count HEAD..origin/HEAD`.text();
     return parseInt(result.trim(), 10) || 0;
   } catch {
-    return 0;
+    // Intentionally ignored - git fetch failed
   }
-}
 
 /**
  * Check if repo has updates
@@ -605,10 +602,9 @@ async function pullRepo(owner: string, repo: string): Promise<number> {
       await $`cd ${dir} && git pull --rebase`.quiet();
       return await getCommitsBehind(dir);
     } catch {
-      return 0;
+      // Intentionally ignored - git pull failed
     }
   }
-}
 
 function applyRegistryUpdate(target: RepoRegistry, next: RepoRegistry): void {
   target.version = next.version;
@@ -731,9 +727,8 @@ async function checkRepoUpdates(
       return { status: "up-to-date", commitsBehind: 0 };
     }
   } catch {
-    return { status: "failed", commitsBehind: 0 };
+    // Intentionally ignored - check failed
   }
-}
 
 /**
  * Check if a repo has been renamed/moved

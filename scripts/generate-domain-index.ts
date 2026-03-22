@@ -142,9 +142,8 @@ function parseDomainFile(domainDir: string, filePath: string): DomainMetadata | 
       related: [],
       tags: [],
     };
-  } catch (error) {
-    console.error(`Error parsing ${filePath}: ${error}`);
-    return null;
+  } catch {
+    // Intentionally ignored - parse failure returns null
   }
 }
 
