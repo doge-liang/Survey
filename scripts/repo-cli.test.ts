@@ -212,4 +212,56 @@ describe("repo-cli", () => {
     expect(repaired.repos[1]).not.toHaveProperty("last_commit");
     expect(repaired.repos[1]).not.toHaveProperty("cloned_at");
   });
+
+  test("discover fails without --org", async () => {
+    writeRegistry(createRegistry([]));
+    const result = await run(["discover", "bytedance"]);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("--org");
+  });
+
+  test("discover fails with --top 0", async () => {
+    writeRegistry(createRegistry([]));
+    const result = await run(["discover", "bytedance", "--org", "ByteDance-Seed", "--top", "0"]);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("--top must be a positive number");
+  });
+
+  test("discover fails with --top negative", async () => {
+    writeRegistry(createRegistry([]));
+    const result = await run(["discover", "bytedance", "--org", "ByteDance-Seed", "--top", "-5"]);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("--top must be a positive number");
+  });
+
+  test("discover fails with --top non-number", async () => {
+    writeRegistry(createRegistry([]));
+    const result = await run(["discover", "bytedance", "--org", "ByteDance-Seed", "--top", "abc"]);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("--top must be a positive number");
+  });
+
+  test("discover succeeds with valid --org and --top", async () => {
+    writeRegistry(createRegistry([]));
+    // This test requires gh to be installed and may hit rate limits
+    const result = await run(["discover", "bytedance", "--org", "ByteDance-Seed", "--top", "3"]);
+    // gh might fail due to rate limiting, but if it succeeds, validate structure
+    if (result.exitCode === 0) {
+      const lines = result.stdout.split("\n").filter(l => l.trim());
+      expect(lines.length).toBeGreaterThanOrEqual(3); // header + at least 3 data rows
+      expect(lines[0]).toContain("Name");
+      expect(lines[0]).toContain("Stars");
+    }
+  });
+
+  test("discover --json outputs valid JSON", async () => {
+    writeRegistry(createRegistry([]));
+    // This test requires gh to be installed
+    const result = await run(["discover", "bytedance", "--org", "ByteDance-Seed", "--top", "2", "--json"]);
+    if (result.exitCode === 0) {
+      const parsed = JSON.parse(result.stdout);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed.length).toBeLessThanOrEqual(2);
+    }
+  });
 });

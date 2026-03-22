@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import { find, list, load, normalize, remove, save, upsert, validate } from "./lib/repo-registry";
+import { discoverRepos } from "./lib/github-repos";
 
 import type { Repo, RepoLevel, RepoRegistry } from "./lib/repo-registry";
 
@@ -332,6 +333,42 @@ CliIo): number {
   return 0;
 }
 
+interface DiscoverOptions {
+  top: number;
+  topics?: string[];
+  asJson: boolean;
+}
+
+async function handleDiscover(org: string, opts: DiscoverOptions, io: CliIo): Promise<void> {
+  const repos = await discoverRepos({
+    org,
+    limit: opts.top,
+    topics: opts.topics,
+  });
+
+  if (opts.asJson) {
+    printJson(io, repos);
+    return;
+  }
+
+  // Table header
+  const nameCol = "Name";
+  const starsCol = "Stars";
+  const topicsCol = "Topics";
+  const descCol = "Description";
+
+  io.stdout(`${nameCol.padEnd(25)} ${starsCol.padEnd(8)} ${topicsCol.padEnd(20)} ${descCol}`);
+  io.stdout("-".repeat(25) + " " + "-".repeat(8) + " " + "-".repeat(20) + " " + "-".repeat(40));
+
+  for (const repo of repos) {
+    const topics = repo.topics.slice(0, 3).join(",");
+    const desc = repo.description ? repo.description.slice(0, 40) : "";
+    io.stdout(
+      `${repo.name.padEnd(25)} ${String(repo.stars).padEnd(8)} ${topics.padEnd(20)} ${desc}`,
+    );
+  }
+}
+
 export async function runCli(args: string[], io: CliIo = defaultIo()): Promise<number> {
   try {
     const parsed = parseArgs(args);
@@ -358,6 +395,20 @@ export async function runCli(args: string[], io: CliIo = defaultIo()): Promise<n
         return handleValidate(asJson, io);
       case "repair":
         return handleRepair(io);
+      case "discover": {
+        const org = getStringFlag(parsed.flags, "org");
+        if (!org) {
+          throw new Error("--org is required");
+        }
+        const top = parseInt(getStringFlag(parsed.flags, "top") || "30", 10);
+        if (isNaN(top) || top <= 0) {
+          throw new Error("--top must be a positive number");
+        }
+        const topicsFlag = getStringFlag(parsed.flags, "topics");
+        const topics = topicsFlag ? topicsFlag.split(",").map(t => t.trim()).filter(Boolean) : undefined;
+        await handleDiscover(org, { top, topics, asJson }, io);
+        return 0;
+      }
       default:
         throw new Error(`Unknown command: ${command}`);
     }
