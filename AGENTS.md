@@ -6,7 +6,7 @@ Survey is a TypeScript + Bun repository for research-material workflows.
 - `scripts/` for automation and CLIs
 - `data/` for registries and generated indexes
 - `.opencode/skills/` for project-specific agent skills
-- `github/`, `paper/`, `survey/`, `domains/` for generated outputs
+- `research/` for generated outputs (papers, github analyses, surveys, domains)
 
 ## Build / Run / Test Commands
 
@@ -41,26 +41,27 @@ bun scripts/test-synthesis.ts --validate-manifests
 bun scripts/generate-domain-index.ts
 ```
 
-**Important:** **NEVER use bare `bun test`** — it discovers tests inside cloned repos under `github/` and fails for unrelated reasons. Always specify explicit test file paths.
+**Important:** **NEVER use bare `bun test`** — it discovers tests inside cloned repos under `sources/` and fails for unrelated reasons. Always specify explicit test file paths.
 
 ## Repository Structure
 
 ```
 ./
 ├── .opencode/skills/        # Project-specific OpenCode skills
-├── data/                    # Registry and generated data
+├── data/
+│   ├── registries/           # Repository registries (repos.json)
+│   └── manifests/             # Research artifact manifests
 ├── docs/                    # Documentation
-├── domains/                 # Domain learning-path outputs
-├── paper/                   # Paper reading outputs
-├── research/                # Generated research reports
-│   └── github/             # GitHub project analyses
+├── research/                   # Generated outputs (canonical location)
+│   ├── papers/                # Paper reading outputs
+│   ├── github/                # GitHub project analyses
+│   ├── surveys/               # Survey synthesis outputs
+│   └── domains/               # Domain learning-path outputs
 ├── sources/                 # Cloned source repositories
 ├── scripts/                 # TypeScript automation and tests
 │   ├── lib/                # Shared script libraries
 │   └── *.ts                # Entry point scripts
-└── survey/                  # Survey synthesis outputs
 ```
-
 ## Code Style Guidelines
 
 ### Imports
@@ -118,13 +119,13 @@ Types: `feat`, `fix`, `docs`, `refactor`, `chore`
 
 ## OpenCode Skills
 
-| Skill | Use when | Output |
-|-------|----------|--------|
-| `github-researcher` | Analyze GitHub repos | `research/github/{owner}/{repo}/` |
-| `paper-reader` | Read papers | `paper/{id}/` |
-| `survey-synthesizer` | Compare projects | `survey/{topic}/` |
-| `repo-manager` | Sync registries | `data/repos.json` |
-| `domain-explorer` | Learning paths | `domains/{domain}/` |
+KX|| Skill | Use when | Output |
+BW||-------|----------|--------|
+WW|| `github-researcher` | "analyze this GitHub project", "research owner/repo", "调研 GitHub 项目", "understand this codebase", "deep dive into", "技术栈分析" | `research/github/{owner}/{repo}/` |
+XY|| `paper-reader` | "read this paper", "analyze this arxiv", "论文阅读", "学术分析", "summarize this paper", "what is this paper about", "find related papers", "analyze citations" | `research/papers/{id}/` |
+JY|| `survey-synthesizer` | "compare these projects", "synthesize survey", "调研合成", "knowledge graph", "知识图谱", "对比分析", "comparison report" | `research/surveys/{topic}/` |
+NT|| `repo-manager` | "同步所有项目", "sync all repos", "检查更新", "check updates", "更新项目", "update repo", "注册项目", "register repo" | `data/registries/repos.json` |
+YR|| `domain-explorer` | "explore a new domain", "领域探索", "learning path", "学习路径", "入门指南", "get started with", "how to learn", "我想学", "新手入门", "roadmap for", "introduction to", "beginner guide" | `research/domains/{domain}/` |
 
 ## Manifest Schema
 

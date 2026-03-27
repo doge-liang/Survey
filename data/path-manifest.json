@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "description": "Centralized path manifest for Survey project. Paths are relative to project root and resolved at runtime.",
+  "paths": {
+    "papers": "research/papers",
+    "github": "research/github",
+    "surveys": "research/surveys",
+    "domains": "research/domains",
+    "registries": "data/registries",
+    "manifests": "data/manifests",
+    "sources": "sources"
+  },
+  "notes": {
+    "papers": "Academic papers and their metadata (arXiv, DOI, etc.)",
+    "github": "GitHub project research and analysis reports",
+    "surveys": "Multi-source survey synthesis and comparison reports",
+    "domains": "Domain learning paths and exploration guides",
+    "registries": "Repository registries and configuration (repos.json, etc.)",
+    "manifests": "Manifest files tracking research artifacts (manifest.json)",
+    "sources": "Cloned source repositories from GitHub"
+  }
+}
