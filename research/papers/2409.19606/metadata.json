@@ -1,0 +1,27 @@
+{
+  "title": "Hyper-Connections",
+  "authors": [
+    "Defa Zhu",
+    "Hongzhi Huang",
+    "Zihao Huang",
+    "Yutao Zeng",
+    "Yunyao Mao",
+    "Banggu Wu",
+    "Qiyang Min",
+    "Xun Zhou"
+  ],
+  "year": 2025,
+  "arxiv_id": "2409.19606",
+  "doi": null,
+  "s2_id": null,
+  "citation_count": null,
+  "reference_count": null,
+  "open_access": true,
+  "pdf_available": true,
+  "pdf_path": "paper/2409.19606/paper.pdf",
+  "pdf_url": "https://arxiv.org/pdf/2409.19606.pdf",
+  "abstract": "We present hyper-connections, a simple yet effective method that can serve as an alternative to residual connections. This approach specifically addresses common drawbacks observed in residual connection variants, such as the seesaw effect between gradient vanishing and representation collapse. Theoretically, hyper-connections allow the network to adjust the strength of connections between features at different depths and dynamically rearrange layers. We conduct experiments focusing on the pre-training of large language models, including dense and sparse models, where hyper-connections show significant performance improvements over residual connections.",
+  "categories": [],
+  "fetched_at": "2026-03-19T15:05:00.000Z",
+  "paper_id": "2409.19606"
+}

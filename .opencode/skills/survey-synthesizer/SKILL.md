@@ -3,14 +3,14 @@ name: survey-synthesizer
 description: |
   Use when: user wants to "compare these projects", "synthesize survey", "调研合成", "knowledge graph", "知识图谱", "对比分析", "comparison report"
   DO NOT USE FOR: single project analysis (use github-researcher), paper reading (use paper-reader), or real-time research
-  Output: survey/{topic}/ with comparison.md and concept-map.md
+  Output: {surveys}/{topic}/ with comparison.md and concept-map.md
   Multi-source survey synthesis and comparative analysis skill. Use when user wants to:
   (1) Compare multiple projects, papers, or technologies
   (2) Synthesize survey from existing analyses
   (3) Build domain knowledge graphs
   (4) Generate comparison reports
   
-  Input sources: research/github/*/README.md (project analyses), paper/*/notes.md (paper notes)
+  Input sources: {github}/*/README.md (project analyses), {papers}/*/notes.md (paper notes)
 ---
 
 # Survey Synthesizer Agent
@@ -25,14 +25,14 @@ You are a research synthesis specialist. You combine multiple project analyses a
 **NO HALLUCINATION = HARD RULE**
 
 Every claim in your synthesis MUST trace back to:
-1. An existing analysis file (research/github/*/README.md, paper/*/notes.md)
+1. An existing analysis file ({github}/*/README.md, {papers}/*/notes.md)
 2. A web search result (with citation)
 3. Original source documentation
 
 **If you cannot verify a claim, mark it as [NEEDS VERIFICATION] instead of guessing.**
 
 **Citation format:**
-- From local analysis: `[source: research/github/oh-my-opencode/README.md]`
+- From local analysis: `[source: {github}/oh-my-opencode/README.md]`
 - From web search: `[source: https://...]`
 </critical_warning>
 
@@ -51,26 +51,22 @@ USER REQUEST PARSING:
   implicit_scope: Domain keywords to search (e.g., "RAG", "LLM training")
   
 SOURCE TYPES:
-  - project_analyses: research/github/*/README.md (project analysis reports)
-  - paper_notes: paper/*/notes.md (paper reading notes)
-  - **manifest_metadata: research/github/*/manifest.json, paper/*/manifest.json** (metadata including tags, language, timestamps)
+  - project_analyses: {github}/*/README.md (project analysis reports)
+  - paper_notes: {papers}/*/notes.md (paper reading notes)
+  - **manifest_metadata: {github}/*/manifest.json, {papers}/*/manifest.json** (metadata including tags, language, timestamps)
   - web_search: Supplement missing information
-  - project_analyses: research/github/*/README.md (project analysis reports)
-  - paper_notes: paper/*/notes.md (paper reading notes)
-  - web_search: Supplement missing information
-```
 
 ### 0.2 List Available Sources
 
 ```bash
 # List project analyses
-ls research/github/*/README.md 2>/dev/null
+ls {github}/*/README.md 2>/dev/null
 
 # List paper notes
-ls paper/*/notes.md 2>/dev/null
+ls {papers}/*/notes.md 2>/dev/null
 
 # Check for existing surveys
-ls survey/*/comparison.md 2>/dev/null
+ls {surveys}/*/comparison.md 2>/dev/null
 ```
 
 ### 0.2b Read Manifest Metadata (CRITICAL)
@@ -101,12 +97,12 @@ SCOPE DECISION:
   IF user specifies exact items:
     -> Use only those items
   ELIF user gives domain keywords:
-    -> Search for matching analyses in research/github/ and paper/
+    -> Search for matching analyses in {github}/ and {papers}/
   ELSE:
     -> Ask user to clarify scope
 
 OUTPUT_DIR:
-  survey/{sanitized-topic}/
+  {surveys}/{sanitized-topic}/
   where sanitized-topic = lowercase, hyphens, no special chars
 ```
 </parallel_analysis>
@@ -117,16 +113,16 @@ OUTPUT_DIR:
 SYNTHESIS SCOPE
 ===============
 Topic: [user's topic]
-Output Directory: survey/{topic}/
+Output Directory: {surveys}/{topic}/
 
 SOURCES IDENTIFIED:
   Project Analyses (N):
-    - research/github/project-a/README.md
-    - research/github/project-b/README.md
-  
+    - {github}/project-a/README.md
+    - {github}/project-b/README.md
+
   Paper Notes (M):
-    - paper/paper-1/notes.md
-    - paper/paper-2/notes.md
+    - {papers}/paper-1/notes.md
+    - {papers}/paper-2/notes.md
   
   Web Search Needed: [YES/NO]
     -> If YES: List specific gaps to search
@@ -329,7 +325,7 @@ TRADE-OFFS:
 ### 3.1 Create Output Directory
 
 ```bash
-mkdir -p survey/{topic}/
+mkdir -p {surveys}/{topic}/
 ```
 
 ### 3.2 Write comparison.md
@@ -516,9 +512,9 @@ SYNTHESIS COMPLETE
 ==================
 
 OUTPUT FILES:
-  ✓ survey/{topic}/comparison.md ({N} lines)
-  ✓ survey/{topic}/concept-map.md ({M} lines)
-  ✓ survey/{topic}/survey-index.md (optional)
+  \u2713 {surveys}/{topic}/comparison.md ({N} lines)
+  \u2713 {surveys}/{topic}/concept-map.md ({M} lines)
+  \u2713 {surveys}/{topic}/survey-index.md (optional)
 
 SUMMARY:
   - Items compared: N
@@ -551,7 +547,7 @@ KEY DELIVERABLES:
 ### Output Structure
 
 ```
-survey/{topic}/
+{surveys}/{topic}/
 ├── comparison.md        # Detailed comparison report
 ├── concept-map.md       # Entity-relationship model
 └── survey-index.md      # Navigation index (optional)
@@ -606,14 +602,14 @@ survey/{topic}/
 
 **执行步骤**：
 1. Skill 检测到对比请求，识别目标项目
-2. 读取 `research/github/langchain-ai/langchain/README.md`
-3. 读取 `research/github/run-llama/llama_index/README.md`
+2. 读取 `{github}/langchain-ai/langchain/README.md`
+3. 读取 `{github}/run-llama/llama_index/README.md`
 4. 执行对比分析，生成对比矩阵
-5. 创建输出目录 `survey/llm-frameworks/`
-6. 写入 `comparison.md` 和 `knowledge-graph.md`
+5. 创建输出目录 `{surveys}/llm-frameworks/`
+6. 写入 `comparison.md` 和 `concept-map.md`
 
 **预期结果**：
-- `survey/llm-frameworks/comparison.md` 存在
+- `{surveys}/llm-frameworks/comparison.md` 存在
 - 包含对比表格，覆盖所有标准维度
 - 每个项目都有优势和局限性说明
 - 包含选型建议
@@ -634,8 +630,8 @@ survey/{topic}/
 
 **执行步骤**：
 1. Skill 检测到对比请求
-2. 检查 `research/github/` 目录，未找到目标项目分析
-3. 检查 `paper/` 目录，未找到相关论文笔记
+2. 检查 `{github}/` 目录，未找到目标项目分析
+3. 检查 `{papers}/` 目录，未找到相关论文笔记
 4. 检测到无可用输入源
 
 **预期结果**：

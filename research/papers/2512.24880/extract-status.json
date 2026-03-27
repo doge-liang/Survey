@@ -1,0 +1,11 @@
+{
+  "pdf_path": "D:\\Workspace\\Survey\\paper\\2512.24880\\paper.pdf",
+  "method": "pymupdf",
+  "status": "ok",
+  "warnings": [],
+  "pages_total": 19,
+  "pages_with_text": 19,
+  "total_chars": 55391,
+  "avg_chars_per_page": 2915.32,
+  "non_empty_ratio": 1.0
+}

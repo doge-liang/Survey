@@ -1,7 +1,7 @@
 ---
 name: repo-manager
 description: |
-  Manage GitHub repository registry and sync operations. Triggers: "同步所有项目", "sync all repos", "检查更新", "check updates", "更新项目", "update repo", "注册项目", "register repo". Handles repository cloning, syncing, and registry maintenance via data/repos.json.
+  Manage GitHub repository registry and sync operations. Triggers: "同步所有项目", "sync all repos", "检查更新", "check updates", "更新项目", "update repo", "注册项目", "register repo". Handles repository cloning, syncing, and registry maintenance via {{PATH_MANIFEST.registries}}/repos.json.
 ---
 
 # Repo Manager
@@ -277,7 +277,7 @@ Running `--verify` produces a report showing:
 
 ```bash
 # Create empty registry
-echo '{"version":"1.0","updated_at":"2024-01-01T00:00:00Z","repos":[]}' > data/repos.json
+echo '{"version":"1.0","updated_at":"2024-01-01T00:00:00Z","repos":[]}' > {{PATH_MANIFEST.registries}}/repos.json
 ```
 
 ### Invalid Repo Format
@@ -334,7 +334,7 @@ export GITHUB_TOKEN=ghp_your_token
 ### Registry Schema
 
 ```
-data/repos.json
+{{PATH_MANIFEST.registries}}/repos.json
 ├── version           "1.0"
 ├── updated_at        ISO timestamp
 └── repos[]
@@ -360,7 +360,7 @@ data/repos.json
 ## Separation of Concerns
 
 This skill ONLY manages:
-- Registry file (data/repos.json)
+- Registry file ({{PATH_MANIFEST.registries}}/repos.json)
 - Repository cloning and syncing
 - Registry maintenance
 

@@ -3,7 +3,7 @@ name: github-researcher
 description: |
   Use when: user asks to "analyze this GitHub project", "research owner/repo", "调研 GitHub 项目", "understand this codebase", "deep dive into", "技术栈分析"
   DO NOT USE FOR: paper analysis (use paper-reader), general web search, or non-GitHub code analysis
-  Output: research/github/{owner}/{repo}/README.md
+  Output: {github}/{owner}/{repo}/README.md
 ---
 
 # GitHub Researcher
@@ -83,13 +83,15 @@ IF rate limit approaching (< 10 remaining):
 
 ```
 All research outputs go to:
-  research/github/{owner}/{repo}/
+  {github}/{owner}/{repo}/
 
 Files:
   - README.md (main research report)
   - analysis.md (optional: detailed analysis)
   - notes.md (optional: quick notes)
 ```
+
+KZ|
 
 </validation>
 
@@ -305,7 +307,7 @@ SAMPLING STRATEGY:
 
 ### 3.1 Report Structure
 
-Generate a comprehensive README.md in `research/github/{owner}/{repo}/` (accompanied by `manifest.json` for metadata tracking):
+Generate a comprehensive README.md in `{github}/{owner}/{repo}/` (accompanied by `manifest.json` for metadata tracking):
 
 ```markdown
 # {Project Name}
@@ -503,7 +505,7 @@ IF repository has < 5 files:
 3. **NEVER read all files in large repos** - Use sampling strategy for > 500 files
 4. **NEVER guess technology** - Detect from actual code patterns and dependencies
 5. **NEVER output incomplete reports** - All sections must be filled
-6. **NEVER use wrong output directory** - Always use `research/github/{owner}/{repo}/`
+6. **NEVER use wrong output directory** - Always use `{github}/{owner}/{repo}/`
 7. **NEVER mix languages** - Match output language to user's request
 8. **NEVER skip blocking outputs** - Phase 1 and Phase 2 outputs are MANDATORY
 
@@ -535,7 +537,7 @@ IF repository has < 5 files:
 
 ```
 Before completing research:
-[ ] Correct output directory: research/github/{owner}/{repo}/
+[ ] Correct output directory: {github}/{owner}/{repo}/
 [ ] README.md generated with all sections
 [ ] Technology stack documented
 [ ] Architecture explained
@@ -565,10 +567,10 @@ Repository: karpathy/nanoGPT
 
 [Output Phase 2 analysis]
 
-[Phase 3: Generating report to research/github/karpathy/nanoGPT/README.md]
+[Phase 3: Generating report to {github}/karpathy/nanoGPT/README.md]
 
 ✓ Research complete. Report saved to:
-research/github/karpathy/nanoGPT/README.md
+research/github/karpathy/nanoGPT/README.md  # Resolved via path manifest
 
 ```
 
@@ -586,7 +588,7 @@ research/github/karpathy/nanoGPT/README.md
 3. Parallel data fetch: GitHub metadata, README, directory structure
 4. Phase 1 mandatory output displayed
 5. Phase 2 analysis completed
-6. Output written to `research/github/langchain-ai/langchain/README.md`
+6. Output written to `{github}/langchain-ai/langchain/README.md`
 
 **Expected Result:**
 - README.md exists at correct path

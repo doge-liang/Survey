@@ -149,7 +149,7 @@ Scope Decision:
   - [ ] Proceed with exploration
   - [ ] Need clarification (list sub-domains)
 
-OUTPUT DIRECTORY: domains/{domain-slug}/
+OUTPUT DIRECTORY: {{PATH_MANIFEST.domains}}/{domain-slug}/
 ```
 </domain_identification>
 
@@ -347,14 +347,17 @@ SELECTION RATIONALE:
 <path_generation>
 ### 3.1 Path Structure
 
-**Generate structured learning path:**
-
-```
-domains/{domain-slug}/
-├── index.md            # Main path document (with YAML frontmatter)
-├── resources.md        # Detailed resource list
-└── notes.md            # Optional: exploration notes
-```
+QT|**Generate structured learning path:**
+HN|
+TT|```
+BB|{{PATH_MANIFEST.domains}}/{domain-slug}/
+QJ|├── index.md            # Main path document (with YAML frontmatter)
+VQ|├── resources.md        # Detailed resource list
+QZ|└── notes.md            # Optional: exploration notes
+PM|```
+ZK|
+BH|**Note:** `{{PATH_MANIFEST.domains}}` resolves via `data/path-manifest.json` path key `domains`.
+KK|Currently resolves to `domains/` (relative to project root).
 
 ### 3.2 YAML Frontmatter Format (REQUIRED)
 
@@ -703,13 +706,11 @@ Examples:
 <output_verification>
 ### 4.1 File Creation
 
-```
-Create directory: domains/{domain-slug}/
-Create files:
-  1. index.md (REQUIRED) - with YAML frontmatter
-  2. resources.md (REQUIRED)
-  3. notes.md (OPTIONAL - only if user requests or additional insights)
-```
+WK|Create directory: {{PATH_MANIFEST.domains}}/{domain-slug}/
+VY|Create files:
+HQ|  1. index.md (REQUIRED) - with YAML frontmatter
+TJ|  2. resources.md (REQUIRED)
+HQ|  3. notes.md (OPTIONAL - only if user requests or additional insights)
 
 ### 4.2 Quality Checklist
 
@@ -744,7 +745,7 @@ DOMAIN EXPLORATION COMPLETE
 ===========================
 Domain: {domain-name}
 Domain ID: {domain-slug}
-Output Directory: domains/{domain-slug}/
+Output Directory: {{PATH_MANIFEST.domains}}/{domain-slug}/
 
 RELATIONS:
   Parents: [list]
@@ -802,7 +803,7 @@ IF mixed or unclear:
 4. **NEVER skip the evaluation phase** - Quality scoring is MANDATORY
 5. **NEVER create empty stages** - Each level must have actual resources
 6. **NEVER ignore user's level** - Adjust path to user's background
-7. **NEVER use wrong output directory** - Always domains/{domain-slug}/
+7. **NEVER use wrong output directory** - Always {{PATH_MANIFEST.domains}}/{domain-slug}/
 8. **NEVER skip blocking outputs** - All phase outputs are MANDATORY
 9. **NEVER omit YAML frontmatter** - Every index.md requires complete metadata
 10. **NEVER skip relation detection** - Parents, prerequisites, related are required
@@ -935,7 +936,7 @@ IF unsure about domain relationships:
 6. Phase 4 验证输出完整性
 
 **预期结果**:
-- `domains/rag/index.md` 存在，包含 YAML frontmatter
+- `{{PATH_MANIFEST.domains}}/rag/index.md` 存在，包含 YAML frontmatter
 - 文件包含三阶段学习路径 (Beginner/Intermediate/Advanced)
 - 每个阶段有核心概念、必读资源、实践项目
 - Wiki 链接使用 `[[domain-id]]` 语法
@@ -980,7 +981,7 @@ IF unsure about domain relationships:
 
 ```
 Happy Path 验证:
-[ ] domains/{domain-slug}/ 目录已创建
+[ ] {{PATH_MANIFEST.domains}}/{domain-slug}/ 目录已创建
 [ ] index.md 包含完整 YAML frontmatter
 [ ] relations 字段已填充 (parents, prerequisites, related)
 [ ] 三阶段学习路径结构完整

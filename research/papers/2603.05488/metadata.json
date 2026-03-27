@@ -1,0 +1,42 @@
+{
+  "title": "Reasoning Theater: Disentangling Model Beliefs from Chain-of-Thought",
+  "authors": [
+    "Siddharth Boppana",
+    "Annabel Ma",
+    "Max Loeffler",
+    "Raphael Sarfati",
+    "Eric Bigelow",
+    "Atticus Geiger",
+    "Owen Lewis",
+    "Jack Merullo"
+  ],
+  "year": 2026,
+  "arxiv_id": "2603.05488v1",
+  "doi": "10.48550/arXiv.2603.05488",
+  "s2_id": null,
+  "citation_count": null,
+  "reference_count": null,
+  "open_access": true,
+  "pdf_url": "https://arxiv.org/pdf/2603.05488v1",
+  "publication_venue": null,
+  "abstract": "We provide evidence of performative chain-of-thought (CoT) in reasoning models, where a model becomes strongly confident in its final answer, but continues generating tokens without revealing its internal belief. Our analysis compares activation probing, early forced answering, and a CoT monitor across two large models (DeepSeek-R1 671B & GPT-OSS 120B) and find task difficulty-specific differences: The model's final answer is decodable from activations far earlier in CoT than a monitor is able to say, especially for easy recall-based MMLU questions. We contrast this with genuine reasoning in difficult multihop GPQA-Diamond questions. Despite this, inflection points (e.g., backtracking, 'aha' moments) occur almost exclusively in responses where probes show large belief shifts, suggesting these behaviors track genuine uncertainty rather than learned \"reasoning theater.\" Finally, probe-guided early exit reduces tokens by up to 80% on MMLU and 30% on GPQA-Diamond with similar accuracy, positioning attention probing as an efficient tool for detecting performative reasoning and enabling adaptive computation.",
+  "categories": ["cs.CL", "cs.AI", "cs.LG"],
+  "keywords": [
+    "chain-of-thought",
+    "reasoning models",
+    "activation probing",
+    "performative reasoning",
+    "DeepSeek-R1",
+    "early exit",
+    "CoT faithfulness"
+  ],
+  "models_tested": ["DeepSeek-R1 671B", "GPT-OSS 120B"],
+  "datasets": ["MMLU-Redux 2.0", "GPQA-Diamond"],
+  "key_findings": [
+    "Performative CoT exists in reasoning models, especially on easy tasks",
+    "Final answer is decodable from activations far earlier than text monitor can detect",
+    "Inflection points (backtracking, aha moments) track genuine uncertainty",
+    "Early exit can save 80% tokens on MMLU, 30% on GPQA-Diamond"
+  ],
+  "fetched_at": "2026-03-13"
+}

@@ -70,6 +70,7 @@ bun scripts/test-synthesis.ts --topic "LLM" --json
 ./scripts/          # 自动化脚本和 CLI
 ./data/             # 注册表和生成数据
 ./.opencode/skills/ # 项目 OpenCode Skills
+./sources/github/   # GitHub 克隆的源码仓库
 ./research/github/  # GitHub 项目分析报告
 ./paper/            # 论文阅读笔记
 ./survey/           # 调研合成报告
