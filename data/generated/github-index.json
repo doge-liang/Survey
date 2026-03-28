@@ -1,0 +1,499 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-03-28T03:59:59.800Z",
+  "repositories": [
+    {
+      "id": "adiekaye/very-simple-vector-database",
+      "title": "Very Simple Vector Database Analysis",
+      "tags": [
+        "vector-database",
+        "educational",
+        "from-scratch",
+        "python",
+        "beginner"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "AIdventures/flora",
+      "title": "FLoRA: Fine-tuning LLMs with LoRA",
+      "tags": [
+        "lora",
+        "fine-tuning",
+        "pytorch",
+        "peft",
+        "mnli"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "albertvillanova/tinyagents",
+      "title": "tinyagents: 极简 LLM + MCP Agent 实现",
+      "tags": [
+        "agent",
+        "mcp",
+        "minimal",
+        "python",
+        "tool-calling"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "anomalyco/opencode",
+      "title": "OpenCode Analysis",
+      "tags": [
+        "AI",
+        "Coding Agent",
+        "OpenSource",
+        "TypeScript",
+        "SolidJS",
+        "MCP",
+        "LLM"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "Ashx098/Mini-LLM",
+      "title": "Mini-LLM 80M 参数 LLM 从零实现",
+      "tags": [
+        "llm",
+        "rope",
+        "gqa",
+        "swiglu",
+        "training",
+        "pytorch",
+        "transformer"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "bytedance/deer-flow",
+      "title": "DeerFlow 2.0 Analysis",
+      "tags": [
+        "ai-agent",
+        "super-agent",
+        "langgraph",
+        "langchain",
+        "bytedance",
+        "sandbox",
+        "subagents",
+        "mcp",
+        "python",
+        "nextjs"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "code-yeongyu/oh-my-opencode",
+      "title": "Oh My OpenCode 多代理编排框架",
+      "tags": [
+        "agent",
+        "multi-agent",
+        "opencode",
+        "typescript",
+        "llm",
+        "orchestration"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "ggml-org/llama.cpp",
+      "title": "llama.cpp Analysis",
+      "tags": [
+        "llm",
+        "inference",
+        "c++",
+        "ggml",
+        "quantization",
+        "cuda",
+        "metal",
+        "vulkan"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "Infrasys-AI/AIInfra",
+      "title": "AIInfra Analysis — AI 基础设施开源课程",
+      "tags": [
+        "aiinfra",
+        "aisystem",
+        "大模型",
+        "分布式训练",
+        "AI集群",
+        "Megatron",
+        "DeepSpeed",
+        "MoE",
+        "Transformer",
+        "云原生",
+        "K8S",
+        "AI基础设施",
+        "开源课程"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "Infrasys-AI/AISystem",
+      "title": "AISystem - AI系统全栈课程",
+      "tags": [
+        "ai-system",
+        "education",
+        "course",
+        "ai-chip",
+        "compiler",
+        "inference",
+        "deep-learning"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "jbarrow/tinyhnsw",
+      "title": "TinyHNSW Analysis",
+      "tags": [
+        "hnsw",
+        "vector-search",
+        "algorithm",
+        "from-scratch",
+        "python",
+        "advanced"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "jgm/pandoc",
+      "title": "Pandoc - Universal Markup Converter",
+      "tags": [
+        "haskell",
+        "markup",
+        "converter",
+        "document",
+        "markdown",
+        "latex",
+        "commonmark",
+        "presentation",
+        "publishing",
+        "pandoc"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "jingyaogong/minimind",
+      "title": "MiniMind - 从零训练超小型 LLM 分析",
+      "tags": [
+        "llm",
+        "training",
+        "from-scratch",
+        "mini",
+        "pytorch",
+        "chinese"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "kagisearch/vectordb",
+      "title": "VectorDB Analysis",
+      "tags": [
+        "vector-database",
+        "kagi",
+        "lightweight",
+        "python",
+        "embeddings",
+        "intermediate"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "karpathy/llama2.c",
+      "title": "Llama2.c - 单文件纯 C 实现 Llama 2 推理分析",
+      "tags": [
+        "llm",
+        "llama",
+        "inference",
+        "c",
+        "from-scratch",
+        "karpathy"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "karpathy/llm.c",
+      "title": "LLM.c - 纯 C/CUDA 实现 GPT-2 训练分析",
+      "tags": [
+        "llm",
+        "gpt",
+        "training",
+        "c",
+        "cuda",
+        "karpathy"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "karpathy/nanoGPT",
+      "title": "nanoGPT Analysis",
+      "tags": [
+        "deep-learning",
+        "transformer",
+        "gpt",
+        "pytorch",
+        "llm",
+        "training",
+        "educational",
+        "nlp"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "kiranpalsingh1806/awesome-leetcode",
+      "title": "Awesome Leetcode Analysis",
+      "tags": [
+        "algorithm",
+        "data-structures",
+        "leetcode",
+        "interview-preparation",
+        "dsa",
+        "competitive-programming",
+        "cpp"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "langchain-ai/rag-from-scratch",
+      "title": "RAG From Scratch Analysis",
+      "tags": [
+        "langchain",
+        "rag",
+        "retrieval-augmented-generation",
+        "tutorial",
+        "llm",
+        "jupyter-notebook",
+        "educational"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "meta-llama/llama-models",
+      "title": "Llama Models Analysis",
+      "tags": [
+        "llm",
+        "meta",
+        "deep-learning",
+        "open-source",
+        "framework"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "microsoft/ai-agents-for-beginners",
+      "title": "AI Agents for Beginners Analysis",
+      "tags": [
+        "ai-agents",
+        "microsoft",
+        "tutorial",
+        "course",
+        "azure",
+        "machine-learning"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "mrdbourke/simple-local-rag",
+      "title": "Simple Local RAG Tutorial Analysis",
+      "tags": [
+        "RAG",
+        "tutorial",
+        "local-LLM",
+        "retrieval-augmented-generation",
+        "python",
+        "jupyter-notebook",
+        "beginner-friendly"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "openclaw/openclaw",
+      "title": "OpenClaw: 开源自主 AI 代理框架",
+      "tags": [
+        "agent",
+        "autonomous",
+        "ai",
+        "typescript",
+        "skills",
+        "cross-platform"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "Opencode-DCP/opencode-dynamic-context-pruning",
+      "title": "opencode-dynamic-context-pruning 深度分析",
+      "tags": [
+        "opencode",
+        "opencode-plugin",
+        "context-pruning",
+        "token-optimization",
+        "llm",
+        "typescript",
+        "ai-programming",
+        "context-management"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "pguso/ai-agents-from-scratch",
+      "title": "AI Agents From Scratch: 从零构建 AI 代理",
+      "tags": [
+        "agent",
+        "react",
+        "from-scratch",
+        "tutorial",
+        "javascript",
+        "local-llm"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "pguso/rag-from-scratch",
+      "title": "RAG from Scratch Analysis",
+      "tags": [
+        "rag",
+        "educational",
+        "nodejs",
+        "tutorial",
+        "local-llm",
+        "embeddings"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "QasimWani/LeetHub",
+      "title": "LeetHub - 自动同步 LeetCode 到 GitHub",
+      "tags": [
+        "chrome-extension",
+        "leetcode",
+        "github",
+        "automation",
+        "javascript",
+        "portfolio"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "rasbt/LLMs-from-scratch",
+      "title": "Build a Large Language Model (From Scratch) Analysis",
+      "tags": [
+        "llm",
+        "chatgpt",
+        "book",
+        "from-scratch",
+        "tutorial",
+        "pytorch",
+        "transformer"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "ruizguille/rag-from-scratch",
+      "title": "Inception RAG Analysis",
+      "tags": [
+        "rag",
+        "python",
+        "llama3",
+        "groq",
+        "tutorial",
+        "embeddings"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "shareAI-lab/learn-claude-code",
+      "title": "Learn Claude Code Analysis",
+      "tags": [
+        "claude-code",
+        "agent",
+        "harness-engineering",
+        "ai-agent",
+        "python",
+        "typescript",
+        "educational"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "Shreyash-Gaur/Fine-Tuning_With_LoRA",
+      "title": "Fine-Tuning a Language Model using LoRA",
+      "tags": [
+        "lora",
+        "fine-tuning",
+        "sentiment-analysis",
+        "imdb",
+        "pytorch"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "sst/opencode",
+      "title": "OpenCode: 开源 AI 编程助手",
+      "tags": [
+        "agent",
+        "coding-assistant",
+        "ai-ide",
+        "tui"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "sunildkumar/lora_from_scratch",
+      "title": "LoRA from Scratch Analysis",
+      "tags": [
+        "lora",
+        "fine-tuning",
+        "pytorch",
+        "educational",
+        "from-scratch"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "tinygrad/tinygrad",
+      "title": "tinygrad Analysis",
+      "tags": [
+        "deep-learning",
+        "framework",
+        "python",
+        "minimal",
+        "george-hotz"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "Wenyueh/MinivLLM",
+      "title": "MinivLLM: 简化版 vLLM 推理引擎",
+      "tags": [
+        "llm",
+        "inference",
+        "vllm",
+        "paged-attention",
+        "flash-attention"
+      ],
+      "language": "zh"
+    },
+    {
+      "id": "youngyangyang04/leetcode-master",
+      "title": "代码随想录 · LeetCode-Master 分析报告",
+      "tags": [
+        "algorithm",
+        "leetcode",
+        "interview",
+        "cpp",
+        "java",
+        "python",
+        "go",
+        "javascript",
+        "dynamic-programming",
+        "backtracking",
+        "graph-theory",
+        "education"
+      ],
+      "language": "zh"
+    }
+  ]
+}
