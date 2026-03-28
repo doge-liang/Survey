@@ -1,0 +1,22 @@
+name: Verify
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+      - name: Verify path resolution
+        run: bun scripts/project-paths.ts --json
+      - name: Run integrity check
+        run: bun scripts/verify-research-integrity.ts
+      - name: Validate manifests
+        run: bun scripts/validate-manifest.ts --all

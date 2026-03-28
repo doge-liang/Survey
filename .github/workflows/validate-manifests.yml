@@ -1,0 +1,24 @@
+name: Validate Manifests
+on:
+  push:
+    paths:
+      - 'research/**'
+      - 'data/**'
+  pull_request:
+    paths:
+      - 'research/**'
+      - 'data/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+      - name: Generate domain index
+        run: bun scripts/generate-domain-index.ts
+      - name: Validate all manifests
+        run: bun scripts/validate-manifest.ts --all
