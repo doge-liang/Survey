@@ -7,9 +7,9 @@
 | Skill | 用途 | 输出目录 |
 |-------|------|----------|
 | `github-researcher` | GitHub 项目深度调研 | `research/github/{owner}/{repo}/` |
-| `paper-reader` | 学术论文阅读分析 | `paper/{paper-id}/` |
-| `survey-synthesizer` | 多源调研合成对比 | `survey/{topic}/` |
-| `domain-explorer` | 领域探索学习路径 | `domains/{domain}/` |
+| `paper-reader` | 学术论文阅读分析 | `research/papers/{paper-id}/` |
+| `survey-synthesizer` | 多源调研合成对比 | `research/surveys/{topic}/` |
+| `domain-explorer` | 领域探索学习路径 | `research/domains/{domain}/` |
 
 ## Skill Roles & Data Flow
 
@@ -25,14 +25,14 @@
 
 ```
 Planning Phase
-    domain-explorer → domains/{domain}/
+    domain-explorer → research/domains/{domain}/
            ↓
 Research Phase (可并行)
     github-researcher → research/github/*/
-    paper-reader → paper/*/
+    paper-reader → research/papers/*/
            ↓
 Synthesis Phase
-    survey-synthesizer → survey/{topic}/
+    survey-synthesizer → research/surveys/{topic}/
 ```
 
 **注意**: `domain-explorer` 是**规划辅助技能**，用于在调研前确定学习方向和范围，而非调研流程的核心阶段。
@@ -101,7 +101,7 @@ GitHub 项目深度调研，分析代码库结构、技术栈、架构设计。
 
 **输入来源:**
 - 项目分析: `research/github/*/README.md`
-- 论文笔记: `paper/*/notes.md`
+- 论文笔记: `research/papers/*/notes.md`
 
 **使用示例:**
 ```
@@ -170,12 +170,27 @@ Semantic Scholar API 密钥，用于论文元数据和引用分析。
 ```
 Survey/
 ├── research/                  # GitHub 项目分析（生成的调研报告）
-│   └── github/
-│       └── {owner}/
-│           └── {repo}/
-│               ├── README.md      # 主报告
-│               ├── analysis.md    # 详细分析 (可选)
-│               └── notes.md       # 快速笔记 (可选)
+│   ├── github/
+│   │   └── {owner}/
+│   │       └── {repo}/
+│   │           ├── README.md      # 主报告
+│   │           ├── analysis.md    # 详细分析 (可选)
+│   │           └── notes.md       # 快速笔记 (可选)
+│   ├── papers/                    # 论文笔记
+│   │   └── {paper-id}/
+│   │       ├── notes.md           # 阅读笔记
+│   │       ├── metadata.json      # 元数据
+│   │       └── citations.md       # 引用分析
+│   ├── surveys/                   # 调研合成
+│   │   └── {topic}/
+│   │       ├── comparison.md      # 对比报告
+│   │       ├── knowledge-graph.md # 知识图谱
+│   │       └── survey-index.md    # 索引 (可选)
+│   └── domains/                   # 领域探索
+│       └── {domain}/
+│           ├── index.md           # 主学习路径文档
+│           ├── resources.md       # 资源清单
+│           └── notes.md           # 探索笔记 (可选)
 │
 ├── sources/                   # 源代码仓库（克隆的原始项目）
 │   └── github/
@@ -186,26 +201,7 @@ Survey/
 │           ├── README.md      # 主报告
 │           ├── analysis.md    # 详细分析 (可选)
 │           └── notes.md       # 快速笔记 (可选)
-│
-├── paper/                     # 论文笔记
-│   └── {paper-id}/
-│       ├── notes.md           # 阅读笔记
-│       ├── metadata.json      # 元数据
-│       └── citations.md       # 引用分析
-│
-├── survey/                    # 调研合成
-│   └── {topic}/
-│       ├── comparison.md      # 对比报告
-│       ├── knowledge-graph.md # 知识图谱
-│       └── survey-index.md    # 索引 (可选)
-│
-└── domains/                   # 领域探索
-    └── {domain}/
-        ├── index.md           # 主学习路径文档
-        ├── resources.md       # 资源清单
-        └── notes.md           # 探索笔记 (可选)
 ```
-
 ---
 
 ## 常见问题
@@ -234,7 +230,7 @@ Survey/
 
 **解决方案:**
 1. 先运行 `github-researcher` 或 `paper-reader` 生成分析文件
-2. 检查 `research/github/*/README.md` 和 `paper/*/notes.md` 是否存在
+2. 检查 `research/github/*/README.md` 和 `research/papers/*/notes.md` 是否存在
 3. 使用 `--force` 参数重新分析
 
 ### Q: 领域探索结果太宽泛?

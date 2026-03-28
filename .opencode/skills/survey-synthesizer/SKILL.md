@@ -3,7 +3,7 @@ name: survey-synthesizer
 description: |
   Use when: user wants to "compare these projects", "synthesize survey", "调研合成", "knowledge graph", "知识图谱", "对比分析", "comparison report"
   DO NOT USE FOR: single project analysis (use github-researcher), paper reading (use paper-reader), or real-time research
-  Output: {surveys}/{topic}/ with comparison.md and concept-map.md
+  Output: research/surveys/{topic}/ with comparison.md and concept-map.md
   Multi-source survey synthesis and comparative analysis skill. Use when user wants to:
   (1) Compare multiple projects, papers, or technologies
   (2) Synthesize survey from existing analyses
@@ -66,7 +66,7 @@ ls {github}/*/README.md 2>/dev/null
 ls {papers}/*/notes.md 2>/dev/null
 
 # Check for existing surveys
-ls {surveys}/*/comparison.md 2>/dev/null
+ls research/surveys/*/comparison.md 2>/dev/null
 ```
 
 ### 0.2b Read Manifest Metadata (CRITICAL)
@@ -102,7 +102,7 @@ SCOPE DECISION:
     -> Ask user to clarify scope
 
 OUTPUT_DIR:
-  {surveys}/{sanitized-topic}/
+  research/surveys/{sanitized-topic}/
   where sanitized-topic = lowercase, hyphens, no special chars
 ```
 </parallel_analysis>
@@ -113,7 +113,7 @@ OUTPUT_DIR:
 SYNTHESIS SCOPE
 ===============
 Topic: [user's topic]
-Output Directory: {surveys}/{topic}/
+Output Directory: research/surveys/{topic}/
 
 SOURCES IDENTIFIED:
   Project Analyses (N):
@@ -325,7 +325,7 @@ TRADE-OFFS:
 ### 3.1 Create Output Directory
 
 ```bash
-mkdir -p {surveys}/{topic}/
+mkdir -p research/surveys/{topic}/
 ```
 
 ### 3.2 Write comparison.md
@@ -512,9 +512,9 @@ SYNTHESIS COMPLETE
 ==================
 
 OUTPUT FILES:
-  \u2713 {surveys}/{topic}/comparison.md ({N} lines)
-  \u2713 {surveys}/{topic}/concept-map.md ({M} lines)
-  \u2713 {surveys}/{topic}/survey-index.md (optional)
+  \u2713 research/surveys/{topic}/comparison.md ({N} lines)
+  \u2713 research/surveys/{topic}/concept-map.md ({M} lines)
+  \u2713 research/surveys/{topic}/survey-index.md (optional)
 
 SUMMARY:
   - Items compared: N
@@ -547,7 +547,7 @@ KEY DELIVERABLES:
 ### Output Structure
 
 ```
-{surveys}/{topic}/
+research/surveys/{topic}/
 ├── comparison.md        # Detailed comparison report
 ├── concept-map.md       # Entity-relationship model
 └── survey-index.md      # Navigation index (optional)
@@ -605,11 +605,11 @@ KEY DELIVERABLES:
 2. 读取 `{github}/langchain-ai/langchain/README.md`
 3. 读取 `{github}/run-llama/llama_index/README.md`
 4. 执行对比分析，生成对比矩阵
-5. 创建输出目录 `{surveys}/llm-frameworks/`
+5. 创建输出目录 `research/surveys/llm-frameworks/`
 6. 写入 `comparison.md` 和 `concept-map.md`
 
 **预期结果**：
-- `{surveys}/llm-frameworks/comparison.md` 存在
+- `research/surveys/llm-frameworks/comparison.md` 存在
 - 包含对比表格，覆盖所有标准维度
 - 每个项目都有优势和局限性说明
 - 包含选型建议

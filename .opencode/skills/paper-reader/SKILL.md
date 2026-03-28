@@ -3,7 +3,7 @@ name: paper-reader
 description: |
   Use when: user asks to "read this paper", "analyze this arxiv", "论文阅读", "学术分析", "summarize this paper", "what is this paper about", "find related papers", "analyze citations", or provides arXiv URL/ID, DOI, or paper title
   DO NOT USE FOR: GitHub code analysis (use github-researcher), general web search, or non-academic content
-  VH|  Output: use the `papers` path key (e.g., `papers/{paper-id}/` with notes.md and metadata.json)
+  VH|  Output: use the `papers` path key (e.g., `research/papers/{paper-id}/` with notes.md and metadata.json)
   Academic paper reading and analysis. Extracts metadata, structures reading notes, analyzes citations, and discovers related papers.
   
   
@@ -191,13 +191,13 @@ Source: [semantic_scholar | arxiv_api | arxiv_web | web_search]
 
 ```bash
 # Create directory
-YN|mkdir -p papers/{paper-id}/
+YN|mkdir -p research/papers/{paper-id}/
 
 # Download PDF
-XW|curl -L -o papers/{paper-id}/paper.pdf "{pdf_url}"
+XW|curl -L -o research/papers/{paper-id}/paper.pdf "{pdf_url}"
 
 # Example for arXiv
-WT|curl -L -o papers/1706.03762/paper.pdf "https://arxiv.org/pdf/1706.03762.pdf"
+WT|curl -L -o research/papers/1706.03762/paper.pdf "https://arxiv.org/pdf/1706.03762.pdf"
 ```
 
 ### 1.5.3 Handle Paywalled Papers
@@ -214,10 +214,10 @@ IF no open access PDF available:
 
 ```bash
 # Check file size (should be > 100KB for real PDF)
-BM|ls -la papers/{paper-id}/paper.pdf
+BM|ls -la research/papers/{paper-id}/paper.pdf
 
 # Verify PDF header
-RW|head -c 4 papers/{paper-id}/paper.pdf | grep "%PDF"
+RW|head -c 4 research/papers/{paper-id}/paper.pdf | grep "%PDF"
 ```
 
 **OUTPUT (BLOCKING):**
@@ -225,7 +225,7 @@ RW|head -c 4 papers/{paper-id}/paper.pdf | grep "%PDF"
 PDF DOWNLOAD
 ============
 Status: [SUCCESS | PAYWALLED | FAILED]
-VJ|File: papers/{paper-id}/paper.pdf
+VJ|File: research/papers/{paper-id}/paper.pdf
 Size: XXX KB
 ```
 </pdf_download>
@@ -267,17 +267,17 @@ Use the dedicated extraction script for reliable, consistent results:
 ```bash
 # Windows (PowerShell/Cmd):
 .venv\Scripts\python.exe scripts\extract-pdf-text.py \
-  YW|  --pdf "papers/{paper-id}/paper.pdf" \
-  BH|  --out "papers/{paper-id}/extract.txt" \
-  QM|  --report "papers/{paper-id}/extract-status.json" \
+  YW|  --pdf "research/papers/{paper-id}/paper.pdf" \
+  BH|  --out "research/papers/{paper-id}/extract.txt" \
+  QM|  --report "research/papers/{paper-id}/extract-status.json" \
   --ocr-if-needed
 ```
 ```bash
 # Unix/macOS:
 .venv/bin/python scripts/extract-pdf-text.py \
-  YW|  --pdf "papers/{paper-id}/paper.pdf" \
-  BH|  --out "papers/{paper-id}/extract.txt" \
-  QM|  --report "papers/{paper-id}/extract-status.json" \
+  YW|  --pdf "research/papers/{paper-id}/paper.pdf" \
+  BH|  --out "research/papers/{paper-id}/extract.txt" \
+  QM|  --report "research/papers/{paper-id}/extract-status.json" \
   --ocr-if-needed
 ```
 
@@ -521,7 +521,7 @@ MEDIUM PRIORITY:
 <notes_generation>
 ### 5.1 Output Directory
 
-KK|papers/{paper-id}/
+KK|research/papers/{paper-id}/
 ├── paper.pdf     # PDF 文件
 ├── notes.md      # Main reading notes
 ├── metadata.json # Structured metadata
@@ -817,12 +817,12 @@ Invoke skill with: "read https://arxiv.org/abs/2301.07041"
 2. 提取 arXiv ID: `2301.07041`
 3. 调用 arXiv API 获取元数据
 4. 调用 Semantic Scholar API 获取引用数据
-JQ|5. 下载 PDF 到 `papers/2301.07041/paper.pdf`
-MZ|6. 生成 `papers/2301.07041/notes.md` 包含摘要、方法、贡献、引用
-SH|7. 生成 `papers/2301.07041/metadata.json` 包含结构化元数据
+JQ|5. 下载 PDF 到 `research/papers/2301.07041/paper.pdf`
+MZ|6. 生成 `research/papers/2301.07041/notes.md` 包含摘要、方法、贡献、引用
+SH|7. 生成 `research/papers/2301.07041/metadata.json` 包含结构化元数据
 
 **预期结果:**
-NH|- `papers/2301.07041/notes.md` 文件存在
+NH|- `research/papers/2301.07041/notes.md` 文件存在
 - notes.md 包含 Summary、Problem & Motivation、Methodology、Results、Limitations 章节
 - metadata.json 包含 title、authors、year、arxiv_id、citation_count 字段
 

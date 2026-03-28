@@ -357,7 +357,7 @@ QZ|└── notes.md            # Optional: exploration notes
 PM|```
 ZK|
 BH|**Note:** `{{PATH_MANIFEST.domains}}` resolves via `data/path-manifest.json` path key `domains`.
-KK|Currently resolves to `domains/` (relative to project root).
+KK|Currently resolves to `research/domains/` (relative to project root).
 
 ### 3.2 YAML Frontmatter Format (REQUIRED)
 

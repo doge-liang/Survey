@@ -39,7 +39,7 @@ bun scripts/test-synthesis.ts --list-sources
 bun scripts/test-synthesis.ts --topic "LLM" --json
 bun scripts/test-synthesis.ts --validate-manifests
 
-bun scripts/generate-domain-index.ts
+bun scripts/generate-github-index.ts
 
 # Path resolution utilities
 bun scripts/project-paths.ts papers
@@ -72,7 +72,12 @@ bun scripts/project-paths.ts --json
 ## Code Style Guidelines
 
 ### Imports
-Group imports in order: 1) `bun:test` 2) `node:` built-ins 3) third-party 4) local values 5) local types
+Group imports in order:
+1) `bun:test`
+2) `node:` built-ins
+3) third-party
+4) local values
+5) local types
 
 ```typescript
 import { describe, test, expect } from "bun:test";
@@ -175,7 +180,7 @@ bun scripts/project-paths.ts [key] [subpath...]
 ## Script and Data Rules
 - Run scripts with `bun scripts/<name>.ts`
 - For registry changes, use `scripts/lib/repo-registry.ts` or `scripts/repo-cli.ts`
-- Do not rewrite `data/repos.json` with ad-hoc JSON logic
+- Do not rewrite `data/repos.json` (symlink to `data/registries/repos.json`) with ad-hoc JSON logic
 - Keep registry IDs in `owner/repo` format
 - Do not commit secrets
 

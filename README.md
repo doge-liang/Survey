@@ -27,20 +27,20 @@ export SEMANTIC_SCHOLAR_API_KEY=... # Semantic Scholar (100 → 5000 req/5min)
 | Skill | 用途 | 输出目录 |
 |-------|------|----------|
 | `github-researcher` | GitHub 项目深度调研 | `research/github/{owner}/{repo}/` |
-| `paper-reader` | 学术论文阅读分析 | `paper/{paper-id}/` |
-| `survey-synthesizer` | 多源调研合成对比 | `survey/{topic}/` |
-| `domain-explorer` | 领域探索学习路径 | `domains/{domain}/` |
-| `repo-manager` | 项目注册表管理 | `data/repos.json` |
+| `paper-reader` | 学术论文阅读分析 | `research/papers/{paper-id}/` |
+| `survey-synthesizer` | 多源调研合成对比 | `research/surveys/{topic}/` |
+| `domain-explorer` | 领域探索学习路径 | `research/domains/{domain}/` |
+| `repo-manager` | 项目注册表管理 | `data/registries/repos.json` |
 
 详细使用说明、触发词、输入输出格式 → [AGENTS.md](AGENTS.md)
 
 ## 典型工作流
 
 ```
-探索领域 → "探索 RAG 领域" → domains/RAG/index.md
+探索领域 → "探索 RAG 领域" → research/domains/RAG/index.md
 调研项目 → "研究 owner/repo" → research/github/owner/repo/README.md
-阅读论文 → "阅读 arxiv:2005.14165" → paper/2005.14165/notes.md
-综合分析 → "对比分析 RAG 框架" → survey/RAG-frameworks/comparison.md
+阅读论文 → "阅读 arxiv:2005.14165" → research/papers/2005.14165/notes.md
+综合分析 → "对比分析 RAG 框架" → research/surveys/RAG-frameworks/comparison.md
 ```
 
 ## 常用命令
@@ -72,9 +72,9 @@ bun scripts/test-synthesis.ts --topic "LLM" --json
 ./.opencode/skills/ # 项目 OpenCode Skills
 ./sources/github/   # GitHub 克隆的源码仓库
 ./research/github/  # GitHub 项目分析报告
-./paper/            # 论文阅读笔记
-./survey/           # 调研合成报告
-./domains/          # 领域学习路径
+./research/papers/  # 论文阅读笔记
+./research/surveys/ # 调研合成报告
+./research/domains/ # 领域学习路径
 ```
 
 ## API 限制
