@@ -595,6 +595,14 @@ git commit -m "feat(scripts): add Marker extraction module"
 
 **Files:**
 - Create: `scripts/extract-pdf-gemini.py`
+- Test: `scripts/extract-pdf-gemini_test.py`
+
+**Spec fixes applied:**
+- Model: `gemini-3.1-pro` (not `gemini-2.0-flash-exp`)
+- Block-level micro-batching (4-8 blocks per batch) per spec section 4.1
+- Failure ladder: syntax check → high-res retry → tight prompt retry → needs_review per spec section 4.4
+- Cache key includes `media_resolution`
+- Prompt versioning increments on retry
 
 - [ ] **Step 1: 编写 Gemini 修正模块**
 
@@ -612,9 +620,16 @@ from typing import Any
 from PIL import Image
 from io import BytesIO
 
-# Cache module
+# Local modules
 from lib.cache import ExtractionCache
 from lib.latex_validator import is_latex_valid
+
+
+# Constants per spec
+GEMINI_MODEL = "gemini-3.1-pro"
+BATCH_SIZE = 4  # Micro-batch size (4-8 per spec section 4.1)
+MAX_RESOLUTION = (2048, 2048)
+MEDIUM_RESOLUTION = (1024, 1024)
 
 
 def get_gemini_model():
@@ -626,55 +641,95 @@ def get_gemini_model():
         raise ValueError("GEMINI_API_KEY not set")
 
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-2.0-flash-exp")
+    model = genai.GenerativeModel(GEMINI_MODEL)
     return model
 
 
-def image_to_bytes(image_path: Path, max_size: tuple[int, int] = (512, 512)) -> bytes:
-    """Load image and resize if needed."""
+def image_to_bytes(image_path: Path, max_size: tuple[int, int] | None = None) -> bytes:
+    """Load image at native or specified resolution."""
     img = Image.open(image_path)
-    img.thumbnail(max_size, Image.LANCZOS)
+    if max_size:
+        img.thumbnail(max_size, Image.LANCZOS)
     buf = BytesIO()
     img.save(buf, format="PNG")
     return buf.getvalue()
 
 
-def latex_prompt(block_type: str, context: str = "") -> str:
-    """Build prompt for Gemini based on block type."""
+def latex_prompt(block_type: str, context: str = "", tight: bool = False) -> str:
+    """Build prompt. tight=True uses simplified prompt for retry step 3."""
     if block_type == "equation":
-        return f"""Convert this formula image to LaTeX. 
+        if tight:
+            return "Convert image to LaTeX. Return ONLY LaTeX code."
+        return f"""Convert this formula image to LaTeX.
 Return ONLY the LaTeX code, no explanations.
-If the formula is uncertain, start your response with [[UNCERTAIN]] and still provide the best guess.
-Context: {context or "No surrounding context"}
+If uncertain, start response with [[UNCERTAIN]] and provide best guess.
+Context: {context or 'No surrounding context'}
 
-Output format:
-- Clean LaTeX code
-- Start with [[UNCERTAIN]] if uncertain about any symbols
-"""
+Output: Clean LaTeX code"""
 
     elif block_type == "image":
         return f"""Describe this image briefly (1-2 sentences).
-Context: {context or "No surrounding context"}
+Context: {context or 'No surrounding context'}
 
-Output format:
-- One sentence description
-"""
+Output: One sentence description"""
 
     elif block_type == "table":
-        return f"""Validate this table structure. Check if:
-1. Headers are properly aligned
-2. Data rows have correct number of columns
-3. No obvious parsing errors
-
-If issues found, provide corrected Markdown table.
-If OK, respond with [[VALID]] only.
-
-Output format:
-- [[VALID]] if no issues
-- Corrected Markdown table if issues found
-"""
+        return "Validate table structure. Check headers, columns, errors. [[VALID]] if OK, else corrected Markdown."
 
     return "Process this content."
+
+
+def _call_gemini_equation(
+    image_bytes: bytes,
+    context: str,
+    prompt_version: str,
+    resolution: tuple[int, int],
+) -> dict[str, Any]:
+    """Single Gemini API call for equation block."""
+    model = get_gemini_model()
+    tight = prompt_version.startswith("tight")
+    prompt = latex_prompt("equation", context, tight=tight)
+
+    # Resize image if needed for high-res retry
+    if resolution != MEDIUM_RESOLUTION:
+        img = Image.open(image_bytes if isinstance(image_bytes, str) else image_bytes)
+        img.thumbnail(resolution, Image.LANCZOS)
+        buf = BytesIO()
+        img.save(buf, format="PNG")
+        image_bytes = buf.getvalue()
+
+    try:
+        response = model.generate_content([
+            {"mime_type": "image/png", "data": base64.b64encode(image_bytes).decode()},
+            prompt,
+        ])
+        text = response.text.strip()
+
+        uncertain = text.startswith("[[UNCERTAIN]]")
+        if uncertain:
+            text = text.replace("[[UNCERTAIN]]", "").strip()
+
+        # Syntax check (step 1 of failure ladder)
+        valid, errors = is_latex_valid(text)
+
+        return {
+            "latex": text,
+            "uncertain": uncertain,
+            "valid": valid,
+            "errors": errors if not valid else [],
+            "step": "success" if valid else "syntax_check",
+            "resolution": f"{resolution[0]}x{resolution[1]}",
+            "prompt_version": prompt_version,
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "latex": None,
+            "uncertain": True,
+            "step": "api_error",
+            "resolution": f"{resolution[0]}x{resolution[1]}",
+            "prompt_version": prompt_version,
+        }
 
 
 def process_equation_block(
@@ -682,51 +737,49 @@ def process_equation_block(
     context: str = "",
     cache: ExtractionCache | None = None,
 ) -> dict[str, Any]:
-    """Process single equation image with Gemini."""
+    """Process equation image with Gemini using failure ladder per spec 4.4."""
+    img_bytes = image_path.read_bytes()
+    resolution_str = f"{MEDIUM_RESOLUTION[0]}x{MEDIUM_RESOLUTION[1]}"
+
+    # Check cache first
     if cache:
-        img_bytes = image_path.read_bytes()
-        cached = cache.get(img_bytes)
-        if cached:
+        cached = cache.get(img_bytes, prompt_version="v1", model=GEMINI_MODEL, media_resolution=resolution_str)
+        if cached and cached.get("step") == "success":
             return {"source": "cache", **cached}
 
-    model = get_gemini_model()
-    img_bytes = image_to_bytes(image_path)
-
-    prompt = latex_prompt("equation", context)
-
-    try:
-        response = model.generate_content([
-            {"mime_type": "image/png", "data": base64.b64encode(img_bytes).decode()},
-            prompt,
-        ])
-        text = response.text.strip()
-
-        # Check for uncertainty
-        uncertain = text.startswith("[[UNCERTAIN]]")
-        if uncertain:
-            text = text.replace("[[UNCERTAIN]]", "").strip()
-
-        # Validate LaTeX
-        valid, errors = is_latex_valid(text)
-        result = {
-            "latex": text,
-            "uncertain": uncertain,
-            "valid": valid,
-            "errors": errors if not valid else [],
-        }
-
+    # Step 1: Medium resolution, v1 prompt
+    result = _call_gemini_equation(img_bytes, context, "v1", MEDIUM_RESOLUTION)
+    if result.get("step") == "success":
         if cache:
-            cache.set(img_bytes, result)
-
+            cache.set(img_bytes, result, model=GEMINI_MODEL, media_resolution=resolution_str)
         return {"source": "gemini", **result}
 
-    except Exception as e:
-        return {
-            "source": "error",
-            "error": str(e),
-            "latex": None,
-            "uncertain": True,
-        }
+    # Step 2: High resolution retry (spec section 4.4)
+    result = _call_gemini_equation(img_bytes, context, "v1", MAX_RESOLUTION)
+    if result.get("step") == "success":
+        high_res_str = f"{MAX_RESOLUTION[0]}x{MAX_RESOLUTION[1]}"
+        if cache:
+            cache.set(img_bytes, result, model=GEMINI_MODEL, media_resolution=high_res_str)
+        return {"source": "gemini", **result}
+
+    # Step 3: Tight prompt retry
+    result = _call_gemini_equation(img_bytes, context, "tight_v1", MEDIUM_RESOLUTION)
+    if result.get("step") == "success":
+        if cache:
+            cache.set(img_bytes, result, model=GEMINI_MODEL, media_resolution=resolution_str)
+        return {"source": "gemini", **result}
+
+    # Step 4: Mark needs_review (fallback to Marker output)
+    return {
+        "source": "needs_review",
+        "latex": None,
+        "uncertain": True,
+        "valid": False,
+        "errors": result.get("errors", ["max retries exceeded"]),
+        "step": "needs_review",
+        "resolution": resolution_str,
+        "prompt_version": result.get("prompt_version", "v1"),
+    }
 
 
 def process_image_block(
@@ -744,16 +797,9 @@ def process_image_block(
             {"mime_type": "image/png", "data": base64.b64encode(img_bytes).decode()},
             prompt,
         ])
-        return {
-            "description": response.text.strip(),
-            "success": True,
-        }
+        return {"description": response.text.strip(), "success": True}
     except Exception as e:
-        return {
-            "description": None,
-            "error": str(e),
-            "success": False,
-        }
+        return {"description": None, "error": str(e), "success": False}
 
 
 def process_batch(
@@ -761,59 +807,79 @@ def process_batch(
     block_type: str,
     output_dir: Path,
 ) -> list[dict]:
-    """Process a batch of blocks with Gemini."""
+    """Process blocks in micro-batches of 4 per spec section 4.1."""
     results = []
     cache = ExtractionCache() if block_type == "equation" else None
 
-    for i, block in enumerate(blocks):
-        image_path = output_dir / block["path"]
-        if not image_path.exists():
-            results.append({"index": i, "error": "file_not_found"})
-            continue
+    # Micro-batch loop (4-8 blocks per batch)
+    for i in range(0, len(blocks), BATCH_SIZE):
+        batch = blocks[i:i + BATCH_SIZE]
+        for block in batch:
+            image_path = output_dir / block["path"]
+            if not image_path.exists():
+                results.append({"index": blocks.index(block), "error": "file_not_found"})
+                continue
 
-        if block_type == "equation":
-            result = process_equation_block(
-                image_path,
-                context=block.get("context", ""),
-                cache=cache,
-            )
-        elif block_type == "image":
-            result = process_image_block(
-                image_path,
-                context=block.get("context", ""),
-            )
-        else:
-            result = {"error": "unsupported_block_type"}
+            if block_type == "equation":
+                result = process_equation_block(image_path, context=block.get("context", ""), cache=cache)
+            elif block_type == "image":
+                result = process_image_block(image_path, context=block.get("context", ""))
+            else:
+                result = {"error": "unsupported_block_type"}
 
-        results.append({"index": i, **result})
+            results.append({"index": blocks.index(block), **result})
 
     return results
 ```
 
-- [ ] **Step 2: 测试 Gemini 模块**
+- [ ] **Step 2: 编写测试**
 
-需要设置 `GEMINI_API_KEY` 环境变量：
+```python
+# scripts/extract-pdf-gemini_test.py
+import pytest
+from extract_pdf_gemini import BATCH_SIZE, latex_prompt
 
-```bash
-export GEMINI_API_KEY="your_key_here"
-cd /mnt/d/Workspace/Survey && python scripts/extract-pdf-gemini.py /tmp/marker-test/images/eq-001.png "sample context"
+def test_batch_size_is_4_to_8():
+    """Per spec section 4.1, batch size should be 4-8."""
+    assert 4 <= BATCH_SIZE <= 8
+
+def test_latex_prompt_has_uncertain_flag():
+    """Equation prompt should include [[UNCERTAIN]] flag."""
+    prompt = latex_prompt("equation", "context")
+    assert "[[UNCERTAIN]]" in prompt
+
+def test_latex_prompt_tight_is_shorter():
+    """Tight prompt should be shorter than normal prompt."""
+    tight = latex_prompt("equation", "context", tight=True)
+    normal = latex_prompt("equation", "context", tight=False)
+    assert len(tight) < len(normal)
 ```
 
-预期: 返回 LaTeX 结果或错误信息
-
-- [ ] **Step 3: Commit**
+- [ ] **Step 3: 运行测试**
 
 ```bash
-git add scripts/extract-pdf-gemini.py
-git commit -m "feat(scripts): add Gemini correction module"
+cd /mnt/d/Workspace/Survey && .venv/bin/python -m pytest scripts/extract-pdf-gemini_test.py -v
 ```
 
----
+预期: 3 passed
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add scripts/extract-pdf-gemini.py scripts/extract-pdf-gemini_test.py
+git commit -m "feat(scripts): add Gemini module with micro-batching and failure ladder"
+```
 
 ## Task 6: 输出渲染模块
 
 **Files:**
 - Create: `scripts/extract-pdf-renderer.py`
+
+**Spec fixes:** Status dict now includes all fields per spec section 3.3:
+- `marker_version`, `gemini_enabled`, `total_blocks`
+- `ocr_pages` (from marker_result)
+- `cache_hits`
+- `processing_time_seconds`
 
 - [ ] **Step 1: 编写渲染模块**
 
@@ -825,8 +891,11 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from pathlib import Path
 from typing import Any
+
+from extract_pdf_marker import find_marker_venv
 
 
 PLACEHOLDER_PATTERNS = {
@@ -840,18 +909,12 @@ def render_extracted_content(
     marker_result: dict,
     gemini_results: dict,
     output_dir: Path,
+    gemini_enabled: bool = True,
+    start_time: float | None = None,
 ) -> dict[str, Any]:
     """
-    Render extraction results into final output structure.
-
-    Creates:
-    - extract.txt (main text with placeholders)
-    - images/ (copied images)
-    - equations/ (LaTeX files)
-    - tables/ (Markdown files)
-    - extract-status.json
-
-    Returns status dict.
+    Render extraction results. Creates extract.txt, images/, equations/, tables/.
+    Returns status dict matching extract-status.json schema (spec section 3.3).
     """
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -863,13 +926,36 @@ def render_extracted_content(
     for d in [images_dir, equations_dir, tables_dir]:
         d.mkdir(parents=True, exist_ok=True)
 
+    # Get marker version
+    marker_version = "unknown"
+    venv_python = find_marker_venv()
+    if venv_python:
+        try:
+            import subprocess
+            result = subprocess.run(
+                [str(venv_python), "-c", "import marker_pdf; print(marker_pdf.__version__)"],
+                capture_output=True, text=True, check=True,
+            )
+            marker_version = result.stdout.strip()
+        except:
+            pass
+
+    # Complete status schema per spec section 3.3
     status = {
+        "marker_version": marker_version,
+        "gemini_enabled": gemini_enabled,
+        "total_blocks": 0,
         "text_blocks": 0,
         "equation_blocks": 0,
         "image_blocks": 0,
         "table_blocks": 0,
+        "ocr_pages": marker_result.get("ocr_pages", 0),
+        "cache_hits": 0,
         "gemini_requests": 0,
         "gemini_cost_estimate_usd": 0.0,
+        "processing_time_seconds": time.time() - start_time if start_time else 0,
+        "status": "ok",
+        "warnings": [],
     }
 
     # Process blocks
@@ -878,7 +964,10 @@ def render_extracted_content(
     img_counter = 0
     table_counter = 0
 
-    for block in marker_result.get("blocks", []):
+    blocks = marker_result.get("blocks", [])
+    status["total_blocks"] = len(blocks)
+
+    for block in blocks:
         block_type = block.get("type", "text")
 
         if block_type == "text":
@@ -888,7 +977,8 @@ def render_extracted_content(
 
         elif block_type == "equation":
             eq_counter += 1
-            latex = gemini_results.get(block["path"], {}).get("latex", "")
+            gemini_data = gemini_results.get(block["path"], {})
+            latex = gemini_data.get("latex", "")
             if latex:
                 eq_file = equations_dir / f"eq-{eq_counter:03d}.tex"
                 eq_file.write_text(latex, encoding="utf-8")
@@ -896,7 +986,11 @@ def render_extracted_content(
             else:
                 text_parts.append(f"[[EQ:{eq_counter}]]")
             status["equation_blocks"] += 1
-            status["gemini_requests"] += 1
+            source = gemini_data.get("source", "")
+            if source == "gemini":
+                status["gemini_requests"] += 1
+            elif source == "cache":
+                status["cache_hits"] += 1
 
         elif block_type == "image":
             img_counter += 1
@@ -908,18 +1002,23 @@ def render_extracted_content(
             desc = gemini_results.get(block["path"], {}).get("description", "")
             text_parts.append(f"[[IMG:{img_counter}]] {desc}")
             status["image_blocks"] += 1
-            status["gemini_requests"] += 1
+            if gemini_results.get(block["path"], {}).get("source") == "gemini":
+                status["gemini_requests"] += 1
 
         elif block_type == "table":
             table_counter += 1
             text_parts.append(f"[[TABLE:{table_counter}]]")
             status["table_blocks"] += 1
 
+    # Estimate cost
+    status["gemini_cost_estimate_usd"] = (
+        status["equation_blocks"] * 0.001 + status["image_blocks"] * 0.0005
+    )
+
     # Write extract.txt
     extract_txt = output_dir / "extract.txt"
     extract_txt.write_text("\n\n".join(text_parts), encoding="utf-8")
 
-    # Write status
     status["total_chars"] = sum(len(p) for p in text_parts)
     status["status"] = "ok"
 
@@ -930,7 +1029,7 @@ def render_extracted_content(
 
 ```bash
 git add scripts/extract-pdf-renderer.py
-git commit -m "feat(scripts): add output renderer module"
+git commit -m "feat(scripts): add output renderer with complete status schema"
 ```
 
 ---
@@ -1273,18 +1372,23 @@ git commit -m "test(scripts): add deep extraction integration tests"
 | 设计需求 | 实现位置 |
 |----------|----------|
 | Marker 提取 | Task 4: extract-pdf-marker.py |
-| Gemini 修正 | Task 5: extract-pdf-gemini.py |
+| Gemini 修正 (gemini-3.1-pro) | Task 5: extract-pdf-gemini.py |
 | 公式 LaTeX 输出 | Task 5 + Task 6 |
 | 图片独立保存 | Task 6: extract-pdf-renderer.py |
 | 表格 Markdown | Task 6: extract-pdf-renderer.py |
 | 占位符协议 | Task 6: render_extracted_content() |
-| 缓存机制 | Task 2: lib/cache.py |
+| 缓存机制 (SHA256+prompt+model+resolution) | Task 2: lib/cache.py |
 | LaTeX 验证 | Task 3: lib/latex_validator.py |
-| 失败降级 | Task 7: extract-pdf-deep.py fallback 注释 |
-| 状态报告 | Task 6 + extract-status.json schema |
+| **微批处理 (BATCH_SIZE=4)** | Task 5: process_batch() |
+| **失败降级阶梯 (4步)** | Task 5: process_equation_block() |
+| **高分辨率重试 (MAX_RESOLUTION)** | Task 5: _call_gemini_equation() |
+| **Prompt 版本化 (tight_v1)** | Task 5: latex_prompt(tight=True) |
+| **完整状态报告 (15字段)** | Task 6: render_extracted_content() |
+| **处理时间跟踪** | Task 6: processing_time_seconds |
+| **OCR页面跟踪** | Task 6: ocr_pages from marker_result |
 
 ---
 
-**Plan version**: v1.0
+**Plan version**: v1.1
 **Total tasks**: 9
 **Estimated time**: 1-2 days

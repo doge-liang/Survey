@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Bootstrap script for PDF text extraction environment.
-Ensures Python, venv, and PyMuPDF are properly installed.
+Ensures Python, venv, and dependencies are properly installed.
 """
 
 from __future__ import annotations
@@ -51,7 +51,6 @@ def ensure_venv(python_cmd: str) -> Path:
     )
 
     if VENV_DIR.exists() and venv_python.exists():
-        # Verify fitz is importable
         try:
             subprocess.run(
                 [str(venv_python), "-c", "import fitz"],
@@ -60,10 +59,8 @@ def ensure_venv(python_cmd: str) -> Path:
             )
             return venv_python
         except subprocess.CalledProcessError:
-            # fitz not installed, need to reinstall
             pass
 
-    # Create fresh venv
     print(f"Creating .venv with {python_cmd}...")
     result = subprocess.run(
         [python_cmd, "-m", "venv", str(VENV_DIR)],
@@ -73,12 +70,38 @@ def ensure_venv(python_cmd: str) -> Path:
     if result.returncode != 0:
         raise RuntimeError(f"Failed to create venv: {result.stderr}")
 
+    # Bootstrap pip if missing
+    try:
+        subprocess.run(
+            [str(venv_python), "-m", "pip", "--version"],
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError:
+        print("Bootstrapping pip...")
+        result = subprocess.run(
+            [python_cmd, "-m", "ensurepip"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            print("Trying alternative pip bootstrap...")
+            get_pip = subprocess.run(
+                [python_cmd, "-c",
+                 "import urllib.request; urllib.request.urlretrieve('https://bootstrap.pypa.io/get-pip.py', '/tmp/get-pip.py')"],
+                capture_output=True, text=True,
+            )
+            if get_pip.returncode == 0:
+                subprocess.run(
+                    [python_cmd, "/tmp/get-pip.py"],
+                    capture_output=True, text=True,
+                )
+
     return venv_python
 
 
 def install_pymupdf(venv_python: Path) -> bool:
     """Install or verify PyMuPDF."""
-    # Check if already installed with correct version
     try:
         result = subprocess.run(
             [str(venv_python), "-c", "import fitz; print(fitz.__version__)"],
@@ -92,7 +115,6 @@ def install_pymupdf(venv_python: Path) -> bool:
     except subprocess.CalledProcessError:
         pass
 
-    # Install specific version
     print(f"Installing PyMuPDF=={PYMUPDF_VERSION}...")
     result = subprocess.run(
         [str(venv_python), "-m", "pip", "install", f"pymupdf=={PYMUPDF_VERSION}"],
@@ -107,6 +129,62 @@ def install_pymupdf(venv_python: Path) -> bool:
     return True
 
 
+def install_marker(venv_python: Path) -> bool:
+    """Install or verify marker-pdf."""
+    try:
+        result = subprocess.run(
+            [str(venv_python), "-c", "import marker_pdf; print(marker_pdf.__version__)"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        if "1." in result.stdout or "0." in result.stdout:
+            print(f"marker-pdf already installed: {result.stdout.strip()}")
+            return True
+    except subprocess.CalledProcessError:
+        pass
+
+    print("Installing marker-pdf...")
+    result = subprocess.run(
+        [str(venv_python), "-m", "pip", "install", "marker-pdf[all]"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        print(f"pip install marker-pdf failed: {result.stderr}", file=sys.stderr)
+        return False
+    print("marker-pdf installed successfully")
+    return True
+
+
+def install_gemini(venv_python: Path) -> bool:
+    """Install or verify google-generativeai."""
+    try:
+        result = subprocess.run(
+            [str(venv_python), "-c", "import google.generativeai; print(google.generativeai.__version__)"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        if result.returncode == 0:
+            print("google-generativeai already installed")
+            return True
+    except subprocess.CalledProcessError:
+        pass
+
+    print("Installing google-generativeai...")
+    result = subprocess.run(
+        [str(venv_python), "-m", "pip", "install", "google-generativeai"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        print(f"pip install google-generativeai failed: {result.stderr}", file=sys.stderr)
+        return False
+    print("google-generativeai installed successfully")
+    return True
+
+
 def main() -> int:
     """Main bootstrap entry point."""
     result = {
@@ -115,6 +193,8 @@ def main() -> int:
         "venv_created": False,
         "venv_python": None,
         "pymupdf_installed": False,
+        "marker_installed": False,
+        "gemini_installed": False,
         "status": "bootstrap_failed",
         "errors": [],
     }
@@ -162,12 +242,32 @@ def main() -> int:
         return 1
 
     result["pymupdf_installed"] = True
+
+    # Step 5: Install marker-pdf
+    if not install_marker(venv_python):
+        result["errors"].append("marker_install_failed")
+        print("ERROR: Failed to install marker-pdf")
+        print(json.dumps(result, indent=2))
+        return 1
+
+    result["marker_installed"] = True
+
+    # Step 6: Install google-generativeai
+    if not install_gemini(venv_python):
+        result["errors"].append("gemini_install_failed")
+        print("ERROR: Failed to install google-generativeai")
+        print(json.dumps(result, indent=2))
+        return 1
+
+    result["gemini_installed"] = True
     result["status"] = "ready"
 
     print(f"\nBootstrap successful!")
     print(f"Python: {python_cmd}")
     print(f"Venv: {VENV_DIR}")
     print(f"PyMuPDF: {PYMUPDF_VERSION}")
+    print(f"marker-pdf: installed")
+    print(f"google-generativeai: installed")
     print(json.dumps(result, indent=2))
     return 0
 
