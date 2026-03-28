@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "survey-synthesis",
+  "id": "agent-harness",
+  "title": "Agent Harness 研究综述",
+  "source_type": "multi-source",
+  "inputs": [],
+  "outputs": [
+    "comparison.md",
+    "concept-map.md"
+  ],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-27T00:00:00Z",
+  "updated_at": "2026-03-27T00:00:00Z",
+  "language": "zh",
+  "tags": [
+    "agent",
+    "harness",
+    "llm",
+    "reliability",
+    "infrastructure",
+    "evaluation"
+  ]
+}

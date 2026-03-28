@@ -1,0 +1,11 @@
+{
+  "pdf_path": "paper/2504.19874/paper.pdf",
+  "method": "pymupdf",
+  "status": "ok",
+  "warnings": [],
+  "pages_total": 25,
+  "pages_with_text": 25,
+  "total_chars": 64431,
+  "avg_chars_per_page": 2577.24,
+  "non_empty_ratio": 1.0
+}

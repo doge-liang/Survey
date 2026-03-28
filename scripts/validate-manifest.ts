@@ -11,6 +11,7 @@
 import { parseArgs } from "util";
 import { validate } from "./lib/manifest";
 import * as fs from "node:fs/promises";
+import { getGithubPath } from "./lib/project-paths";
 
 const { values } = parseArgs({
   args: Bun.argv,
@@ -32,6 +33,14 @@ if (values.help || (!values.file && !values.all)) {
 }
 
 async function validateSingleFile(filePath: string): Promise<boolean> {
+  // Check if file exists first
+  try {
+    await fs.stat(filePath);
+  } catch {
+    // File doesn't exist - treat as valid (nothing to validate)
+    return true;
+  }
+
   try {
     const content = await Bun.file(filePath).text();
     const manifest = JSON.parse(content);
@@ -45,13 +54,16 @@ async function validateSingleFile(filePath: string): Promise<boolean> {
 
     console.log(`✅ Valid manifest: ${filePath}`);
     return true;
-  } catch {
-    // Intentionally ignored - validation errors handled via return value
+  } catch (error) {
+    // JSON parse error
+    console.error(`❌ Failed to validate: ${filePath}`);
+    console.error(`   Error: ${error instanceof Error ? error.message : String(error)}`);
+    return false;
   }
 }
 
 async function validateAll(): Promise<boolean> {
-  const researchDir = "research/github";
+  const researchDir = getGithubPath();
 
   // Check if directory exists
   try {

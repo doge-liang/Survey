@@ -41,67 +41,101 @@ describe("verify-research-integrity.ts", () => {
       id,
       source_type: "github",
       inputs: [],
-      outputs: [],
+      outputs: ["README.md"],
       generated_by: "test",
       created_at: "2026-03-19T10:00:00Z",
       updated_at: "2026-03-19T10:00:00Z",
     };
   }
 
-  // Test 1: in-sync registry and research
-  test("in-sync registry and research", async () => {
-    const repos = [{ id: "owner/repo" }];
+  function createValidGithubIndex(): object {
+    return {
+      version: "1.0",
+      generated_at: new Date().toISOString(),
+      repositories: [],
+    };
+  }
+
+  function createValidDomainIndex(): object {
+    return {
+      version: "1.0",
+      generated_at: new Date().toISOString(),
+      domains: {},
+      aliases: {},
+      stats: { total_domains: 0, by_level: { beginner: 0, intermediate: 0, advanced: 0 } },
+    };
+  }
+
+  function createTestEnv(repos: { id: string }[], researchRepos: string[], options?: {
+    withReadme?: boolean;
+    withManifest?: boolean;
+    withSource?: boolean;
+    missingOutputs?: string[];
+  }) {
+    const opts = { withReadme: true, withManifest: true, withSource: false, missingOutputs: [], ...options };
+
     fs.mkdirSync("data", { recursive: true });
     fs.writeFileSync("data/repos.json", JSON.stringify({ repos }));
-    fs.mkdirSync("research/github/owner/repo", { recursive: true });
-    fs.writeFileSync("research/github/owner/repo/README.md", "# Test");
-    fs.writeFileSync("research/github/owner/repo/manifest.json", JSON.stringify(createValidManifest("owner/repo")));
 
+    for (const repoId of researchRepos) {
+      const [owner, repo] = repoId.split("/");
+      const researchPath = path.join("research/github", owner, repo);
+      fs.mkdirSync(researchPath, { recursive: true });
+
+      if (opts.withReadme) {
+        fs.writeFileSync(path.join(researchPath, "README.md"), "# Test");
+      }
+
+      if (opts.withManifest) {
+        const manifest = createValidManifest(repoId);
+        if (opts.missingOutputs && opts.missingOutputs.length > 0) {
+          (manifest as { outputs: string[] }).outputs = opts.missingOutputs;
+        }
+        fs.writeFileSync(path.join(researchPath, "manifest.json"), JSON.stringify(manifest));
+      }
+
+      if (opts.withSource) {
+        const sourcePath = path.join("sources/github", owner, repo);
+        fs.mkdirSync(sourcePath, { recursive: true });
+        fs.writeFileSync(path.join(sourcePath, "README.md"), "# Source");
+      }
+    }
+
+    fs.mkdirSync("data/generated", { recursive: true });
+    fs.writeFileSync("data/generated/github-index.json", JSON.stringify(createValidGithubIndex()));
+    fs.writeFileSync("data/generated/domain-index.json", JSON.stringify(createValidDomainIndex()));
+  }
+
+  // Test 1: in-sync registry and research with all indexes
+  test("in-sync registry and research with all indexes", async () => {
+    createTestEnv([{ id: "owner/repo" }], ["owner/repo"], { withSource: true });
     const result = await runScript();
-
     expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("All integrity checks passed");
+    expect(result.stdout).toContain("Overall: ✅ All checks passed");
   });
 
   // Test 2: orphaned registry entry
   test("orphaned registry entry", async () => {
-    const repos = [{ id: "ghost/repo" }];
-    fs.mkdirSync("data", { recursive: true });
-    fs.writeFileSync("data/repos.json", JSON.stringify({ repos }));
-
+    createTestEnv([{ id: "ghost/repo" }], [], { withReadme: false, withManifest: false });
     const result = await runScript();
-
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("ghost/repo");
-    expect(result.stdout).toContain("Orphaned in registry");
+    expect(result.stdout).toContain("1️⃣");
   });
 
   // Test 3: orphaned research entry
   test("orphaned research entry", async () => {
-    const repos: { id: string }[] = [];
-    fs.mkdirSync("data", { recursive: true });
-    fs.writeFileSync("data/repos.json", JSON.stringify({ repos }));
-    fs.mkdirSync("research/github/orphan/repo", { recursive: true });
-    fs.writeFileSync("research/github/orphan/repo/README.md", "# Test");
-    fs.writeFileSync("research/github/orphan/repo/manifest.json", JSON.stringify(createValidManifest("orphan/repo")));
-
+    createTestEnv([], ["orphan/repo"], { withSource: true });
     const result = await runScript();
-
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("orphan/repo");
-    expect(result.stdout).toContain("Orphaned in research");
+    expect(result.stdout).toContain("1️⃣");
   });
 
   // Test 4: missing README with valid manifest
   test("missing README with valid manifest", async () => {
-    const repos = [{ id: "test/repo" }];
-    fs.mkdirSync("data", { recursive: true });
-    fs.writeFileSync("data/repos.json", JSON.stringify({ repos }));
-    fs.mkdirSync("research/github/test/repo", { recursive: true });
-    fs.writeFileSync("research/github/test/repo/manifest.json", JSON.stringify(createValidManifest("test/repo")));
-
+    createTestEnv([{ id: "test/repo" }], ["test/repo"], { withReadme: false, withSource: true });
     const result = await runScript();
-
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("Missing README.md");
     expect(result.stdout).toContain("test/repo");
@@ -109,44 +143,58 @@ describe("verify-research-integrity.ts", () => {
 
   // Test 5: missing manifest with valid README
   test("missing manifest with valid README", async () => {
-    const repos = [{ id: "test/repo" }];
-    fs.mkdirSync("data", { recursive: true });
-    fs.writeFileSync("data/repos.json", JSON.stringify({ repos }));
-    fs.mkdirSync("research/github/test/repo", { recursive: true });
-    fs.writeFileSync("research/github/test/repo/README.md", "# Test");
-
+    createTestEnv([{ id: "test/repo" }], ["test/repo"], { withManifest: false, withSource: true });
     const result = await runScript();
-
     expect(result.exitCode).toBe(1);
-    expect(result.stdout).toContain("Missing manifest.json");
+    expect(result.stdout).toContain("Missing manifest");
     expect(result.stdout).toContain("test/repo");
   });
 
   // Test 6: invalid manifest JSON
   test("invalid manifest JSON", async () => {
-    const repos = [{ id: "test/repo" }];
-    fs.mkdirSync("data", { recursive: true });
-    fs.writeFileSync("data/repos.json", JSON.stringify({ repos }));
-    fs.mkdirSync("research/github/test/repo", { recursive: true });
-    fs.writeFileSync("research/github/test/repo/README.md", "# Test");
+    createTestEnv([{ id: "test/repo" }], ["test/repo"], { withSource: true });
     fs.writeFileSync("research/github/test/repo/manifest.json", "{ broken");
-
     const result = await runScript();
-
     expect(result.exitCode).toBe(1);
-    expect(result.stdout).toContain("Invalid manifests");
-    expect(result.stdout).toContain("Parse error");
+    expect(result.stdout).toContain("1 invalid");
   });
 
   // Test 7: --fix flag outputs no-op message
   test("--fix flag outputs no-op message", async () => {
-    const repos = [{ id: "ghost/repo" }];
-    fs.mkdirSync("data", { recursive: true });
-    fs.writeFileSync("data/repos.json", JSON.stringify({ repos }));
-
+    createTestEnv([{ id: "ghost/repo" }], [], { withReadme: false, withManifest: false });
     const result = await runScript(["--fix"]);
-
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("Fix mode is enabled but not yet implemented");
+  });
+
+  // Test 8: missing source clone is reported
+  test("missing source clone is reported", async () => {
+    createTestEnv([{ id: "test/repo" }], ["test/repo"], { withSource: false });
+    const result = await runScript();
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain("2️⃣  Registry → Source Clone");
+    expect(result.stdout).toContain("Repos cloned: 0");
+  });
+
+  // Test 9: missing outputs from manifest are reported
+  test("missing outputs from manifest are reported", async () => {
+    createTestEnv([{ id: "test/repo" }], ["test/repo"], {
+      withSource: true,
+      missingOutputs: ["README.md", "missing-file.md"],
+    });
+    const result = await runScript();
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain("missing-file.md");
+    expect(result.stdout).toContain("3️⃣  Research → Manifests");
+  });
+
+  // Test 10: missing index files are reported
+  test("missing index files are reported", async () => {
+    createTestEnv([{ id: "owner/repo" }], ["owner/repo"], { withSource: true });
+    fs.rmSync("data/generated", { recursive: true, force: true });
+    const result = await runScript();
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain("4️⃣  Manifests → Indexes");
+    expect(result.stdout).toContain("Missing: data/generated/github-index.json");
   });
 });

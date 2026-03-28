@@ -1,6 +1,7 @@
 # mHC: Manifold-Constrained Hyper-Connections
 
 > **Quick Reference**
+>
 > - Authors: Zhenda Xie, Wenfeng Liang et al. (DeepSeek Team)
 > - Year: 2025 (December 31)
 > - arXiv: [2512.24880](https://arxiv.org/abs/2512.24880)
@@ -17,21 +18,22 @@ DeepSeek 提出了 **mHC (Manifold-Constrained Hyper-Connections)**，在 Hyper-
 ### 残差连接的基石地位
 
 自 ResNet (He et al., 2016) 以来，残差连接成为深度学习的基础组件：
-```
-x_{l+1} = x_l + F(x_l, W_l)
-```
+
+$$x_{l+1} = x_l + F(x_l, W_l)$$
+
 恒等映射特性保证了大规模训练的稳定性和效率。
 
 ### HC 的突破与问题
 
 **HC (Hyper-Connections)** 通过扩展残差流宽度和多样化连接模式来增强表达力：
-```
-x_{l+1} = H^{res}_l x_l + H^{post,T}_l F(H^{pre}_l x_l, W_l)
-```
+
+$$x_{l+1} = H^{res}_l x_l + H^{post,T}_l F(H^{pre}_l x_l, W_l)$$
+
 - 将特征维度从 C 扩展到 n×C（n 为扩展率）
 - 引入三个可学习矩阵：H_pre, H_post, H_res
 
 **HC 的核心问题**：
+
 1. **恒等映射特性被破坏**：多层组合后，特征均值无法保持守恒
 2. **数值不稳定**：无界信号放大或衰减，导致训练崩溃
 3. **内存访问开销**：更宽的残差流带来显著内存开销
@@ -49,14 +51,16 @@ x_{l+1} = H^{res}_l x_l + H^{post,T}_l F(H^{pre}_l x_l, W_l)
 ### 关键公式
 
 **双随机矩阵约束**：
-- H_res 的行和、列和都等于 1
-- H_res · x_l 相当于输入特征的**凸组合**
+
+- $H_res$ 的行和、列和都等于 1
+- $H_res · x_l$ 相当于输入特征的**凸组合**
 - 保持特征均值守恒，信号范数被严格正则化
 
 **Sinkhorn-Knopp 算法**：
+
 1. 通过指数算子使所有元素为正
 2. 迭代地进行行归一化和列归一化
-3. 收敛到双随机矩阵（设置 t_max = 20）
+3. 收敛到双随机矩阵（设置 `t_max = 20`）
 
 ```python
 # 伪代码
@@ -68,24 +72,27 @@ H_res = M  # 双随机矩阵
 
 ### 其他约束
 
-- H_pre: 使用 Sigmoid 函数确保非负
-- H_post: 使用 2·Sigmoid 确保非负（且值域在 (0, 2)）
+- $H_pre$: 使用 Sigmoid 函数确保非负
+- $H_post$: 使用 2·Sigmoid 确保非负（且值域在 (0, 2)）
 
 ## Infrastructure Optimization
 
 mHC 包含三项基础设施优化，额外时间开销仅 **6.7%** (n=4)：
 
 ### 1. Kernel Fusion (核融合)
+
 - 重排序 RMSNorm 操作以跟随矩阵乘法
 - 使用混合精度策略（tfloat32/bfloat16）
 - 将多个操作融合到统一核中
 
 ### 2. Selective Recomputing (选择性重计算)
+
 - 前向传播后丢弃中间激活
 - 反向传播时重新计算
 - 每个 block 只需存储第一个层的输入
 
 ### 3. DualPipe Communication Overlapping
+
 - 与 DualPipe 调度重叠流水线通信
 - 减少通信延迟开销
 

@@ -3,7 +3,7 @@ import * as path from "node:path";
 
 import { find, list, load, normalize, remove, save, upsert, validate } from "./lib/repo-registry";
 import { discoverRepos } from "./lib/github-repos";
-
+import { getRegistriesPath } from "./lib/project-paths";
 import type { Repo, RepoLevel, RepoRegistry } from "./lib/repo-registry";
 
 const LEVELS = new Set<RepoLevel>(["beginner", "intermediate", "advanced", "expert"]);
@@ -30,7 +30,7 @@ function defaultIo(): CliIo {
 }
 
 function registryPath(): string {
-  return path.join(process.cwd(), "data", "repos.json");
+  return getRegistriesPath("repos.json");
 }
 
 function readRawRegistry(): RepoRegistry & { repos: unknown[] } {

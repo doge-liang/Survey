@@ -7,13 +7,14 @@
  * 
  * Usage bun scripts/generate:-domain-index.ts
  */
-
 import * as fs from "node:fs";
 import * as path from "node:path";
 import matter from "gray-matter";
+import { logger } from "./lib/logger";
+import { getDomainsPath } from "./lib/project-paths";
 
 // Configuration
-const DOMAINS_DIR = path.join(process.cwd(), "domains");
+const DOMAINS_DIR = getDomainsPath();
 const OUTPUT_DIR = path.join(process.cwd(), "data", "generated");
 const FORWARD_INDEX_FILE = path.join(OUTPUT_DIR, "domain-index.json");
 const REVERSE_INDEX_FILE = path.join(OUTPUT_DIR, "reverse-index.json");
@@ -97,55 +98,56 @@ function findDomainFile(domainDir: string): string | null {
 /**
  * Parse domain file and extract metadata
  */
-function parseDomainFile(domainDir: string, filePath: string): DomainMetadata | null {
-  try {
-    const content = fs.readFileSync(filePath, "utf-8");
-    const { data, content: body } = matter(content);
-    
-    // If frontmatter exists, use it
-    if (Object.keys(data).length > 0) {
-      return {
-        id: data.id || domainDir.toLowerCase(),
-        title: data.title || domainDir,
-        file: path.relative(process.cwd(), filePath),
-        level: data.level,
-        parents: data.parents || [],
-        prerequisites: data.prerequisites || [],
-        related: data.related || [],
-        tags: data.tags || [],
-      };
-    }
-    
-    // No frontmatter - extract from content
-    // Extract title from first heading
-    const titleMatch = body.match(/^#\s+(.+)$/m);
-    const title = titleMatch ? titleMatch[1] : domainDir;
-    
-    // Try to extract level from content
-    let level: "beginner" | "intermediate" | "advanced" | undefined;
-    const lowerContent = body.toLowerCase();
-    if (lowerContent.includes("beginner") || lowerContent.includes("入门") || lowerContent.includes("基础")) {
-      level = "beginner";
-    } else if (lowerContent.includes("advanced") || lowerContent.includes("深入") || lowerContent.includes("进阶")) {
-      level = "advanced";
-    } else if (lowerContent.includes("intermediate") || lowerContent.includes("中级")) {
-      level = "intermediate";
-    }
-    
-    return {
-      id: domainDir.toLowerCase(),
-      title: title,
-      file: path.relative(process.cwd(), filePath),
-      level,
-      parents: [],
-      prerequisites: [],
-      related: [],
-      tags: [],
+VN|function parseDomainFile(domainDir: string, filePath: string): DomainMetadata | null {
+JQ|  try {
+QJ|    const content = fs.readFileSync(filePath, "utf-8");
+SM|    const { data, content: body } = matter(content);
+NJ|
+QX|    // If frontmatter exists, use it
+XZ|    if (Object.keys(data).length > 0) {
+MP|      return {
+VK|        id: data.id || domainDir.toLowerCase(),
+TX|        title: data.title || domainDir,
+NV|        file: path.relative(process.cwd(), filePath),
+ZR|        level: data.level,
+WS|        parents: data.parents || [],
+RS|        prerequisites: data.prerequisites || [],
+HJ|        related: data.related || [],
+QY|        tags: data.tags || [],
+QN|      };
+PR|    }
+RM|
+JT|    // No frontmatter - extract from content
+JP|    // Extract title from first heading
+PW|    const titleMatch = body.match(/^#\s+(.+)$/m);
+XT|    const title = titleMatch ? titleMatch[1] : domainDir;
+WY|
+YJ|    // Try to extract level from content
+VZ|    let level: "beginner" | "intermediate" | "advanced" | undefined;
+HJ|    const lowerContent = body.toLowerCase();
+ZS|    if (lowerContent.includes("beginner") || lowerContent.includes("入门") || lowerContent.includes("基础")) {
+NS|      level = "beginner";
+WM|    } else if (lowerContent.includes("advanced") || lowerContent.includes("深入") || lowerContent.includes("进阶")) {
+MR|      level = "advanced";
+WJ|    } else if (lowerContent.includes("intermediate") || lowerContent.includes("中级")) {
+QP|      level = "intermediate";
+YJ|    }
+QZ|
+YS|    return {
+SH|      id: domainDir.toLowerCase(),
+QT|      title: title,
+SV|      file: path.relative(process.cwd(), filePath),
+MH|      level,
+ZX|      parents: [],
+YR|      prerequisites: [],
+QV|      related: [],
+MW|      tags: [],
     };
-  } catch {
-    // Intentionally ignored - parse failure returns null
+  } catch (error) {
+    logger.error("parseDomainFile", `Failed to parse domain file: ${filePath}`, error);
+    return null;
   }
-}
+YB|}
 
 /**
  * Detect circular dependencies using DFS

@@ -2,6 +2,8 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { validate, MANIFEST_FILENAME } from "./lib/manifest";
 import type { ArtifactManifest } from "./lib/manifest";
+import { logger } from "./lib/logger";
+import { getGithubPath, getPapersPath } from "./lib/project-paths";
 
 // ============================================================================
 // Types
@@ -81,8 +83,8 @@ function getProjectRoot(): string {
 }
 
 const PROJECT_ROOT = getProjectRoot();
-const RESEARCH_DIR = path.join(PROJECT_ROOT, "research/github");
-const ESSAY_DIR = path.join(PROJECT_ROOT, "paper");
+const RESEARCH_DIR = getGithubPath();
+const ESSAY_DIR = getPapersPath();
 
 // ============================================================================
 // Manifest Loading
@@ -139,8 +141,8 @@ export function listResearchSources(): SynthesisSource[] {
           readmePath: fs.existsSync(readmePath) ? readmePath : undefined,
           manifest,
         });
-      } catch {
-        // Intentionally ignored - manifest load failure is non-fatal
+      } catch (error) {
+        logger.error("listResearchSources", `Failed to load manifest: ${manifestPath}`, error);
       }
     }
   }
@@ -175,8 +177,8 @@ export function listEssaySources(): SynthesisSource[] {
         notesPath: fs.existsSync(notesPath) ? notesPath : undefined,
         manifest,
       });
-    } catch {
-      // Intentionally ignored - manifest load failure is non-fatal
+    } catch (error) {
+      logger.error("listEssaySources", `Failed to load manifest: ${manifestPath}`, error);
     }
   }
 
@@ -278,8 +280,8 @@ export function validateAllManifests(): ValidationResult {
 
         try {
           loadManifest(manifestPath);
-        } catch {
-          // Intentionally ignored - validation errors handled via result object
+        } catch (error) {
+          logger.error("validateAllManifests", `Failed to load manifest: ${manifestPath}`, error);
         }
       }
     }
@@ -290,11 +292,11 @@ export function validateAllManifests(): ValidationResult {
       const manifestPath = path.join(paperDir, entry, MANIFEST_FILENAME);
       if (!fs.existsSync(manifestPath)) continue;
 
-      try {
-        loadManifest(manifestPath);
-      } catch {
-        // Intentionally ignored - validation errors handled via result object
-      }
+        try {
+          loadManifest(manifestPath);
+        } catch (error) {
+          logger.error("validateAllManifests", `Failed to load manifest: ${manifestPath}`, error);
+        }
     }
   }
 

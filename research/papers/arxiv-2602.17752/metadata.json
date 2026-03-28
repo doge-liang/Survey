@@ -1,0 +1,25 @@
+{
+  "title": "A logical approach to concentration",
+  "authors": ["Michael Benedikt", "Maksim Zhukovskii"],
+  "year": 2026,
+  "arxiv_id": "2602.17752",
+  "doi": null,
+  "s2_id": null,
+  "citation_count": null,
+  "reference_count": 53,
+  "open_access": true,
+  "pdf_available": true,
+  "pdf_path": "research/papers/arxiv-2602.17752/paper.pdf",
+  "pdf_url": "https://arxiv.org/pdf/2602.17752.pdf",
+  "abstract": "Concentration results say that a sequence of random variables becomes progressively concentrated around the mean. Such results are common in the study of functions of random graphs. We introduce a real-valued logic with various aggregate operators on graphs, including summation, and prove that every term in the language, seen as a random variable on random graphs within the classical Erdős–Rényi random graph model, is concentrated. We prove this for dense and sparse variants of Erdős–Rényi graphs. On the one hand, our results extend the line of work originating with Fagin and Glebskii et al. on zero-one laws for dense random graphs, as well as the zero-one law of Shelah and Spencer for sparse random graphs. On the other hand, they can be seen as a meta-theorem for inferring concentration results on random graphs, and we give examples of such applications.",
+  "categories": ["math.PR", "math.CO", "math.LO"],
+  "fetched_at": "2026-03-28",
+  "venue": "arXiv",
+  "access_level": "FULL_TEXT",
+  "pages": 44,
+  "chars_extracted": 113598,
+  "institutions": {
+    "Michael Benedikt": "University of Oxford",
+    "Maksim Zhukovskii": "University of Sheffield"
+  }
+}

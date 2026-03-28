@@ -2,5 +2,11 @@
   "dependencies": {
     "gray-matter": "^4.0.3",
     "oh-my-opencode": "^3.11.2"
+  },
+  "scripts": {
+    "verify:all": "bun scripts/verify-research-integrity.ts && bun scripts/validate-manifest.ts --all",
+    "verify:integrity": "bun scripts/verify-research-integrity.ts",
+    "verify:manifests": "bun scripts/validate-manifest.ts --all",
+    "verify:paths": "bun scripts/project-paths.ts --json"
   }
 }

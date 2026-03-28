@@ -27,6 +27,7 @@ import {
   save as saveRegistry,
   upsert as upsertRepo,
 } from "./lib/repo-registry";
+import { getRegistriesPath } from "./lib/project-paths";
 import type { Repo, RepoRegistry } from "./lib/repo-registry";
 
 interface VerificationIssue {
@@ -86,7 +87,7 @@ function getRepoDir(owner: string, repo: string): string {
 
 // Configuration
 const GITHUB_DIR = path.join(process.cwd(), "sources", "github");
-const REPOS_FILE = path.join(process.cwd(), "data", "repos.json");
+const REPOS_FILE = getRegistriesPath("repos.json");
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // ms
 const DEFAULT_VERIFY_FIX_CONCURRENCY = 1;

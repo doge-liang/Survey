@@ -10,6 +10,7 @@ import * as fs from "node:fs";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { validate } from "./manifest";
+import { getGithubPath } from "./project-paths";
 
 export interface RepoEntry {
   id: string;
@@ -38,7 +39,7 @@ export interface VerifyOptions {
 const DEFAULT_OPTIONS: Required<VerifyOptions> = {
   basePath: "",
   registryPath: "data/repos.json",
-  researchDir: "research/github",
+  researchDir: getGithubPath(),
 };
 
 export async function loadReposRegistry(basePath: string): Promise<RepoEntry[]> {
@@ -53,7 +54,7 @@ export async function loadReposRegistry(basePath: string): Promise<RepoEntry[]> 
 }
 
 export async function scanResearchDirectory(basePath: string): Promise<string[]> {
-  const researchDir = join(basePath, "research/github");
+  const researchDir = getGithubPath();
   const repos: string[] = [];
 
   if (!existsSync(researchDir)) {
@@ -79,7 +80,7 @@ export async function scanResearchDirectory(basePath: string): Promise<string[]>
 }
 
 export async function validateManifest(repoId: string, basePath: string): Promise<{ valid: boolean; error?: string }> {
-  const manifestPath = join(basePath, "research/github", repoId, "manifest.json");
+  const manifestPath = join(getGithubPath(), repoId, "manifest.json");
 
   if (!existsSync(manifestPath)) {
     return { valid: false, error: "Manifest file not found" };
@@ -125,7 +126,7 @@ export async function verifyResearchIntegrity(options: VerifyOptions = {}): Prom
 
   // Check for orphaned entries in registry
   for (const repo of registryRepos) {
-    const researchPath = join(basePath, "research/github", repo.id);
+    const researchPath = join(getGithubPath(), repo.id);
     if (!existsSync(researchPath)) {
       result.orphanedInRegistry.push(repo.id);
     } else {

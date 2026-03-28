@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-
+import { getRegistriesPath } from "./project-paths";
 export type RepoLevel = "beginner" | "intermediate" | "advanced" | "expert";
 
 export interface Repo {
@@ -26,7 +26,7 @@ export interface RepoRegistry {
 const REPO_LEVELS = new Set<RepoLevel>(["beginner", "intermediate", "advanced", "expert"]);
 
 function registryFilePath(): string {
-  return path.join(process.cwd(), "data", "repos.json");
+  return getRegistriesPath("repos.json");
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {

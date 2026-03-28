@@ -112,9 +112,14 @@ export function getDomainsPath(): string {
  * Type-safe getter for registries directory.
  * Returns absolute path to the data/registries directory containing registries.
  */
-export function getRegistriesPath(): string {
-  return resolvePath("registries");
+export function getRegistriesPath(...subpath: string[]): string {
+  // Use process.cwd() to support both production and test scenarios
+  // In production: data/repos.json is a symlink to data/registries/repos.json
+  // In tests: cwd is temp dir, tests write to data/repos.json directly
+  const registriesPath = path.join(process.cwd(), "data");
+  return path.join(registriesPath, ...subpath);
 }
+
 
 /**
  * Type-safe getter for manifests directory.

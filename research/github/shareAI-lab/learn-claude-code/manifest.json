@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "github-analysis",
+  "id": "shareAI-lab/learn-claude-code",
+  "title": "Learn Claude Code Analysis",
+  "source_type": "github",
+  "upstream_url": "https://github.com/shareAI-lab/learn-claude-code",
+  "inputs": ["web-search", "github-api"],
+  "outputs": ["README.md"],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-27T10:00:00Z",
+  "updated_at": "2026-03-27T10:00:00Z",
+  "language": "zh",
+  "tags": [
+    "claude-code",
+    "agent",
+    "harness-engineering",
+    "ai-agent",
+    "python",
+    "typescript",
+    "educational"
+  ]
+}

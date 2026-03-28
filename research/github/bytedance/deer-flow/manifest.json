@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../data/schemas/manifest.json",
+  "version": "1.0.0",
+  "kind": "github-analysis",
+  "id": "bytedance/deer-flow",
+  "title": "DeerFlow 2.0 Analysis",
+  "source_type": "github",
+  "upstream_url": "https://github.com/bytedance/deer-flow",
+  "inputs": ["web:README.md", "web:ARCHITECTURE.md", "web:pyproject.toml", "web:package.json"],
+  "outputs": ["README.md"],
+  "generated_by": "github-researcher",
+  "created_at": "2026-03-27T10:00:00Z",
+  "updated_at": "2026-03-27T10:00:00Z",
+  "language": "zh",
+  "tags": ["ai-agent", "super-agent", "langgraph", "langchain", "bytedance", "sandbox", "subagents", "mcp", "python", "nextjs"]
+}
