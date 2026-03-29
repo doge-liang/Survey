@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "kind": "survey-synthesis",
+  "id": "q4-tot-lats",
+  "source_type": "manual",
+  "upstream_url": null,
+  "created_at": "2026-03-30T00:00:00.000Z",
+  "updated_at": "2026-03-30T00:00:00.000Z",
+  "metadata": {
+    "title": "Q4: ToT/LATS框架机制",
+    "category": "agent-reasoning",
+    "level": "advanced",
+    "tags": ["tot", "lats", "tree-of-thoughts", "mcts", "agent-reasoning", "llm-agent"],
+    "related_questions": ["q1", "q2", "q3"]
+  }
+}

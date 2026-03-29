@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "kind": "survey-synthesis",
+  "id": "q1-react-vs-planning",
+  "source_type": "manual",
+  "upstream_url": null,
+  "created_at": "2026-03-30T00:00:00.000Z",
+  "updated_at": "2026-03-30T00:00:00.000Z",
+  "metadata": {
+    "title": "Q1: ReAct vs Planning 范式对比",
+    "category": "agent-reasoning",
+    "level": "advanced",
+    "tags": ["react", "planning", "tot", "lats", "agent"],
+    "related_questions": ["q2", "q3", "q4"]
+  }
+}

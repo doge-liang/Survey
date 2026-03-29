@@ -1,0 +1,30 @@
+{
+  "id": "q6-long-term-memory",
+  "title": "Q6: 长期记忆系统设计",
+  "category": "agent-memory",
+  "level": "advanced",
+  "tags": ["memory", "vector-db", "graph-db", "memory-consolidation", "agent", "rag"],
+  "related-questions": ["q1", "q2", "q3", "q4", "q5", "q7", "q8"],
+  "date": "2026-03-30",
+  "version": "1.0.0",
+  "source_type": "survey",
+  "authors": [],
+  "description": "深入分析 LLM Agent 长期记忆系统的存储结构、更新策略、检索机制设计，涵盖向量数据库、图数据库、混合存储方案，以及 MemGPT、HippoRAG、MemFree 等代表性工作。",
+  "key_topics": [
+    "长期记忆的重要性与短期记忆的区别",
+    "向量数据库 vs 图数据库的优劣对比",
+    "记忆合并（Memory Consolidation）策略",
+    "遗忘机制（Fogetting Mechanism）",
+    "重排序（Reranking）与混合检索（Hybrid Search）",
+    "上下文窗口匹配",
+    "完整记忆系统架构设计"
+  ],
+  "related_projects": [
+    "MemGPT",
+    "HippoRAG",
+    "MemFree"
+  ],
+  "related_papers": [
+    "arXiv:2312.14852 (MemGPT)"
+  ]
+}
