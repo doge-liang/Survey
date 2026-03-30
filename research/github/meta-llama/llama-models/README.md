@@ -1,3 +1,14 @@
+---
+id: meta-llama/llama-models
+title: Llama Models Analysis
+source_type: github
+upstream_url: "https://github.com/meta-llama/llama-models"
+generated_by: github-researcher
+created_at: "2026-03-18T10:30:00Z"
+updated_at: "2026-03-18T10:30:00Z"
+tags: [llm, meta, deep-learning, open-source, framework]
+language: zh
+---
 # Llama Models
 
 > Meta 开源大语言模型系列工具库

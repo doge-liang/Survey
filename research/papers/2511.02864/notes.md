@@ -1,3 +1,14 @@
+---
+id:
+title: Mathematical exploration and discovery at scale
+source_type: arxiv
+upstream_url:
+generated_by:
+created_at:
+updated_at:
+authors: [Bogdan Georgiev, Javier Gómez-Serrano, Terence Tao, Adam Zsolt Wagner]
+year: 2025
+---
 # Mathematical exploration and discovery at scale
 
 > **快速参考**

@@ -1,3 +1,14 @@
+---
+id: shareAI-lab/learn-claude-code
+title: Learn Claude Code Analysis
+source_type: github
+upstream_url: "https://github.com/shareAI-lab/learn-claude-code"
+generated_by: github-researcher
+created_at: "2026-03-27T10:00:00Z"
+updated_at: "2026-03-27T10:00:00Z"
+tags: [claude-code, agent, harness-engineering, ai-agent, python, typescript, educational]
+language: zh
+---
 # Learn Claude Code — Harness Engineering for Real Agents
 
 > 构建一个 nano Claude Code 风格的 Agent Harness，从 0 到 1

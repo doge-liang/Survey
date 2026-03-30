@@ -1,3 +1,14 @@
+---
+id: AIdventures/flora
+title: "FLoRA: Fine-tuning LLMs with LoRA"
+source_type: github
+upstream_url: "https://github.com/AIdventures/flora"
+generated_by: github-researcher
+created_at: "2026-03-18T08:00:00Z"
+updated_at: "2026-03-18T08:00:00Z"
+tags: [lora, fine-tuning, pytorch, peft, mnli]
+language: zh
+---
 # AIdventures/flora
 
 > Fine-tuning LLMs with LoRA

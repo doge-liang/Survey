@@ -1,3 +1,14 @@
+---
+id: openclaw/openclaw
+title: "OpenClaw: 开源自主 AI 代理框架"
+source_type: github
+upstream_url: "https://github.com/openclaw/openclaw"
+generated_by: github-researcher
+created_at: "2026-03-18T08:00:00Z"
+updated_at: "2026-03-18T08:00:00Z"
+tags: [agent, autonomous, ai, typescript, skills, cross-platform]
+language: zh
+---
 # OpenClaw: 开源自主 AI 代理框架
 
 > 🦞 属于你自己的个人 AI 助手，可在任何操作系统、任何平台上运行

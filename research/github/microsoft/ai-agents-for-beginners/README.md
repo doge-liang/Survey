@@ -1,3 +1,15 @@
+---
+id: microsoft/ai-agents-for-beginners
+title: AI Agents for Beginners Analysis
+source_type: github
+upstream_url: "https://github.com/microsoft/ai-agents-for-beginners"
+generated_by: github-researcher
+created_at: "2026-03-18T10:30:00Z"
+updated_at: "2026-03-18T10:30:00Z"
+tags: [ai-agents, microsoft, tutorial, course, azure, machine-learning]
+description: 微软官方 AI Agents 入门课程，12+ Lessons 带你从零开始构建 AI Agents
+language: zh
+---
 # AI Agents for Beginners
 
 > 微软官方推出的 AI Agents 入门课程，12+ Lessons 带你从零开始构建 AI Agents

@@ -1,3 +1,14 @@
+---
+id:
+title: Attention is All you Need
+source_type: arxiv
+upstream_url:
+generated_by:
+created_at:
+updated_at:
+authors: [Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin]
+year: 2017
+---
 # Attention is All You Need
 
 > **Quick Reference**

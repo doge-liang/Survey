@@ -1,3 +1,15 @@
+---
+id: mrdbourke/simple-local-rag
+title: Simple Local RAG Tutorial Analysis
+source_type: github
+upstream_url: "https://github.com/mrdbourke/simple-local-rag"
+generated_by: github-researcher
+created_at: "2026-03-18T10:30:00Z"
+updated_at: "2026-03-18T10:30:00Z"
+tags: [RAG, tutorial, local-LLM, retrieval-augmented-generation, python, jupyter-notebook, beginner-friendly]
+description: 从零构建本地 RAG 流水线的初学者教程项目，使用 Python、Jupyter Notebook、sentence_transformers 和 Hugging Face LLM
+language: zh
+---
 # Simple Local RAG Tutorial
 
 > 从零构建本地 RAG（检索增强生成）流水线，在 NVIDIA GPU 上本地运行

@@ -1,3 +1,14 @@
+---
+id: tinygrad/tinygrad
+title: tinygrad Analysis
+source_type: github
+upstream_url: "https://github.com/tinygrad/tinygrad"
+generated_by: github-researcher
+created_at: "2026-03-18T10:30:00Z"
+updated_at: "2026-03-18T10:30:00Z"
+tags: [deep-learning, framework, python, minimal, george-hotz]
+language: zh
+---
 # tinygrad
 
 > George Hotz 的极简深度学习框架

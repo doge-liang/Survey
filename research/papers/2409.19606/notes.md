@@ -1,3 +1,14 @@
+---
+id:
+title: Hyper-Connections
+source_type: arxiv
+upstream_url:
+generated_by:
+created_at:
+updated_at:
+authors: [Defa Zhu, Hongzhi Huang, Zihao Huang, Yutao Zeng, Yunyao Mao, Banggu Wu, Qiyang Min, Xun Zhou]
+year: 2025
+---
 # Hyper-Connections
 
 > **Quick Reference**

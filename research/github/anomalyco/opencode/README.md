@@ -1,3 +1,14 @@
+---
+id: anomalyco/opencode
+title: OpenCode Analysis
+source_type: github
+upstream_url: "https://github.com/anomalyco/opencode"
+generated_by: manual-research
+created_at: "2026-03-22T00:00:00.000Z"
+updated_at: "2026-03-22T10:35:00.000Z"
+tags: [AI, Coding Agent, OpenSource, TypeScript, SolidJS, MCP, LLM]
+language: zh
+---
 # OpenCode
 
 > 开源 AI 编码智能体，127K Stars，GitHub Top 10 AI 项目

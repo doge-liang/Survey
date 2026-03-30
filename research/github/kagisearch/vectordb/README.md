@@ -1,3 +1,14 @@
+---
+id: kagisearch/vectordb
+title: VectorDB Analysis
+source_type: github
+upstream_url: "https://github.com/kagisearch/vectordb"
+generated_by: github-researcher
+created_at: "2026-03-18T10:40:00Z"
+updated_at: "2026-03-18T10:40:00Z"
+tags: [vector-database, kagi, lightweight, python, embeddings, intermediate]
+language: zh
+---
 # VectorDB
 
 > Kagi 出品的轻量级本地向量数据库

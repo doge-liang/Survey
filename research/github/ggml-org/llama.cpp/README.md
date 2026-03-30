@@ -1,3 +1,15 @@
+---
+id: ggml-org/llama.cpp
+title: llama.cpp Analysis
+source_type: github
+upstream_url: "https://github.com/ggml-org/llama.cpp"
+generated_by: github-researcher
+created_at: "2026-03-18T10:00:00Z"
+updated_at: "2026-03-18T10:00:00Z"
+tags: [llm, inference, c++, ggml, quantization, cuda, metal, vulkan]
+description: 使用纯 C/C++ 实现的高性能 LLM 推理引擎，支持多后端 GPU 加速和先进量化技术
+language: zh
+---
 # llama.cpp
 
 > 使用纯 C/C++ 实现的高性能 LLM 推理引擎

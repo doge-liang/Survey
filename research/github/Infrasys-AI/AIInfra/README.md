@@ -1,3 +1,14 @@
+---
+id: Infrasys-AI/AIInfra
+title: AIInfra Analysis — AI 基础设施开源课程
+source_type: github
+upstream_url: "https://github.com/Infrasys-AI/AIInfra"
+generated_by: github-researcher
+created_at: "2026-03-18T00:00:00Z"
+updated_at: "2026-03-18T00:00:00Z"
+tags: [aiinfra, aisystem, 大模型, 分布式训练, AI集群, Megatron, DeepSpeed, MoE, Transformer, 云原生, K8S, AI基础设施, 开源课程]
+language: zh
+---
 # AIInfra — AI 基础设施
 
 > 本项目聚焦于大模型系统的全栈软硬件协同设计，覆盖从底层 AI 集群到上层应用的全链路技术，是 AI 基础设施领域的系统性开源课程。

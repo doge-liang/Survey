@@ -1,3 +1,14 @@
+---
+id: rasbt/LLMs-from-scratch
+title: Build a Large Language Model (From Scratch) Analysis
+source_type: github
+upstream_url: "https://github.com/rasbt/LLMs-from-scratch"
+generated_by: github-researcher
+created_at: "2026-03-18T10:00:00Z"
+updated_at: "2026-03-18T10:00:00Z"
+tags: [llm, chatgpt, book, from-scratch, tutorial, pytorch, transformer]
+language: zh
+---
 # Build a Large Language Model (From Scratch)
 
 > 配套书籍《Build a Large Language Model (From Scratch)》，手把手实现 ChatGPT 风格的 LLM

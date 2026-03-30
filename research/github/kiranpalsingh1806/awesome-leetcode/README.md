@@ -1,3 +1,14 @@
+---
+id: kiranpalsingh1806/awesome-leetcode
+title: Awesome Leetcode Analysis
+source_type: github
+upstream_url: "https://github.com/kiranpalsingh1806/awesome-leetcode"
+generated_by: github-researcher
+created_at: "2026-03-18T00:00:00Z"
+updated_at: "2026-03-18T00:00:00Z"
+tags: [algorithm, data-structures, leetcode, interview-preparation, dsa, competitive-programming, cpp]
+language: zh
+---
 # Awesome Leetcode
 
 > 一个精心整理的 LeetCode 题目、算法与数据结构合集。

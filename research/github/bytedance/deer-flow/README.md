@@ -1,3 +1,14 @@
+---
+id: bytedance/deer-flow
+title: DeerFlow 2.0 Analysis
+source_type: github
+upstream_url: "https://github.com/bytedance/deer-flow"
+generated_by: github-researcher
+created_at: "2026-03-27T10:00:00Z"
+updated_at: "2026-03-27T10:00:00Z"
+tags: [ai-agent, super-agent, langgraph, langchain, bytedance, sandbox, subagents, mcp, python, nextjs]
+language: zh
+---
 # DeerFlow 2.0
 
 > 字节跳动开源的 Super Agent Harness，支持子 Agent、记忆、沙箱执行和可扩展技能

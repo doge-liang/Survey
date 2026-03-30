@@ -1,3 +1,14 @@
+---
+id:
+title: "TurboQuant: Online Vector Quantization with Near-optimal Distortion Rate"
+source_type: arxiv
+upstream_url:
+generated_by:
+created_at:
+updated_at:
+authors: [Amir Zandieh, Majid Daliri, Majid Hadian, Vahab Mirrokni]
+year: 2025
+---
 # TurboQuant：近最优失真率的在线向量量化
 
 > **快速参考**

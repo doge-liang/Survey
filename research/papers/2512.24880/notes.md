@@ -1,3 +1,14 @@
+---
+id:
+title: "mHC: Manifold-Constrained Hyper-Connections"
+source_type: arxiv
+upstream_url:
+generated_by:
+created_at:
+updated_at:
+authors: [Zhenda Xie, Yixuan Wei, Huanqi Cao, Chenggang Zhao, Chengqi Deng, Jiashi Li, Damai Dai, Huazuo Gao, Jiang Chang, Kuai Yu, Liang Zhao, Shangyan Zhou, Zhean Xu, Zhengyan Zhang, Wangding Zeng, Shengding Hu, Yuqing Wang, Jingyang Yuan, Lean Wang, Wenfeng Liang]
+year: 2025
+---
 # mHC: Manifold-Constrained Hyper-Connections
 
 > **Quick Reference**

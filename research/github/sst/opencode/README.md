@@ -1,3 +1,14 @@
+---
+id: sst/opencode
+title: "OpenCode: 开源 AI 编程助手"
+source_type: github
+upstream_url: "https://github.com/anomalyco/opencode"
+generated_by: github-researcher
+created_at: "2026-03-18T03:00:00Z"
+updated_at: "2026-03-18T03:00:00Z"
+tags: [agent, coding-assistant, ai-ide, tui]
+language: zh
+---
 # OpenCode
 
 > 开源 AI 编程助手

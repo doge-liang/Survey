@@ -1,3 +1,14 @@
+---
+id:
+title: Does SGD Seek Flatness or Sharpness? An Exactly Solvable Model
+source_type: arxiv
+upstream_url:
+generated_by:
+created_at:
+updated_at:
+authors: [Yizhou Xu, Pierfrancesco Beneventano, Isaac Chuang, Liu Ziyin]
+year: 2026
+---
 # Does SGD Seek Flatness or Sharpness? An Exactly Solvable Model
 
 > **Quick Reference**

@@ -1,3 +1,14 @@
+---
+id: karpathy/nanoGPT
+title: nanoGPT Analysis
+source_type: github
+upstream_url: "https://github.com/karpathy/nanoGPT"
+generated_by: github-researcher
+created_at: "2026-03-18T10:00:00Z"
+updated_at: "2026-03-18T10:00:00Z"
+tags: [deep-learning, transformer, gpt, pytorch, llm, training, educational, nlp]
+language: zh
+---
 # nanoGPT
 
 > 最简单、最快速的中型 GPT 训练/微调代码库。

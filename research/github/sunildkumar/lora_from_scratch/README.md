@@ -1,3 +1,14 @@
+---
+id: sunildkumar/lora_from_scratch
+title: LoRA from Scratch Analysis
+source_type: github
+upstream_url: "https://github.com/sunildkumar/lora_from_scratch"
+generated_by: github-researcher
+created_at: "2026-03-18T03:02:36Z"
+updated_at: "2026-03-18T03:02:36Z"
+tags: [lora, fine-tuning, pytorch, educational, from-scratch]
+language: zh
+---
 # LoRA from Scratch
 
 > Implements Low-Rank Adaptation(LoRA) Finetuning from scratch.

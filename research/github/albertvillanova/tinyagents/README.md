@@ -1,3 +1,14 @@
+---
+id: albertvillanova/tinyagents
+title: "tinyagents: 极简 LLM + MCP Agent 实现"
+source_type: github
+upstream_url: "https://github.com/albertvillanova/tinyagents"
+generated_by: github-researcher
+created_at: "2026-03-18T08:00:00Z"
+updated_at: "2026-03-18T08:00:00Z"
+tags: [agent, mcp, minimal, python, tool-calling]
+language: zh
+---
 # tinyagents: 极简 LLM + MCP Agent 实现
 
 > 仅用50行代码实现MCP Agent，理解LLM工具调用的核心原理

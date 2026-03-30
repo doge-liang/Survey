@@ -1,3 +1,14 @@
+---
+id: ruizguille/rag-from-scratch
+title: Inception RAG Analysis
+source_type: github
+upstream_url: "https://github.com/ruizguille/rag-from-scratch"
+generated_by: github-researcher
+created_at: "2026-03-18T10:35:00Z"
+updated_at: "2026-03-18T10:35:00Z"
+tags: [rag, python, llama3, groq, tutorial, embeddings]
+language: zh
+---
 # Retrieval Augmented Generation from Scratch: Inception RAG
 
 > 使用 Python、Llama 3、Groq 和 Nomic 嵌入从零构建的简单检索增强生成 (RAG) 系统。

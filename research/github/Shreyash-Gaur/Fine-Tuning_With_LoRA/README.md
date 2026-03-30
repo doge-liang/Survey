@@ -1,3 +1,14 @@
+---
+id: Shreyash-Gaur/Fine-Tuning_With_LoRA
+title: Fine-Tuning a Language Model using LoRA
+source_type: github
+upstream_url: "https://github.com/Shreyash-Gaur/Fine-Tuning_With_LoRA"
+generated_by: github-researcher
+created_at: "2026-03-18T08:00:00Z"
+updated_at: "2026-03-18T08:00:00Z"
+tags: [lora, fine-tuning, sentiment-analysis, imdb, pytorch]
+language: zh
+---
 # Fine-Tuning a Language Model using LoRA
 
 > Fine-Tuning a pre-trained language model using Low-Rank Adaptation (LoRA).

@@ -1,3 +1,14 @@
+---
+id: Infrasys-AI/AISystem
+title: AISystem - AI系统全栈课程
+source_type: github
+upstream_url: "https://github.com/Infrasys-AI/AISystem"
+generated_by: github-researcher
+created_at: "2026-03-18T09:20:00Z"
+updated_at: "2026-03-18T09:20:00Z"
+tags: [ai-system, education, course, ai-chip, compiler, inference, deep-learning]
+language: zh
+---
 # AISystem
 
 > AI系统全栈课程——包括AI芯片、AI编译器、AI推理和训练框架等AI全栈底层技术

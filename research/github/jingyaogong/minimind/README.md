@@ -1,3 +1,14 @@
+---
+id: jingyaogong/minimind
+title: MiniMind - 从零训练超小型 LLM 分析
+source_type: github
+upstream_url: "https://github.com/jingyaogong/minimind"
+generated_by: github-researcher
+created_at: "2026-03-18T10:05:00Z"
+updated_at: "2026-03-18T10:05:00Z"
+tags: [llm, training, from-scratch, mini, pytorch, chinese]
+language: zh
+---
 # MiniMind - 从零训练超小型 LLM
 
 > 仅用 3 块钱成本 + 2 小时训练 26M 超小参数 GPT

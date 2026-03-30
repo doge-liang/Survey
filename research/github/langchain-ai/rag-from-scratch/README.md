@@ -1,3 +1,15 @@
+---
+id: langchain-ai/rag-from-scratch
+title: RAG From Scratch Analysis
+source_type: github
+upstream_url: "https://github.com/langchain-ai/rag-from-scratch"
+generated_by: github-researcher
+created_at: "2026-03-18T10:30:00Z"
+updated_at: "2026-03-18T10:30:00Z"
+tags: [langchain, rag, retrieval-augmented-generation, tutorial, llm, jupyter-notebook, educational]
+description: LangChain 官方 RAG 入门教程系列，从基础到高级技术全面讲解，包含 14 个视频和 6 个配套 Jupyter Notebooks
+language: zh
+---
 # RAG From Scratch
 
 > LangChain 官方 RAG (检索增强生成) 入门教程系列，从基础到高级技术全面讲解

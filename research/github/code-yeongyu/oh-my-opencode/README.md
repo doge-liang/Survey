@@ -1,3 +1,14 @@
+---
+id: code-yeongyu/oh-my-opencode
+title: Oh My OpenCode 多代理编排框架
+source_type: github
+upstream_url: "https://github.com/code-yeongyu/oh-my-openagent"
+generated_by: github-researcher
+created_at: "2026-03-18T10:00:00Z"
+updated_at: "2026-03-18T10:00:00Z"
+tags: [agent, multi-agent, opencode, typescript, llm, orchestration]
+language: zh
+---
 # Oh My OpenCode (Oh-My-OpenAgent)
 
 > 最佳的多代理编排框架 - 赋能 AI 智能体开发

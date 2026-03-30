@@ -1,3 +1,14 @@
+---
+id: Wenyueh/MinivLLM
+title: "MinivLLM: 简化版 vLLM 推理引擎"
+source_type: github
+upstream_url: "https://github.com/Wenyueh/MinivLLM"
+generated_by: github-researcher
+created_at: "2026-03-18T03:00:00Z"
+updated_at: "2026-03-18T03:00:00Z"
+tags: [llm, inference, vllm, paged-attention, flash-attention]
+language: zh
+---
 # MinivLLM: 简化版 vLLM 推理引擎
 
 > 基于 Nano-vLLM 的 vLLM 简化实现，包含自研的 Paged Attention 和 Flash Attention

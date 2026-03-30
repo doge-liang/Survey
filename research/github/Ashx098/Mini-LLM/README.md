@@ -1,3 +1,14 @@
+---
+id: Ashx098/Mini-LLM
+title: Mini-LLM 80M 参数 LLM 从零实现
+source_type: github
+upstream_url: "https://github.com/Ashx098/Mini-LLM"
+generated_by: github-researcher
+created_at: "2026-03-18T10:00:00Z"
+updated_at: "2026-03-18T10:00:00Z"
+tags: [llm, rope, gqa, swiglu, training, pytorch, transformer]
+language: zh
+---
 # Mini-LLM: 从零构建 80M 参数语言模型
 
 > 一个生产级实现的 decoder-only transformer 语言模型，从分词器到架构到训练到推理的完整 LLM 工程。

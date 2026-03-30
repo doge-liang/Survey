@@ -1,3 +1,14 @@
+---
+id:
+title: "Mamba: Linear-Time Sequence Modeling with Selective State Spaces"
+source_type: arxiv
+upstream_url:
+generated_by:
+created_at:
+updated_at:
+authors: [Albert Gu, Tri Dao]
+year: 2023
+---
 # Mamba: Linear-Time Sequence Modeling with Selective State Spaces
 
 > **Quick Reference**

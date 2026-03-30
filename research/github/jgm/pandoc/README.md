@@ -1,3 +1,14 @@
+---
+id: jgm/pandoc
+title: Pandoc - Universal Markup Converter
+source_type: github
+upstream_url: "https://github.com/jgm/pandoc"
+generated_by: github-researcher
+created_at: "2026-03-18T10:30:00+08:00"
+updated_at: "2026-03-18T10:30:00+08:00"
+tags: [haskell, markup, converter, document, markdown, latex, commonmark, presentation, publishing, pandoc]
+language: zh
+---
 # Pandoc
 
 > 通用标记语言转换器——一款 Haskell 库与命令行工具，实现 40+ 标记格式之间的双向转换。

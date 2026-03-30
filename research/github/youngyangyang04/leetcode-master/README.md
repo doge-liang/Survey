@@ -1,3 +1,15 @@
+---
+id: youngyangyang04/leetcode-master
+title: 代码随想录 · LeetCode-Master 分析报告
+source_type: github
+upstream_url: "https://github.com/youngyangyang04/leetcode-master"
+generated_by: github-researcher
+created_at: "2026-03-18T10:30:00Z"
+updated_at: "2026-03-18T10:30:00Z"
+tags: [algorithm, leetcode, interview, cpp, java, python, go, javascript, dynamic-programming, backtracking, graph-theory, education]
+description: 代码随想录 LeetCode 刷题攻略，200道经典题目按知识脉络排序，配图文题解与视频讲解，支持多语言版本
+language: zh
+---
 # 代码随想录 · LeetCode-Master
 
 > 《代码随想录》LeetCode 刷题攻略：200道经典题目刷题顺序，共60w字的详细图解，视频难点剖析，50余张思维导图，支持 C++、Java、Python、Go、JavaScript 等多语言版本。

@@ -1,3 +1,14 @@
+---
+id:
+title: A Universal Load Balancing Principle and Its Application to Large Language Model Serving
+source_type: arxiv
+upstream_url:
+generated_by:
+created_at:
+updated_at:
+authors: [Zixi Chen, Tianci Bu, Chendong Song, Xin Lu, Yinyu Ye, Zijie Zhou]
+year: 2026
+---
 # 通用负载均衡原理及其在大语言模型服务中的应用
 
 > **快速参考**

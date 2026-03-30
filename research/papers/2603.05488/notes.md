@@ -1,3 +1,14 @@
+---
+id:
+title: "Reasoning Theater: Disentangling Model Beliefs from Chain-of-Thought"
+source_type: arxiv
+upstream_url:
+generated_by:
+created_at:
+updated_at:
+authors: [Siddharth Boppana, Annabel Ma, Max Loeffler, Raphael Sarfati, Eric Bigelow, Atticus Geiger, Owen Lewis, Jack Merullo]
+year: 2026
+---
 # Reasoning Theater: Disentangling Model Beliefs from Chain-of-Thought
 
 > **Quick Reference**

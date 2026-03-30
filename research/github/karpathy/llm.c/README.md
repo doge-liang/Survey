@@ -1,3 +1,14 @@
+---
+id: karpathy/llm.c
+title: LLM.c - 纯 C/CUDA 实现 GPT-2 训练分析
+source_type: github
+upstream_url: "https://github.com/karpathy/llm.c"
+generated_by: github-researcher
+created_at: "2026-03-18T10:15:00Z"
+updated_at: "2026-03-18T10:15:00Z"
+tags: [llm, gpt, training, c, cuda, karpathy]
+language: zh
+---
 # LLM.c - 纯 C/CUDA 实现 GPT-2 训练
 
 > 无需 PyTorch，使用纯 C/CUDA 从零训练 GPT-2 模型

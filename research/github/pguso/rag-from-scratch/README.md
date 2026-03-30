@@ -1,3 +1,14 @@
+---
+id: pguso/rag-from-scratch
+title: RAG from Scratch Analysis
+source_type: github
+upstream_url: "https://github.com/pguso/rag-from-scratch"
+generated_by: github-researcher
+created_at: "2026-03-18T10:30:00Z"
+updated_at: "2026-03-18T10:30:00Z"
+tags: [rag, educational, nodejs, tutorial, local-llm, embeddings]
+language: zh
+---
 # RAG from Scratch
 
 > 通过从零构建来解构检索增强生成 (RAG)。本地 LLM，无黑盒——真正理解嵌入、向量搜索、检索和上下文增强生成。

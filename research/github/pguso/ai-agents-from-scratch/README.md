@@ -1,3 +1,14 @@
+---
+id: pguso/ai-agents-from-scratch
+title: "AI Agents From Scratch: 从零构建 AI 代理"
+source_type: github
+upstream_url: "https://github.com/pguso/ai-agents-from-scratch"
+generated_by: github-researcher
+created_at: "2026-03-18T08:00:00Z"
+updated_at: "2026-03-18T08:00:00Z"
+tags: [agent, react, from-scratch, tutorial, javascript, local-llm]
+language: zh
+---
 # AI Agents From Scratch: 从零构建 AI 代理
 
 > 不使用任何框架，从零开始构建 AI Agent，真正理解函数调用、记忆系统和 ReAct 模式

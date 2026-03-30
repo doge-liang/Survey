@@ -1,3 +1,14 @@
+---
+id: karpathy/llama2.c
+title: Llama2.c - 单文件纯 C 实现 Llama 2 推理分析
+source_type: github
+upstream_url: "https://github.com/karpathy/llama2.c"
+generated_by: github-researcher
+created_at: "2026-03-18T10:10:00Z"
+updated_at: "2026-03-18T10:10:00Z"
+tags: [llm, llama, inference, c, from-scratch, karpathy]
+language: zh
+---
 # Llama2.c - 单文件纯 C 实现 Llama 2 推理
 
 > 仅用一个约 700 行的 C 文件实现 Llama 2 模型的推理

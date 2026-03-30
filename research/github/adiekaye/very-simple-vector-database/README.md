@@ -1,3 +1,14 @@
+---
+id: adiekaye/very-simple-vector-database
+title: Very Simple Vector Database Analysis
+source_type: github
+upstream_url: "https://github.com/adiekaye/very-simple-vector-database"
+generated_by: github-researcher
+created_at: "2026-03-18T10:30:00Z"
+updated_at: "2026-03-18T10:30:00Z"
+tags: [vector-database, educational, from-scratch, python, beginner]
+language: zh
+---
 # Very Simple Vector Database
 
 > 教育用极简向量数据库实现 - 从零理解向量搜索核心概念

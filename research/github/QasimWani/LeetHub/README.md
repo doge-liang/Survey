@@ -1,3 +1,14 @@
+---
+id: QasimWani/LeetHub
+title: LeetHub - 自动同步 LeetCode 到 GitHub
+source_type: github
+upstream_url: "https://github.com/QasimWani/LeetHub"
+generated_by: github-researcher
+created_at: "2026-03-18T09:20:00Z"
+updated_at: "2026-03-18T09:20:00Z"
+tags: [chrome-extension, leetcode, github, automation, javascript, portfolio]
+language: zh
+---
 # LeetHub
 
 > 自动将 LeetCode 解题代码同步到 GitHub 的 Chrome 扩展

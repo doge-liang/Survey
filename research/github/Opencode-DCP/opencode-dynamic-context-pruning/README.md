@@ -1,3 +1,15 @@
+---
+id: Opencode-DCP/opencode-dynamic-context-pruning
+title: opencode-dynamic-context-pruning 深度分析
+source_type: github
+upstream_url: "https://github.com/Opencode-DCP/opencode-dynamic-context-pruning"
+generated_by: github-researcher
+created_at: "2026-03-18T09:15:00Z"
+updated_at: "2026-03-18T09:15:00Z"
+tags: [opencode, opencode-plugin, context-pruning, token-optimization, llm, typescript, ai-programming, context-management]
+description: OpenCode 智能上下文剪枝插件，通过 LLM 驱动的压缩工具和自动清理策略优化对话上下文，降低 Token 消耗。
+language: zh
+---
 # opencode-dynamic-context-pruning
 
 > OpenCode 智能上下文剪枝插件 —— 通过管理对话上下文自动优化 Token 用量，降低 AI 对话成本并提升响应质量。
