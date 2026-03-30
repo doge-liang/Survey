@@ -37,5 +37,10 @@ Thumbs.db
 clean_skill.py
 clean_skill.ts
 
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
 # Obsidian vault config (machine-specific paths)
 data/obsidian.json
