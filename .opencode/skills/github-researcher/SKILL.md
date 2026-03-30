@@ -309,7 +309,28 @@ SAMPLING STRATEGY:
 
 Generate a comprehensive README.md in `{github}/{owner}/{repo}/` (accompanied by `manifest.json` for metadata tracking):
 
+**Output MUST include YAML frontmatter at the top:**
+
 ```markdown
+---
+id: {owner}/{repo}
+title: {Project Name}
+source_type: github
+upstream_url: https://github.com/{owner}/{repo}
+tags: [{tag1}, {tag2}]
+description: {Brief description from GitHub}
+language: {zh|en|mixed}
+related:
+  - id: {related-project}
+    kind: project
+    relationship: {alternative_to|related_to|depends_on}
+level: {beginner|intermediate|advanced}
+status: {active|maintained|archived|deprecated}
+generated_by: github-researcher
+created_at: {ISO8601 timestamp}
+updated_at: {ISO8601 timestamp}
+---
+
 # {Project Name}
 
 > [One-line description from GitHub]
@@ -332,6 +353,64 @@ Generate a comprehensive README.md in `{github}/{owner}/{repo}/` (accompanied by
 
 ## 项目结构
 ```
+{owner}/{repo}/
+├── [key directory]/ # [purpose]
+├── [key directory]/ # [purpose]
+└── [config files] # [purpose]
+
+```
+
+## 核心特性
+
+1. [Feature 1 with brief explanation]
+2. [Feature 2 with brief explanation]
+3. [Feature 3 with brief explanation]
+
+## 架构设计
+
+[Explain the architecture pattern and key design decisions]
+
+## 快速开始
+
+[Basic setup instructions based on detected tech stack]
+
+## 学习价值
+
+- [What can be learned from this project]
+- [Key patterns or techniques used]
+
+## 相关项目
+
+| 项目 | 描述 | 相似度 |
+|------|------|--------|
+| [Related project] | [Description] | High/Medium |
+
+## 参考资料
+
+- [GitHub Repository](https://github.com/{owner}/{repo})
+- [Documentation link if available]
+
+---
+
+*Generated: [Date]*
+```
+
+**Frontmatter Fields (GithubFrontmatter):**
+- `id` (required): Repository in `owner/repo` format
+- `title` (required): Project name
+- `source_type` (required): Always `github`
+- `upstream_url` (required): GitHub repository URL
+- `tags` (required): Topic tags extracted from repo topics
+- `description` (optional): Brief project description
+- `language` (optional): Report language (`zh`, `en`, or `mixed`)
+- `related` (optional): Related projects with `id`, `kind`, `relationship`
+- `level` (optional): Difficulty level
+- `status` (optional): Project status
+- `generated_by` (required): Always `github-researcher`
+- `created_at` (required): ISO 8601 timestamp
+- `updated_at` (required): ISO 8601 timestamp
+
+**Note:** `scripts/lib/frontmatter.ts` provides `extractManifestFields()` to convert manifest.json to frontmatter format.
 
 {owner}/{repo}/
 ├── [key directory]/ # [purpose]

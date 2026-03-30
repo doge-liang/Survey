@@ -36,3 +36,6 @@ Thumbs.db
 # Cleanup scripts (temporary)
 clean_skill.py
 clean_skill.ts
+
+# Obsidian vault config (machine-specific paths)
+data/obsidian.json

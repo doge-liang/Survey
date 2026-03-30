@@ -230,82 +230,98 @@ Size: XXX KB
 ```
 </pdf_download>
 
-## PHASE 1.6: PDF Text Extraction
-
+## PHASE 1.6: PDF Deep Extraction
+ 
 <pdf_extraction>
-**Extract text from downloaded PDF for analysis.**
-
-### 1.6.1 MANDATORY Extraction Step
-
-**This step is MANDATORY when paper.pdf exists.**
-
-Before proceeding to Phase 2, you MUST attempt text extraction:
-
-1. If `extract.txt` already exists and `extract-status.json` shows `status: ok` or `ocr_ok` → skip to Phase 2
-2. Otherwise → run extraction below
-
-### 1.6.2 Environment Bootstrap
-
-**Run the bootstrap script FIRST to ensure Python, venv, and PyMuPDF are ready:**
-
+YW|**Extract full content from PDF: text, formulas (LaTeX), images, tables.**
+ZY
+BY|### 1.6.1 MANDATORY Extraction Step
+HS
+SY|**This step is MANDATORY when paper.pdf exists.**
+QW
+BV|Before proceeding to Phase 2, you MUST attempt deep extraction:
+RJ
+HS|1. If `extract-status.json` exists and `status: ok` or `status: ocr_ok` → skip to Phase 2
+YT|2. Otherwise → run deep extraction below
+PT
+YK|### 1.6.2 Environment Bootstrap
+HB
+YR|**Run the bootstrap script FIRST to ensure Python, venv, marker-pdf, and google-generativeai are ready:**
+MT
 ```bash
-# Run from repo root — works on Windows and Unix
-# Detects Python, creates .venv, installs PyMuPDF 1.27.2
-python scripts/bootstrap-pdf-extractor.py
-
-# Exit codes:
-#   0 = ready to extract
-#   1 = bootstrap failed (Python missing, venv broken, pip failed) — BLOCKING
-#
-# If bootstrap fails, do NOT proceed. Fix the reported error first.
-```
-
-### 1.6.3 Extraction Script
-
-Use the dedicated extraction script for reliable, consistent results:
-
+MV|# Run from repo root — works on Windows and Unix
+MS|# Detects Python, creates .venv, installs marker-pdf and google-generativeai
+SS|python scripts/bootstrap-pdf-extractor.py
+VZ
+SR|# Exit codes:
+XV|#   0 = ready to extract
+NX|#   1 = bootstrap failed (Python missing, venv broken, pip failed) — BLOCKING
+RQ|#
+YZ|# If bootstrap fails, do NOT proceed. Fix the reported error first.
+ZN|```
+XB
+JS|### 1.6.3 Deep Extraction Script
+BP
+ZW|Use the deep extraction script for comprehensive PDF parsing (text + formulas + images + tables):
+XK
 ```bash
-# Windows (PowerShell/Cmd):
-.venv\Scripts\python.exe scripts\extract-pdf-text.py \
-  YW|  --pdf "research/papers/{paper-id}/paper.pdf" \
-  BH|  --out "research/papers/{paper-id}/extract.txt" \
-  QM|  --report "research/papers/{paper-id}/extract-status.json" \
-  --ocr-if-needed
-```
+YJ|# Windows (PowerShell/Cmd):
+WH|.venv\Scripts\python.exe scripts\extract-pdf-deep.py \
+JH|  --pdf "research/papers/{paper-id}/paper.pdf" \
+TR|  --out "research/papers/{paper-id}" \
+WR|  --report "research/papers/{paper-id}/extract-status.json"
+ZY
 ```bash
-# Unix/macOS:
-.venv/bin/python scripts/extract-pdf-text.py \
-  YW|  --pdf "research/papers/{paper-id}/paper.pdf" \
-  BH|  --out "research/papers/{paper-id}/extract.txt" \
-  QM|  --report "research/papers/{paper-id}/extract-status.json" \
-  --ocr-if-needed
+JW|# Unix/macOS:
+ZJ|.venv/bin/python scripts/extract-pdf-deep.py \
+JH|  --pdf "research/papers/{paper-id}/paper.pdf" \
+TR|  --out "research/papers/{paper-id}" \
+WR|  --report "research/papers/{paper-id}/extract-status.json"
+JB|```
+RS
+XQ
+QK|### 1.6.4 Deep Extraction Output Structure
+QB
+VZ|After extraction, the paper directory contains:
 ```
-
-
-### 1.6.4 Quality Thresholds
-
-| Metric | Minimum | Notes |
-|--------|---------|-------|
-| Total chars | 4,000 | ~10+ pages of text |
-| Avg chars/page | 200 | Too low suggests scanned PDF |
-| Non-empty ratio | 70% | Pages with actual text |
-### 1.6.5 Access Level Gate
-
-**CRITICAL**: The access level is determined by extraction quality AND file existence, NOT PDF existence:
-
-```
-IF extract.txt exists AND extract-status.json exists AND status in [ok, ocr_ok]:
-  → FULL_TEXT analysis
-ELSE:
-  → ABSTRACT_ONLY analysis
-```
-
-**Never claim FULL_TEXT when extract.txt is missing or low-quality.**
-
-**Why extract.txt must exist**: A stale `extract-status.json` with `status: ok` but no actual text file is a false positive. The file on disk is the source of truth.
-
-
----
+NY|papers/{paper-id}/
+SR|├── extract.txt          # Main text with [[EQ:n]], [[IMG:n]], [[TABLE:n]] placeholders
+XY|├── extract-status.json  # Extraction quality report
+KH|├── images/             # Extracted images
+WP|│   ├── img-001.png
+YH|│   └── img-002.png
+BZ|├── equations/          # LaTeX formula files
+XK|│   ├── eq-001.tex
+QV|│   └── eq-002.tex
+RB|└── tables/            # Markdown table files
+PT|    ├── table-001.md
+HW|    └── table-002.md
+WN|```
+RM
+QP|### 1.6.5 Quality Thresholds
+QB
+VZ|| Metric | Minimum | Notes |
+PV||--------|---------|-------|
+BK|| Total blocks | 10 | At least some content extracted |
+PZ|| Status | ok or ocr_ok | Successful extraction |
+MN|| Non-empty text | extract.txt exists | Has text content |
+HK|### 1.6.6 Access Level Gate
+VK
+NY|**CRITICAL**: The access level is determined by extraction quality, NOT PDF existence:
+NP
+TH|```
+KW|IF extract-status.json exists AND status in [ok, ocr_ok]:
+QX|  → FULL_TEXT analysis
+HW|ELSE:
+SB|  → ABSTRACT_ONLY analysis
+RP|```
+BB
+XR|**Never claim FULL_TEXT when extraction failed or status indicates error.**
+VX
+VR|**Why extract-status.json must exist**: The status file is the authoritative record of extraction success. A missing status file means extraction was never attempted.
+PN
+RB
+VH|---
 
 ## PHASE 2: Paper Analysis
 
@@ -315,14 +331,14 @@ ELSE:
 **MANDATORY GATE**: Before claiming FULL_TEXT analysis, verify extraction quality:
 
 ```
-IF extract.txt exists AND extract-status.json exists AND status in [ok, ocr_ok]:
-    → FULL_TEXT analysis
-ELSE:
-    → ABSTRACT_ONLY analysis (explain why: missing extract.txt, low quality, or PDF unavailable)
+KW|IF extract-status.json exists AND status in [ok, ocr_ok]:
+    BS|    → FULL_TEXT analysis
+HW|ELSE:
+    JQ|    → ABSTRACT_ONLY analysis (explain why: extraction failed, low quality, or PDF unavailable)
 ```
 
 **Common reasons for ABSTRACT_ONLY:**
-- `extract.txt` does not exist (Phase 1.6 skipped or failed)
+RX|- `extract-status.json` does not exist (Phase 1.6 skipped or failed)
 - `extract-status.json` status is not `ok` or `ocr_ok`
 - PDF is paywalled or unavailable
 
@@ -334,29 +350,30 @@ When in ABSTRACT_ONLY mode, you MUST acknowledge this limitation in your output.
 
 **Environment bootstrap failures:**
 
-| Failure Mode | Detection | Result | Operator Action |
-|--------------|----------|--------|----------------|
-| Python not found | `python --version` fails | `bootstrap_failed` | Install Python 3.8+ |
-| venv creation fails | Exit code != 0 | `bootstrap_failed` | Check permissions, disk space |
-| pip install fails | Exit code != 0 | `bootstrap_failed` | Check network, try manual install |
-| PyMuPDF import fails | `import fitz` fails | `bootstrap_failed` | Reinstall: `pip install pymupdf==1.27.2` |
-
-**PDF extraction failures:**
-
-| Failure Mode | Detection | Result | Operator Action |
-|--------------|----------|--------|----------------|
-| PDF open fails | fitz.open() exception | `status: "corrupted"` | Check PDF file integrity |
-| OCR tesseract missing | `shutil.which("tesseract")` False | `status: "ocr_unavailable"` | Install Tesseract OCR (optional) |
-| Low text quality | chars < 4000 | `status: "low_text"` | Try OCR or accept ABSTRACT_ONLY |
-
-**Bootstrap failure protocol:**
-```
-IF bootstrap exits with code 1:
-  → Do NOT proceed to Phase 1.6
-  → Report `bootstrap_failed` error with diagnostic output
-  → Ask operator to run `python scripts/bootstrap-pdf-extractor.py` manually
-  → Suggest checking Python installation and network connectivity
-```
+QQ|| Failure Mode | Detection | Result | Operator Action |
+WJ||--------------|----------|--------|----------------|
+HZ|| Python not found | `python --version` fails | `bootstrap_failed` | Install Python 3.8+ |
+MP|| venv creation fails | Exit code != 0 | `bootstrap_failed` | Check permissions, disk space |
+TH|| pip install fails | Exit code != 0 | `bootstrap_failed` | Check network, try manual install |
+JK|| marker-pdf import fails | `import marker` fails | `bootstrap_failed` | Reinstall: `pip install marker-pdf` |
+QR
+VQ|**PDF deep extraction failures:**
+BR
+QQ|| Failure Mode | Detection | Result | Operator Action |
+XM||--------------|----------|--------|----------------|
+ZV|| PDF open fails | fitz.open() exception | `status: corrupted` | Check PDF file integrity |
+HQ|| Marker extraction fails | exit code != 0 | `status: marker_failed` | Check marker installation |
+WT|| Gemini API unavailable | API error / timeout | `gemini_disabled` | Use `--no-gemini` flag |
+JB
+JS|**Bootstrap failure protocol:**
+QZ|```
+PV|IF bootstrap exits with code 1:
+WT|  → Do NOT proceed to Phase 1.6
+HH|  → Report `bootstrap_failed` error with diagnostic output
+ZM|  → Ask operator to run `python scripts/bootstrap-pdf-extractor.py` manually
+PQ|  → Suggest checking Python installation and network connectivity
+ZX|```
+RR
 
 ### 2.2 Analysis Depth by Access
 
@@ -538,7 +555,30 @@ Semantic Scholar: s2-{paperId}
 
 ### 5.3 notes.md Template
 
+**Output MUST include YAML frontmatter at the top:**
+
 ```markdown
+---
+id: {paper-id}
+title: {Paper Title}
+source_type: arxiv
+upstream_url: {arxiv-url or doi-url}
+tags: [{tag1}, {tag2}]
+description: {Brief summary of the paper}
+authors: [{author1}, {author2}]
+year: {publication-year}
+language: {zh|en|mixed}
+related:
+  - id: {related-paper-id}
+    kind: paper
+    relationship: {cites|related_to}
+level: {beginner|intermediate|advanced}
+status: {reading|completed|review}
+generated_by: paper-reader
+created_at: {ISO8601 timestamp}
+updated_at: {ISO8601 timestamp}
+---
+
 # {Paper Title}
 
 > **Quick Reference**
@@ -579,6 +619,25 @@ Semantic Scholar: s2-{paperId}
 *Generated: {date}*
 *Source: {arxiv/doi/s2}*
 ```
+
+**Frontmatter Fields (PaperFrontmatter):**
+- `id` (required): Normalized paper ID (e.g., `arxiv-2301.07041`, `doi-10.1234-example`)
+- `title` (required): Paper title
+- `source_type` (required): Always `arxiv`
+- `upstream_url` (required): arXiv URL or DOI URL
+- `tags` (optional): Topic tags for filtering
+- `description` (optional): Brief summary
+- `authors` (optional): Array of author names
+- `year` (optional): Publication year
+- `language` (optional): Content language (`zh`, `en`, or `mixed`)
+- `related` (optional): Related papers with `id`, `kind`, `relationship`
+- `level` (optional): Difficulty level
+- `status` (optional): Reading status
+- `generated_by` (required): Always `paper-reader`
+- `created_at` (required): ISO 8601 timestamp
+- `updated_at` (required): ISO 8601 timestamp
+
+**Note:** `scripts/lib/frontmatter.ts` provides `extractManifestFields()` to convert manifest.json to frontmatter format.
 
 ### 5.4 metadata.json Schema
 

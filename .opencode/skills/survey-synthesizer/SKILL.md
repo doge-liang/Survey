@@ -330,9 +330,28 @@ mkdir -p research/surveys/{topic}/
 
 ### 3.2 Write comparison.md
 
-**Structure:**
+**Output MUST include YAML frontmatter at the top:**
 
 ```markdown
+---
+id: {topic-slug}
+title: {Topic} 调研对比报告
+category: {topic-category}
+source_type: survey
+tags: [{tag1}, {tag2}]
+description: {Brief description of the survey scope}
+level: {beginner|intermediate|advanced}
+date: {ISO8601 date}
+related: [{related-survey-id}]
+related_projects: [{project1}, {project2}]
+related_papers: [{paper1}, {paper2}]
+language: {zh|en|mixed}
+status: {draft|review|published}
+generated_by: survey-synthesizer
+created_at: {ISO8601 timestamp}
+updated_at: {ISO8601 timestamp}
+---
+
 # {Topic} 调研对比报告
 
 > 生成时间: {date}
@@ -383,7 +402,6 @@ mkdir -p research/surveys/{topic}/
 
 | 场景 | 推荐选择 | 理由 |
 |------|----------|------|
-| ... | ... | ... |
 
 ## 7. 参考资料
 
@@ -391,11 +409,50 @@ mkdir -p research/surveys/{topic}/
 - [来源 2]
 ```
 
+**Frontmatter Fields (SurveyFrontmatter):**
+- `id` (required): Topic slug (lowercase, hyphens)
+- `title` (required): Survey title
+- `category` (required): Topic category
+- `source_type` (required): Always `survey`
+- `tags` (required): Topic tags
+- `description` (optional): Brief survey scope description
+- `level` (optional): Difficulty level (`beginner`, `intermediate`, `advanced`)
+- `date` (optional): Survey date
+- `related` (optional): Related survey IDs
+- `related_projects` (optional): Array of project IDs included
+- `related_papers` (optional): Array of paper IDs included
+- `language` (optional): Content language (`zh`, `en`, or `mixed`)
+- `status` (optional): Survey status
+- `generated_by` (required): Always `survey-synthesizer`
+- `created_at` (required): ISO 8601 timestamp
+- `updated_at` (required): ISO 8601 timestamp
+
+**Note:** `scripts/lib/frontmatter.ts` provides `extractManifestFields()` to convert manifest.json to frontmatter format.
+
 ### 3.3 Write concept-map.md
 
-**Structure:**
+**Output MUST include YAML frontmatter at the top:**
 
 ```markdown
+---
+id: {topic-slug}
+title: {Topic} 概念图谱
+category: {topic-category}
+source_type: survey
+tags: [{tag1}, {tag2}]
+description: {Brief description of the knowledge graph scope}
+level: {beginner|intermediate|advanced}
+date: {ISO8601 date}
+related: [{related-survey-id}]
+related_projects: [{project1}, {project2}]
+related_papers: [{paper1}, {paper2}]
+language: {zh|en|mixed}
+status: {draft|review|published}
+generated_by: survey-synthesizer
+created_at: {ISO8601 timestamp}
+updated_at: {ISO8601 timestamp}
+---
+
 # {Topic} 概念图谱
 
 > 生成时间: {date}
@@ -483,7 +540,8 @@ graph TD
 │       └── 否 → 选择 Item C
 └── 否 → [...]
 ```
-```
+
+**Note:** `scripts/lib/frontmatter.ts` provides `extractManifestFields()` to convert manifest.json to frontmatter format.
 
 ### 3.4 Write survey-index.md (Optional)
 
