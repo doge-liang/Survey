@@ -16,7 +16,7 @@ Run Bun commands directly. The root `package.json` is minimal.
 ```bash
 # Run a single test file (PREFERRED)
 bun test scripts/lib/repo-registry.test.ts
-bun test scripts/lib/github-repos.test.ts
+bun test scripts/lib/frontmatter.test.ts
 bun test scripts/repo-cli.test.ts
 
 # Run all repo-owned tests explicitly (avoid bare bun test)
@@ -24,6 +24,12 @@ bun test scripts/repo-cli.test.ts scripts/sync-repos.test.ts scripts/lib/repo-re
 
 # Watch mode for development
 bun test --watch scripts/repo-cli.test.ts
+
+# Verification scripts
+bun scripts/verify-research-integrity.ts      # Verify research integrity
+bun scripts/validate-manifest.ts --all      # Validate all manifests
+bun scripts/project-paths.ts --json         # Verify path resolution
+bun run verify:all                          # Run all verifications
 
 # CLI scripts
 bun scripts/sync-repos.ts --check
@@ -35,16 +41,12 @@ bun scripts/repo-cli.ts list --json
 bun scripts/repo-cli.ts get vercel/next.js --json
 bun scripts/repo-cli.ts validate
 
-bun scripts/test-synthesis.ts --list-sources
-bun scripts/test-synthesis.ts --topic "LLM" --json
-bun scripts/test-synthesis.ts --validate-manifests
-
-bun scripts/generate-github-index.ts
+# Sync to Obsidian vault (requires Obsidian app running)
+bun scripts/sync-to-obsidian.ts
 
 # Path resolution utilities
 bun scripts/project-paths.ts papers
 bun scripts/project-paths.ts github
-bun scripts/project-paths.ts --json
 ```
 
 **Important:** **NEVER use bare `bun test`** — it discovers tests inside cloned repos under `sources/` and fails for unrelated reasons. Always specify explicit test file paths.
@@ -56,7 +58,7 @@ bun scripts/project-paths.ts --json
 ├── .opencode/skills/        # Project-specific OpenCode skills
 ├── data/
 │   ├── registries/           # Repository registries (repos.json)
-│   └── manifests/             # Research artifact manifests
+│   └── manifests/            # Research artifact manifests
 ├── docs/                    # Documentation
 ├── research/                   # Generated outputs (canonical location)
 │   ├── papers/                # Paper reading outputs
@@ -80,8 +82,9 @@ Group imports in order:
 5) local types
 
 ```typescript
-import { describe, test, expect } from "bun:test";
+import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { something } from "./lib/something";
 import type { SomeType } from "./lib/types";
 ```
@@ -89,6 +92,7 @@ import type { SomeType } from "./lib/types";
 ### Formatting
 - 2-space indentation, double quotes, semicolons
 - Add spaces between Chinese and English in mixed text
+- Max line length: 120 characters (soft)
 
 ### Naming
 - Interfaces/types: `PascalCase`
@@ -152,6 +156,7 @@ async function fetchRepoData(owner: string, repo: string): Promise<Data> {
 ```typescript
 async function run(args: string[]) {
   const stdout: string[] = [];
+  const stderr: string[] = [];
   const exitCode = await runCli(args, {
     stdout: message => { stdout.push(message); },
     stderr: message => { stderr.push(message); },
@@ -201,10 +206,29 @@ Types: `feat`, `fix`, `docs`, `refactor`, `chore`
 | `survey-synthesizer` | "compare these projects", "synthesize survey", "调研合成", "knowledge graph", "知识图谱", "对比分析", "comparison report" | `research/surveys/{topic}/` |
 | `repo-manager` | "同步所有项目", "sync all repos", "check updates", "update repo", "register repo" | `data/registries/repos.json` |
 | `domain-explorer` | "explore a new domain", "领域探索", "learning path", "学习路径", "入门指南", "get started with", "how to learn", "我想学", "新手入门", "roadmap for", "introduction to", "beginner guide" | `research/domains/{domain}/` |
+| `obsidian-vault` | "obsidian", "vault", "read note", "write note", "search vault", "sync to obsidian" | Obsidian vault via CLI |
+
+## Obsidian Integration
+
+Vault path configured in `data/obsidian.json`:
+```json
+{
+  "vault_path": "/path/to/obsidian-vault",
+  "sync_direction": "survey_to_obsidian",
+  "conflict_resolution": "survey_wins"
+}
+```
+
+**Obsidian CLI** (must have Obsidian app running):
+```bash
+obsidian search vault="$VAULT" query="transformer"
+obsidian read vault="$VAULT" file="research/papers/1706.03762.md"
+obsidian create vault="$VAULT" name="test" content="# Title\n\nContent"
+```
 
 ## Manifest Schema
 
-Research artifacts use `manifest.json`:
+Research artifacts use `manifest.json` (papers use `metadata.json`):
 - `version` — Schema version (semver)
 - `kind` — Artifact type: `github-analysis`, `paper-notes`, `survey-synthesis`
 - `id` — Unique identifier
@@ -226,3 +250,4 @@ Before finishing any work:
 2. If multiple script files changed, run the full explicit test list
 3. Verify changed command examples still work
 4. Run `bun scripts/project-paths.ts --json` to verify path resolution
+5. Run `bun run verify:all` for full integrity check
