@@ -42,5 +42,8 @@ __pycache__/
 *.pyc
 *.pyo
 
+# OpenCode local config
+.opencode/oh-my-opencode.jsonc
+
 # Obsidian vault config (machine-specific paths)
 data/obsidian.json
