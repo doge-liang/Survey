@@ -6,6 +6,8 @@ import * as path from "node:path";
 
 import { runCli } from "./repo-cli";
 
+import { clearProjectRootOverride, setProjectRootForTesting } from "./lib/project-paths";
+
 import type { Repo, RepoRegistry } from "./lib/repo-registry";
 
 const originalCwd = process.cwd();
@@ -48,10 +50,12 @@ async function run(args: string[]) {
 beforeEach(() => {
   tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "repo-cli-"));
   process.chdir(tempDir);
+  setProjectRootForTesting(process.cwd());
 });
 
 afterEach(() => {
   process.chdir(originalCwd);
+  clearProjectRootOverride();
   fs.rmSync(tempDir, { recursive: true, force: true });
 });
 

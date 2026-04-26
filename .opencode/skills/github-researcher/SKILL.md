@@ -91,7 +91,7 @@ Files:
   - notes.md (optional: quick notes)
 ```
 
-KZ|
+
 
 </validation>
 

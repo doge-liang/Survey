@@ -15,4 +15,4 @@ jobs:
           bun-version: latest
       - run: bun install
       - name: Run tests
-        run: bun test scripts/repo-cli.test.ts scripts/sync-repos.test.ts scripts/lib/repo-registry.test.ts scripts/synthesis-lib.test.ts
+        run: bun test scripts/**/*.test.ts

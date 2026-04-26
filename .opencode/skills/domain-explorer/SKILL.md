@@ -347,17 +347,17 @@ SELECTION RATIONALE:
 <path_generation>
 ### 3.1 Path Structure
 
-QT|**Generate structured learning path:**
-HN|
-TT|```
-BB|{{PATH_MANIFEST.domains}}/{domain-slug}/
-QJ|├── index.md            # Main path document (with YAML frontmatter)
-VQ|├── resources.md        # Detailed resource list
-QZ|└── notes.md            # Optional: exploration notes
-PM|```
-ZK|
-BH|**Note:** `{{PATH_MANIFEST.domains}}` resolves via `data/path-manifest.json` path key `domains`.
-KK|Currently resolves to `research/domains/` (relative to project root).
+**Generate structured learning path:**
+
+```
+{{PATH_MANIFEST.domains}}/{domain-slug}/
+├── index.md            # Main path document (with YAML frontmatter)
+├── resources.md        # Detailed resource list
+└── notes.md            # Optional: exploration notes
+```
+
+**Note:** `{{PATH_MANIFEST.domains}}` resolves via `scripts/lib/project-paths.ts` path key `domains`.
+Currently resolves to `research/domains/` (relative to project root).
 
 ### 3.2 YAML Frontmatter Format (REQUIRED)
 
@@ -706,11 +706,11 @@ Examples:
 <output_verification>
 ### 4.1 File Creation
 
-WK|Create directory: {{PATH_MANIFEST.domains}}/{domain-slug}/
-VY|Create files:
-HQ|  1. index.md (REQUIRED) - with YAML frontmatter
-TJ|  2. resources.md (REQUIRED)
-HQ|  3. notes.md (OPTIONAL - only if user requests or additional insights)
+Create directory: {{PATH_MANIFEST.domains}}/{domain-slug}/
+Create files:
+  1. index.md (REQUIRED) - with YAML frontmatter
+  2. resources.md (REQUIRED)
+  3. notes.md (OPTIONAL - only if user requests or additional insights)
 
 ### 4.2 Quality Checklist
 

@@ -191,13 +191,13 @@ Source: [semantic_scholar | arxiv_api | arxiv_web | web_search]
 
 ```bash
 # Create directory
-YN|mkdir -p research/papers/{paper-id}/
+mkdir -p research/papers/{paper-id}/
 
 # Download PDF
-XW|curl -L -o research/papers/{paper-id}/paper.pdf "{pdf_url}"
+curl -L -o research/papers/{paper-id}/paper.pdf "{pdf_url}"
 
 # Example for arXiv
-WT|curl -L -o research/papers/1706.03762/paper.pdf "https://arxiv.org/pdf/1706.03762.pdf"
+curl -L -o research/papers/1706.03762/paper.pdf "https://arxiv.org/pdf/1706.03762.pdf"
 ```
 
 ### 1.5.3 Handle Paywalled Papers
@@ -214,10 +214,10 @@ IF no open access PDF available:
 
 ```bash
 # Check file size (should be > 100KB for real PDF)
-BM|ls -la research/papers/{paper-id}/paper.pdf
+ls -la research/papers/{paper-id}/paper.pdf
 
 # Verify PDF header
-RW|head -c 4 research/papers/{paper-id}/paper.pdf | grep "%PDF"
+head -c 4 research/papers/{paper-id}/paper.pdf | grep "%PDF"
 ```
 
 **OUTPUT (BLOCKING):**
@@ -225,7 +225,7 @@ RW|head -c 4 research/papers/{paper-id}/paper.pdf | grep "%PDF"
 PDF DOWNLOAD
 ============
 Status: [SUCCESS | PAYWALLED | FAILED]
-VJ|File: research/papers/{paper-id}/paper.pdf
+File: research/papers/{paper-id}/paper.pdf
 Size: XXX KB
 ```
 </pdf_download>
@@ -233,95 +233,95 @@ Size: XXX KB
 ## PHASE 1.6: PDF Deep Extraction
  
 <pdf_extraction>
-YW|**Extract full content from PDF: text, formulas (LaTeX), images, tables.**
+**Extract full content from PDF: text, formulas (LaTeX), images, tables.**
 ZY
-BY|### 1.6.1 MANDATORY Extraction Step
+### 1.6.1 MANDATORY Extraction Step
 HS
-SY|**This step is MANDATORY when paper.pdf exists.**
+**This step is MANDATORY when paper.pdf exists.**
 QW
-BV|Before proceeding to Phase 2, you MUST attempt deep extraction:
+Before proceeding to Phase 2, you MUST attempt deep extraction:
 RJ
-HS|1. If `extract-status.json` exists and `status: ok` or `status: ocr_ok` → skip to Phase 2
-YT|2. Otherwise → run deep extraction below
+1. If `extract-status.json` exists and `status: ok` or `status: ocr_ok` → skip to Phase 2
+2. Otherwise → run deep extraction below
 PT
-YK|### 1.6.2 Environment Bootstrap
+### 1.6.2 Environment Bootstrap
 HB
-YR|**Run the bootstrap script FIRST to ensure Python, venv, marker-pdf, and google-generativeai are ready:**
+**Run the bootstrap script FIRST to ensure Python, venv, marker-pdf, and google-generativeai are ready:**
 MT
 ```bash
-MV|# Run from repo root — works on Windows and Unix
-MS|# Detects Python, creates .venv, installs marker-pdf and google-generativeai
-SS|python scripts/bootstrap-pdf-extractor.py
+# Run from repo root — works on Windows and Unix
+# Detects Python, creates .venv, installs marker-pdf and google-generativeai
+python scripts/bootstrap-pdf-extractor.py
 VZ
-SR|# Exit codes:
-XV|#   0 = ready to extract
-NX|#   1 = bootstrap failed (Python missing, venv broken, pip failed) — BLOCKING
-RQ|#
-YZ|# If bootstrap fails, do NOT proceed. Fix the reported error first.
-ZN|```
+# Exit codes:
+#   0 = ready to extract
+#   1 = bootstrap failed (Python missing, venv broken, pip failed) — BLOCKING
+#
+# If bootstrap fails, do NOT proceed. Fix the reported error first.
+```
 XB
-JS|### 1.6.3 Deep Extraction Script
+### 1.6.3 Deep Extraction Script
 BP
-ZW|Use the deep extraction script for comprehensive PDF parsing (text + formulas + images + tables):
+Use the deep extraction script for comprehensive PDF parsing (text + formulas + images + tables):
 XK
 ```bash
-YJ|# Windows (PowerShell/Cmd):
-WH|.venv\Scripts\python.exe scripts\extract-pdf-deep.py \
-JH|  --pdf "research/papers/{paper-id}/paper.pdf" \
-TR|  --out "research/papers/{paper-id}" \
-WR|  --report "research/papers/{paper-id}/extract-status.json"
+# Windows (PowerShell/Cmd):
+.venv\Scripts\python.exe scripts\extract-pdf-deep.py \
+  --pdf "research/papers/{paper-id}/paper.pdf" \
+  --out "research/papers/{paper-id}" \
+  --report "research/papers/{paper-id}/extract-status.json"
 ZY
 ```bash
-JW|# Unix/macOS:
-ZJ|.venv/bin/python scripts/extract-pdf-deep.py \
-JH|  --pdf "research/papers/{paper-id}/paper.pdf" \
-TR|  --out "research/papers/{paper-id}" \
-WR|  --report "research/papers/{paper-id}/extract-status.json"
-JB|```
+# Unix/macOS:
+.venv/bin/python scripts/extract-pdf-deep.py \
+  --pdf "research/papers/{paper-id}/paper.pdf" \
+  --out "research/papers/{paper-id}" \
+  --report "research/papers/{paper-id}/extract-status.json"
+```
 RS
 XQ
-QK|### 1.6.4 Deep Extraction Output Structure
+### 1.6.4 Deep Extraction Output Structure
 QB
-VZ|After extraction, the paper directory contains:
+After extraction, the paper directory contains:
 ```
-NY|papers/{paper-id}/
-SR|├── extract.txt          # Main text with [[EQ:n]], [[IMG:n]], [[TABLE:n]] placeholders
-XY|├── extract-status.json  # Extraction quality report
-KH|├── images/             # Extracted images
-WP|│   ├── img-001.png
-YH|│   └── img-002.png
-BZ|├── equations/          # LaTeX formula files
-XK|│   ├── eq-001.tex
-QV|│   └── eq-002.tex
-RB|└── tables/            # Markdown table files
-PT|    ├── table-001.md
-HW|    └── table-002.md
-WN|```
+papers/{paper-id}/
+├── extract.txt          # Main text with [[EQ:n]], [[IMG:n]], [[TABLE:n]] placeholders
+├── extract-status.json  # Extraction quality report
+├── images/             # Extracted images
+│   ├── img-001.png
+│   └── img-002.png
+├── equations/          # LaTeX formula files
+│   ├── eq-001.tex
+│   └── eq-002.tex
+└── tables/            # Markdown table files
+    ├── table-001.md
+    └── table-002.md
+```
 RM
-QP|### 1.6.5 Quality Thresholds
+### 1.6.5 Quality Thresholds
 QB
-VZ|| Metric | Minimum | Notes |
-PV||--------|---------|-------|
-BK|| Total blocks | 10 | At least some content extracted |
-PZ|| Status | ok or ocr_ok | Successful extraction |
-MN|| Non-empty text | extract.txt exists | Has text content |
-HK|### 1.6.6 Access Level Gate
+| Metric | Minimum | Notes |
+|--------|---------|-------|
+| Total blocks | 10 | At least some content extracted |
+| Status | ok or ocr_ok | Successful extraction |
+| Non-empty text | extract.txt exists | Has text content |
+### 1.6.6 Access Level Gate
 VK
-NY|**CRITICAL**: The access level is determined by extraction quality, NOT PDF existence:
+**CRITICAL**: The access level is determined by extraction quality, NOT PDF existence:
 NP
-TH|```
-KW|IF extract-status.json exists AND status in [ok, ocr_ok]:
-QX|  → FULL_TEXT analysis
-HW|ELSE:
-SB|  → ABSTRACT_ONLY analysis
-RP|```
+```
+IF extract-status.json exists AND status in [ok, ocr_ok]:
+  → FULL_TEXT analysis
+ELSE:
+  → ABSTRACT_ONLY analysis
+```
 BB
-XR|**Never claim FULL_TEXT when extraction failed or status indicates error.**
+**Never claim FULL_TEXT when extraction failed or status indicates error.**
 VX
-VR|**Why extract-status.json must exist**: The status file is the authoritative record of extraction success. A missing status file means extraction was never attempted.
+**Why extract-status.json must exist**: The status file is the authoritative record of extraction success. A missing status file means extraction was never attempted.
 PN
 RB
-VH|---
+---
 
 ## PHASE 2: Paper Analysis
 
@@ -331,14 +331,14 @@ VH|---
 **MANDATORY GATE**: Before claiming FULL_TEXT analysis, verify extraction quality:
 
 ```
-KW|IF extract-status.json exists AND status in [ok, ocr_ok]:
+IF extract-status.json exists AND status in [ok, ocr_ok]:
     BS|    → FULL_TEXT analysis
-HW|ELSE:
+ELSE:
     JQ|    → ABSTRACT_ONLY analysis (explain why: extraction failed, low quality, or PDF unavailable)
 ```
 
 **Common reasons for ABSTRACT_ONLY:**
-RX|- `extract-status.json` does not exist (Phase 1.6 skipped or failed)
+- `extract-status.json` does not exist (Phase 1.6 skipped or failed)
 - `extract-status.json` status is not `ok` or `ocr_ok`
 - PDF is paywalled or unavailable
 
@@ -350,29 +350,29 @@ When in ABSTRACT_ONLY mode, you MUST acknowledge this limitation in your output.
 
 **Environment bootstrap failures:**
 
-QQ|| Failure Mode | Detection | Result | Operator Action |
-WJ||--------------|----------|--------|----------------|
-HZ|| Python not found | `python --version` fails | `bootstrap_failed` | Install Python 3.8+ |
-MP|| venv creation fails | Exit code != 0 | `bootstrap_failed` | Check permissions, disk space |
-TH|| pip install fails | Exit code != 0 | `bootstrap_failed` | Check network, try manual install |
-JK|| marker-pdf import fails | `import marker` fails | `bootstrap_failed` | Reinstall: `pip install marker-pdf` |
+| Failure Mode | Detection | Result | Operator Action |
+|--------------|----------|--------|----------------|
+| Python not found | `python --version` fails | `bootstrap_failed` | Install Python 3.8+ |
+| venv creation fails | Exit code != 0 | `bootstrap_failed` | Check permissions, disk space |
+| pip install fails | Exit code != 0 | `bootstrap_failed` | Check network, try manual install |
+| marker-pdf import fails | `import marker` fails | `bootstrap_failed` | Reinstall: `pip install marker-pdf` |
 QR
-VQ|**PDF deep extraction failures:**
+**PDF deep extraction failures:**
 BR
-QQ|| Failure Mode | Detection | Result | Operator Action |
-XM||--------------|----------|--------|----------------|
-ZV|| PDF open fails | fitz.open() exception | `status: corrupted` | Check PDF file integrity |
-HQ|| Marker extraction fails | exit code != 0 | `status: marker_failed` | Check marker installation |
-WT|| Gemini API unavailable | API error / timeout | `gemini_disabled` | Use `--no-gemini` flag |
+| Failure Mode | Detection | Result | Operator Action |
+|--------------|----------|--------|----------------|
+| PDF open fails | fitz.open() exception | `status: corrupted` | Check PDF file integrity |
+| Marker extraction fails | exit code != 0 | `status: marker_failed` | Check marker installation |
+| Gemini API unavailable | API error / timeout | `gemini_disabled` | Use `--no-gemini` flag |
 JB
-JS|**Bootstrap failure protocol:**
-QZ|```
-PV|IF bootstrap exits with code 1:
-WT|  → Do NOT proceed to Phase 1.6
-HH|  → Report `bootstrap_failed` error with diagnostic output
-ZM|  → Ask operator to run `python scripts/bootstrap-pdf-extractor.py` manually
-PQ|  → Suggest checking Python installation and network connectivity
-ZX|```
+**Bootstrap failure protocol:**
+```
+IF bootstrap exits with code 1:
+  → Do NOT proceed to Phase 1.6
+  → Report `bootstrap_failed` error with diagnostic output
+  → Ask operator to run `python scripts/bootstrap-pdf-extractor.py` manually
+  → Suggest checking Python installation and network connectivity
+```
 RR
 
 ### 2.2 Analysis Depth by Access
@@ -538,7 +538,7 @@ MEDIUM PRIORITY:
 <notes_generation>
 ### 5.1 Output Directory
 
-KK|research/papers/{paper-id}/
+research/papers/{paper-id}/
 ├── paper.pdf     # PDF 文件
 ├── notes.md      # Main reading notes
 ├── metadata.json # Structured metadata
@@ -876,12 +876,12 @@ Invoke skill with: "read https://arxiv.org/abs/2301.07041"
 2. 提取 arXiv ID: `2301.07041`
 3. 调用 arXiv API 获取元数据
 4. 调用 Semantic Scholar API 获取引用数据
-JQ|5. 下载 PDF 到 `research/papers/2301.07041/paper.pdf`
-MZ|6. 生成 `research/papers/2301.07041/notes.md` 包含摘要、方法、贡献、引用
-SH|7. 生成 `research/papers/2301.07041/metadata.json` 包含结构化元数据
+5. 下载 PDF 到 `research/papers/2301.07041/paper.pdf`
+6. 生成 `research/papers/2301.07041/notes.md` 包含摘要、方法、贡献、引用
+7. 生成 `research/papers/2301.07041/metadata.json` 包含结构化元数据
 
 **预期结果:**
-NH|- `research/papers/2301.07041/notes.md` 文件存在
+- `research/papers/2301.07041/notes.md` 文件存在
 - notes.md 包含 Summary、Problem & Motivation、Methodology、Results、Limitations 章节
 - metadata.json 包含 title、authors、year、arxiv_id、citation_count 字段
 

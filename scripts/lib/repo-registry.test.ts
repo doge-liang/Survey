@@ -4,6 +4,8 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 
+import { clearProjectRootOverride, setProjectRootForTesting } from "./project-paths";
+
 import { find, list, load, normalize, remove, save, upsert, validate } from "./repo-registry";
 
 import type { RepoRegistry } from "./repo-registry";
@@ -38,10 +40,12 @@ function createRegistry(overrides?: Partial<RepoRegistry>): RepoRegistry {
 beforeEach(() => {
   tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "repo-registry-"));
   process.chdir(tempDir);
+  setProjectRootForTesting(process.cwd());
 });
 
 afterEach(() => {
   process.chdir(originalCwd);
+  clearProjectRootOverride();
   fs.rmSync(tempDir, { recursive: true, force: true });
   mock.restore();
 });

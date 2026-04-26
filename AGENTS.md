@@ -18,8 +18,8 @@ TypeScript + Bun repository for research-material workflows.
 # Run a single test file (PREFERRED)
 bun test scripts/lib/repo-registry.test.ts
 
-# Run all repo-owned tests explicitly (NEVER use bare bun test)
-bun test scripts/repo-cli.test.ts scripts/sync-repos.test.ts scripts/lib/repo-registry.test.ts scripts/synthesis-lib.test.ts
+# Run all repo-owned tests (NEVER use bare bun test)
+bun test scripts/**/*.test.ts
 
 # Watch mode
 bun test --watch scripts/repo-cli.test.ts
@@ -32,6 +32,36 @@ npm run verify:all
 ```
 
 **Critical:** Never use bare `bun test` — it discovers tests inside `sources/` and fails.
+
+## Key Scripts
+
+```bash
+# Repository management
+bun scripts/sync-repos.ts                    # sync all repos (clone or pull)
+bun scripts/sync-repos.ts <owner/repo>       # sync single repo
+bun scripts/sync-repos.ts --check            # check for updates
+bun scripts/sync-repos.ts --verify           # verify registry integrity
+bun scripts/sync-repos.ts --verify-fix       # auto-clone orphaned repos
+bun scripts/sync-repos.ts --update-registry  # check for repo renames
+bun scripts/sync-repos.ts --update-registry --rename-dirs  # also rename local dirs
+bun scripts/repo-cli.ts list                 # list repos in registry
+bun scripts/repo-cli.ts add <owner/repo>     # add to registry
+bun scripts/repo-cli.ts update <owner/repo> --level beginner --tags "ai,llm"
+bun scripts/repo-cli.ts remove <owner/repo>  # remove from registry
+bun scripts/repo-cli.ts validate             # validate registry schema
+bun scripts/repo-cli.ts repair               # normalize registry
+
+# Index generation
+bun scripts/generate-domain-index.ts         # domain index from frontmatter
+bun scripts/generate-github-index.ts         # github index from README analyses
+
+# Migrations
+bun scripts/migrate-add-frontmatter.ts       # add frontmatter to research outputs
+
+# Path resolution
+bun scripts/project-paths.ts papers          # resolve a single path key
+bun scripts/project-paths.ts --json          # output all paths as JSON
+```
 
 ## Code Style Guidelines
 
@@ -78,19 +108,11 @@ function isRepo(value: unknown): value is Repo {
 
 ## Testing Conventions
 
-```typescript
-async function run(args: string[]) {
-  const stdout: string[] = [];
-  const exitCode = await runCli(args, {
-    stdout: message => { stdout.push(message); },
-  });
-  return { exitCode, stdout: stdout.join("\n") };
-}
-```
-
-- Group with `describe(...)`, name `test(...)` by concrete behavior
 - Use temp directories + `process.chdir()` for filesystem isolation
+- Call `setProjectRootForTesting(process.cwd())` after `chdir` if code under test uses `resolvePath()` / `getRegistriesPath()`
+- Call `clearProjectRootOverride()` in `afterEach`
 - Clean up in `afterEach()`: `fs.rmSync(dir, { recursive: true, force: true })`
+
 
 ## Path Resolution
 
@@ -108,7 +130,7 @@ const githubPath = resolvePath("github", "owner", "repo");
 
 - Run scripts: `bun scripts/<name>.ts`
 - Registry changes: use `scripts/lib/repo-registry.ts` or `scripts/repo-cli.ts`
-- `data/repos.json` is a symlink to `data/registries/repos.json`
+- `data/repos.json` is a git-tracked symlink to `data/registries/repos.json` (may resolve as a regular file on some filesystems — edit `registries/repos.json` directly in that case)
 - Keep registry IDs in `owner/repo` format
 - Never commit secrets
 
@@ -128,14 +150,16 @@ const githubPath = resolvePath("github", "owner", "repo");
 | `survey-synthesizer` | "compare these", "synthesize survey" | `research/surveys/{topic}/` |
 | `domain-explorer` | "explore domain", "learning path" | `research/domains/{domain}/` |
 | `repo-manager` | "sync repos", "update repo" | `data/registries/repos.json` |
+| `obsidian-vault` | "obsidian", "sync to obsidian", "daily note" | Obsidian vault files |
+| `semantic-scholar-api` | academic paper search, citation analysis | API reference skill |
 
 ## Manifest Schema
 
 Artifacts use `manifest.json` in their root directory:
 - `version` — semver
-- `kind` — `github-analysis`, `paper-notes`, `survey-synthesis`
+- `kind` — `github-analysis`, `paper-notes`, `survey-synthesis`, `domain-exploration`
 - `id` — unique identifier
-- `source_type` — `github`, `arxiv`, `doi`, `manual`
+- `source_type` — `github`, `arxiv`, `doi`, `manual`, `domain`, `mixed`
 - `upstream_url` — link to original
 - `created_at` / `updated_at` — ISO 8601
 
@@ -143,6 +167,7 @@ Artifacts use `manifest.json` in their root directory:
 
 | Variable | Purpose |
 |----------|---------|
+| `KIMI_API_KEY` | LLM analysis via Moonshot/Kimi API (see `github-index.config.json`) |
 | `GITHUB_TOKEN` | GitHub API (60 → 5000 req/hr) |
 | `SEMANTIC_SCHOLAR_API_KEY` | Paper metadata (100 → 5000 req/5min) |
 

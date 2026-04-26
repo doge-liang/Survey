@@ -24,7 +24,7 @@ const PATH_MANIFEST: Record<PathKey, string> = {
   domains: "research/domains",
 
   /** Repository registries and configuration (repos.json, etc.) */
-  registries: "data/registries",
+  registries: "data",
 
   /** Manifest files tracking research artifacts (manifest.json) */
   manifests: "data/manifests",
@@ -34,14 +34,37 @@ const PATH_MANIFEST: Record<PathKey, string> = {
 };
 
 /**
+ * Override for project root resolution. Used in tests where process.chdir()
+ * sets up a temp directory that mimics the project structure.
+ */
+let _projectRootOverride: string | null = null;
+
+/**
+ * Set a custom project root for testing. Call `clearProjectRootOverride()`
+ * in afterEach to reset.
+ */
+export function setProjectRootForTesting(root: string): void {
+  _projectRootOverride = root;
+}
+
+/**
+ * Clear the project root override (call in afterEach).
+ */
+export function clearProjectRootOverride(): void {
+  _projectRootOverride = null;
+}
+
+/**
  * Project root directory resolved at runtime using import.meta.dir.
  *
  * import.meta.dir gives the directory of this module (scripts/lib/).
  * Since scripts/ is two levels deep from project root, we traverse up.
  * This ensures paths are always relative to the actual project root.
+ *
+ * In tests, use setProjectRootForTesting() to override with a temp dir.
  */
 function getProjectRoot(): string {
-  // Traverse up from scripts/lib/ to project root
+  if (_projectRootOverride !== null) return _projectRootOverride;
   return path.resolve(import.meta.dir, "..", "..");
 }
 
@@ -110,14 +133,10 @@ export function getDomainsPath(): string {
 
 /**
  * Type-safe getter for registries directory.
- * Returns absolute path to the data/registries directory containing registries.
+ * Returns absolute path to the data directory containing registries.
  */
 export function getRegistriesPath(...subpath: string[]): string {
-  // Use process.cwd() to support both production and test scenarios
-  // In production: data/repos.json is a symlink to data/registries/repos.json
-  // In tests: cwd is temp dir, tests write to data/repos.json directly
-  const registriesPath = path.join(process.cwd(), "data");
-  return path.join(registriesPath, ...subpath);
+  return resolvePath("registries", ...subpath);
 }
 
 
